@@ -8,11 +8,10 @@ import Typography from '@material-ui/core/Typography';
 import {CardActionArea, CardMedia} from "@material-ui/core";
 
 const useStyles = makeStyles({
-    card: {
-        maxWidth: 345,
-    },
+    card: {},
     media: {
-        height: 140,
+        width: 350,
+        height: 180,
     },
 });
 

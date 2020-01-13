@@ -4,10 +4,10 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import HomeIcon from '@material-ui/icons/Home'
-import {HashRouter, Redirect, Route, Switch} from "react-router-dom";
+import {Redirect, Route, Router, Switch} from "react-router-dom";
 import GameBoard from "./board/Board";
+import {createHashHistory} from "history";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -16,32 +16,35 @@ const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#eee",
             height: "100%",
         },
-        menuButton: {
+        homeButton: {
             marginRight: theme.spacing(2),
         },
         title: {
             flexGrow: 1,
         },
-        homeButton: {}
     }),
 );
 
 const App: React.FunctionComponent = () => {
+    const history = createHashHistory();
     const classes = useStyles();
+
+    function handleClick() {
+        history.push("/board");
+    }
+
     return (
-        <HashRouter>
+        <Router history={history}>
             <div className={classes.root}>
                 <AppBar position="static">
                     <Toolbar>
-                        <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-                            <MenuIcon/>
-                        </IconButton>
-                        <Typography variant="h6" className={classes.title}>
-                            XDean's Game Board
-                        </Typography>
-                        <IconButton className={classes.homeButton} color="inherit" aria-label="home">
+                        <IconButton edge={"start"} className={classes.homeButton} color="inherit" aria-label="home"
+                                    onClick={handleClick}>
                             <HomeIcon/>
                         </IconButton>
+                        <Typography variant="h5" className={classes.title}>
+                            XDean's Game Board
+                        </Typography>
                     </Toolbar>
                 </AppBar>
                 <Switch>
@@ -51,9 +54,12 @@ const App: React.FunctionComponent = () => {
                     <Route path="/board">
                         <GameBoard/>
                     </Route>
+                    <Route path="*">
+                        <Redirect to={"/board"}/>
+                    </Route>
                 </Switch>
             </div>
-        </HashRouter>
+        </Router>
     );
 }
 
