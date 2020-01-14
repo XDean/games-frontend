@@ -8,6 +8,7 @@ import HomeIcon from '@material-ui/icons/Home'
 import {Redirect, Route, Router, Switch} from "react-router-dom";
 import GameBoard from "./board/Board";
 import {createHashHistory} from "history";
+import Jgzq from "./jgzq/Jgzq";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -54,6 +55,9 @@ const App: React.FunctionComponent = () => {
                     <Route path="/board">
                         <GameBoard/>
                     </Route>
+                    <Route path="/jgzq">
+                        <Jgzq/>
+                    </Route>
                     <Route path="*">
                         <Redirect to={"/board"}/>
                     </Route>
@@ -61,6 +65,6 @@ const App: React.FunctionComponent = () => {
             </div>
         </Router>
     );
-}
+};
 
 export default App

@@ -6,6 +6,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import {CardActionArea, CardMedia} from "@material-ui/core";
+import {useHistory} from "react-router";
 
 const useStyles = makeStyles({
     card: {},
@@ -23,7 +24,13 @@ type GameCardProp = {
 }
 
 const GameCard: React.FunctionComponent<GameCardProp> = (props) => {
+    const history = useHistory();
     const classes = useStyles();
+    const onPlay = () => {
+        if (props.link) {
+            history.push(props.link);
+        }
+    };
 
     return (
         <Card className={classes.card}>
@@ -44,7 +51,7 @@ const GameCard: React.FunctionComponent<GameCardProp> = (props) => {
             </CardActionArea>
             <CardActions>
                 {props.link ? (
-                    <Button size="small" color="primary">
+                    <Button size="small" color="primary" onClick={onPlay}>
                         PLAY NOW!
                     </Button>
                 ) : (
