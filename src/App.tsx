@@ -9,6 +9,7 @@ import {Redirect, Route, Router, Switch} from "react-router-dom";
 import GameBoard from "./board/Board";
 import {createHashHistory} from "history";
 import Jgzq from "./jgzq/Jgzq";
+import LCEntryPage from "./lost-cities";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -57,6 +58,9 @@ const App: React.FunctionComponent = () => {
                     </Route>
                     <Route path="/jgzq">
                         <Jgzq/>
+                    </Route>
+                    <Route path="/lc">
+                        <LCEntryPage/>
                     </Route>
                     <Route path="*">
                         <Redirect to={"/board"}/>
