@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import CreatePane from "../components/create";
-import LCBoard from "./board";
+import LCBoard from "./component/board";
 
 const useStyles = makeStyles({});
 

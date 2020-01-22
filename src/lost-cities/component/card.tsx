@@ -3,6 +3,7 @@ import {makeStyles, Theme} from '@material-ui/core/styles';
 import {Box} from "@material-ui/core";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHandshake} from "@fortawesome/free-solid-svg-icons";
+import {LCCard} from "../model/model";
 
 const useStyles = makeStyles<Theme, CardProp>({
         card: {
@@ -12,7 +13,7 @@ const useStyles = makeStyles<Theme, CardProp>({
             borderRadius: 5,
             borderColor: "#888",
             backgroundColor: props => {
-                switch (props.color) {
+                switch (props.card.color) {
                     case "unknown":
                         return "#999";
                     case 1:
@@ -39,7 +40,7 @@ const useStyles = makeStyles<Theme, CardProp>({
             height: 30,
             lineHeight: "30px",
             fontSize: props => {
-                if (props.point === "double") {
+                if (props.card.point === "double") {
                     return 20;
                 } else {
                     return 30;
@@ -59,16 +60,15 @@ const useStyles = makeStyles<Theme, CardProp>({
 );
 
 type CardProp = {
-    color: "unknown" | number,
-    point?: "double" | number,
+    card: LCCard
 }
 
-const LCCard: React.FunctionComponent<CardProp> = (props) => {
+const LCCardView: React.FunctionComponent<CardProp> = (props) => {
 
     const classes = useStyles(props);
-    const point = props.point === "double" ? <FontAwesomeIcon icon={faHandshake}/> : props.point;
+    const point = props.card.point === "double" ? <FontAwesomeIcon icon={faHandshake}/> : props.card.point;
 
-    if (props.color === "unknown") {
+    if (props.card.color === "unknown") {
         return (
             <Box className={classes.card}>
                 <Box className={classes.center}>
@@ -90,4 +90,4 @@ const LCCard: React.FunctionComponent<CardProp> = (props) => {
     }
 };
 
-export default LCCard;
+export default LCCardView;
