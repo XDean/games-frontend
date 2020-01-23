@@ -1,6 +1,6 @@
 import React from 'react';
 import {makeStyles, Theme} from '@material-ui/core/styles';
-import {Box} from "@material-ui/core";
+import {Box, Paper} from "@material-ui/core";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHandshake} from "@fortawesome/free-solid-svg-icons";
 import {LCCard} from "../model/model";
@@ -11,7 +11,8 @@ const useStyles = makeStyles<Theme, CardProp>({
             height: 150,
             width: 85,
             borderRadius: 5,
-            borderColor: "#888",
+            borderWidth: 1,
+            borderStyle: "solid",
             backgroundColor: props => {
                 switch (props.card.color) {
                     case "unknown":
@@ -70,22 +71,22 @@ const LCCardView: React.FunctionComponent<CardProp> = (props) => {
 
     if (props.card.color === "unknown") {
         return (
-            <Box className={classes.card}>
+            <Paper className={classes.card} elevation={3}>
                 <Box className={classes.center}>
                     背
                 </Box>
-            </Box>
+            </Paper>
         )
     } else {
         return (
-            <Box className={classes.card}>
+            <Paper className={classes.card} elevation={3}>
                 <Box className={`${classes.minorNumber} ${classes.leftTop}`}>
                     {point}
                 </Box>
                 <Box className={`${classes.minorNumber} ${classes.rightBottom}`}>
                     {point}
                 </Box>
-            </Box>
+            </Paper>
         )
     }
 };

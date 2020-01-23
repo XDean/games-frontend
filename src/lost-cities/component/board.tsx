@@ -1,10 +1,9 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import {Box} from "@material-ui/core";
-import Chip from '@material-ui/core/Chip';
-import ShareOutlinedIcon from '@material-ui/icons/ShareOutlined';
 import LCHandView from "./hand";
 import {LCCard} from "../model/model";
+import LCDeckView from "./deck";
 
 const useStyles = makeStyles({});
 
@@ -16,22 +15,42 @@ const LCBoard: React.FunctionComponent<BoardProp> = (props) => {
 
     return (
         <Box>
-            <Chip
-                label={`房间号: ${props.id}`}
-                color="primary"
-                clickable
-                variant="outlined"
-                onDelete={() => {
-                }}
-                deleteIcon={<ShareOutlinedIcon/>}
-            />
             <LCHandView cards={[
                 new LCCard("unknown"),
                 new LCCard(1, "double"),
-                new LCCard(2, 2)
-            ]} onPlayCard={c=>{
+                new LCCard(2, 2),
+                new LCCard(3, 9),
+                new LCCard(4, 7)
+            ]} onPlayCard={c => {
                 console.log(c)
-            }}/>
+            }} orientation={"horizontal"} reverse={false}/>
+            <LCHandView cards={[
+                new LCCard("unknown"),
+                new LCCard(1, "double"),
+                new LCCard(2, 2),
+                new LCCard(3, 9),
+                new LCCard(4, 7)
+            ]} onPlayCard={c => {
+                console.log(c)
+            }} orientation={"horizontal"} reverse={true}/>
+            <LCHandView cards={[
+                new LCCard("unknown"),
+                new LCCard(1, "double"),
+                new LCCard(2, 2),
+                new LCCard(3, 9),
+                new LCCard(4, 7)
+            ]} onPlayCard={c => {
+                console.log(c)
+            }} orientation={"vertical"} reverse={false}/>
+            <LCHandView cards={[
+                new LCCard("unknown"),
+                new LCCard(1, "double"),
+                new LCCard(2, 2),
+                new LCCard(3, 9),
+                new LCCard(4, 7)
+            ]} onPlayCard={c => {
+                console.log(c)
+            }} orientation={"vertical"} reverse={true}/>
         </Box>
     )
 };

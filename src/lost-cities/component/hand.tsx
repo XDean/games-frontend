@@ -1,47 +1,72 @@
 import React from 'react';
-import {makeStyles} from '@material-ui/core/styles';
+import {makeStyles, Theme} from '@material-ui/core/styles';
 import {LCCard} from "../model/model";
 import LCCardView from "./card";
+import Grid from "@material-ui/core/Grid";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles<Theme, LCCardsProp>({
     hand: {
         userSelect: "none",
+        display: "inline-flex",
+        margin: 10,
+        width: props => {
+            if (props.orientation === "horizontal") {
+                return props.cards.length * 30 + 85
+            } else {
+                return 85
+            }
+        },
+        height: props => {
+            if (props.orientation === "horizontal") {
+                return 150
+            } else {
+                return props.cards.length * 35 + 150
+            }
+        }
     },
-    cardWrapper: {
-        display: "inline-block",
+    horizontalCard: {
         width: 30,
-        verticalAlign: "bottom",
         "&:hover": {
             width: 85,
+        }
+    },
+    verticalCard: {
+        height: 35,
+        "&:hover": {
+            height: 150,
         }
     }
 });
 
-type HandProp = {
+type LCCardsProp = {
     cards: LCCard[]
     onPlayCard: (card: LCCard) => void,
+    orientation: "horizontal" | "vertical",
+    reverse?: boolean,
 }
 
-const LCHand: React.FunctionComponent<HandProp> = (props) => {
+const LCCards: React.FunctionComponent<LCCardsProp> = (props) => {
 
-    const classes = useStyles();
+    const classes = useStyles(props);
 
     return (
-        <div className={classes.hand}>
+        <Grid container className={classes.hand}
+              direction={props.orientation === "horizontal" ? "row" : "column"}>
             {
-                props.cards.map((c, i) => {
+                (props.reverse ? props.cards.reverse() : props.cards).map((c, i) => {
                     return (
-                        <div className={classes.cardWrapper} key={i} onDoubleClick={e => {
-                            e.preventDefault();
+                        <Grid item
+                              className={props.orientation === "horizontal" ? classes.horizontalCard : classes.verticalCard}
+                              key={i} onDoubleClick={e => {
                             props.onPlayCard(c)
                         }}>
                             <LCCardView card={c}/>
-                        </div>
+                        </Grid>
                     )
                 })
             }
-        </div>
+        </Grid>
     )
 };
 
-export default LCHand;
+export default LCCards;

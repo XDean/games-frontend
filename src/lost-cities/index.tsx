@@ -2,6 +2,9 @@ import React, {useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import CreatePane from "../components/create";
 import LCBoard from "./component/board";
+import {Box} from "@material-ui/core";
+import Chip from "@material-ui/core/Chip";
+import ShareOutlinedIcon from '@material-ui/icons/ShareOutlined';
 
 const useStyles = makeStyles({});
 
@@ -32,7 +35,18 @@ const LCEntryPage: React.FunctionComponent<CreatePaneProp> = (props) => {
         )
     } else {
         return (
-            <LCBoard id={id}/>
+            <Box>
+                <Chip
+                    label={`房间号: ${id}`}
+                    color="primary"
+                    clickable
+                    variant="outlined"
+                    onDelete={() => {
+                    }}
+                    deleteIcon={<ShareOutlinedIcon/>}
+                />
+                <LCBoard id={id}/>
+            </Box>
         )
     }
 };
