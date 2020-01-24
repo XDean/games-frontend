@@ -12,7 +12,6 @@ type BoardProp = {
 }
 
 const LCBoard: React.FunctionComponent<BoardProp> = (props) => {
-
     return (
         <Box>
             <LCHandView cards={[
@@ -23,7 +22,7 @@ const LCBoard: React.FunctionComponent<BoardProp> = (props) => {
                 new LCCard(4, 7)
             ]} onPlayCard={c => {
                 console.log(c)
-            }} orientation={"horizontal"} reverse={false}/>
+            }} vertical={false} reverse={false}/>
             <LCHandView cards={[
                 new LCCard("unknown"),
                 new LCCard(1, "double"),
@@ -32,7 +31,7 @@ const LCBoard: React.FunctionComponent<BoardProp> = (props) => {
                 new LCCard(4, 7)
             ]} onPlayCard={c => {
                 console.log(c)
-            }} orientation={"horizontal"} reverse={true}/>
+            }} vertical={false} reverse={true}/>
             <LCHandView cards={[
                 new LCCard("unknown"),
                 new LCCard(1, "double"),
@@ -41,7 +40,7 @@ const LCBoard: React.FunctionComponent<BoardProp> = (props) => {
                 new LCCard(4, 7)
             ]} onPlayCard={c => {
                 console.log(c)
-            }} orientation={"vertical"} reverse={false}/>
+            }} vertical={true} reverse={false}/>
             <LCHandView cards={[
                 new LCCard("unknown"),
                 new LCCard(1, "double"),
@@ -50,7 +49,7 @@ const LCBoard: React.FunctionComponent<BoardProp> = (props) => {
                 new LCCard(4, 7)
             ]} onPlayCard={c => {
                 console.log(c)
-            }} orientation={"vertical"} reverse={true}/>
+            }} vertical={true} reverse={true}/>
         </Box>
     )
 };

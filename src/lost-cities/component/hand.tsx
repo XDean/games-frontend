@@ -10,27 +10,27 @@ const useStyles = makeStyles<Theme, LCCardsProp>({
         display: "inline-flex",
         margin: 10,
         width: props => {
-            if (props.orientation === "horizontal") {
-                return props.cards.length * 30 + 85
-            } else {
+            if (props.vertical) {
                 return 85
+            } else {
+                return props.cards.length * 30 + 85
             }
         },
         height: props => {
-            if (props.orientation === "horizontal") {
-                return 150
-            } else {
+            if (props.vertical) {
                 return props.cards.length * 35 + 150
+            } else {
+                return 150
             }
         }
     },
-    horizontalCard: {
+    horizontal: {
         width: 30,
         "&:hover": {
             width: 85,
         }
     },
-    verticalCard: {
+    vertical: {
         height: 35,
         "&:hover": {
             height: 150,
@@ -40,8 +40,8 @@ const useStyles = makeStyles<Theme, LCCardsProp>({
 
 type LCCardsProp = {
     cards: LCCard[]
-    onPlayCard: (card: LCCard) => void,
-    orientation: "horizontal" | "vertical",
+    onPlayCard?: (card: LCCard) => void,
+    vertical?: boolean,
     reverse?: boolean,
 }
 
@@ -51,14 +51,14 @@ const LCCards: React.FunctionComponent<LCCardsProp> = (props) => {
 
     return (
         <Grid container className={classes.hand}
-              direction={props.orientation === "horizontal" ? "row" : "column"}>
+              direction={props.vertical ? "column" : "row"}>
             {
                 (props.reverse ? props.cards.reverse() : props.cards).map((c, i) => {
                     return (
                         <Grid item
-                              className={props.orientation === "horizontal" ? classes.horizontalCard : classes.verticalCard}
+                              className={props.vertical ? classes.vertical : classes.horizontal}
                               key={i} onDoubleClick={e => {
-                            props.onPlayCard(c)
+                            props.onPlayCard && props.onPlayCard(c)
                         }}>
                             <LCCardView card={c}/>
                         </Grid>

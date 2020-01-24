@@ -13,7 +13,7 @@ type CreatePaneProp = {}
 const LCEntryPage: React.FunctionComponent<CreatePaneProp> = (props) => {
     let [id, setId] = useState("");
 
-    if (id == "") {
+    if (id === "") {
         return (
             <CreatePane game={"lostcities"} configPane={
                 <div>
