@@ -2,12 +2,15 @@ import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import {Box} from "@material-ui/core";
 import {LCCard} from "../model/model";
-import LCCardView from "./card";
 import LCCards from "./hand";
 
 const useStyles = makeStyles({});
 
-type LCDeckProp = {}
+type LCDeckProp = {
+    deck: number,
+    board: LCCard[][][], //player -> color -> index
+    drop: LCCard[][], //color -> index
+}
 
 const LCDeckView: React.FunctionComponent<LCDeckProp> = (props) => {
     return (

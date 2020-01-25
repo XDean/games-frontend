@@ -1,9 +1,8 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import {Box} from "@material-ui/core";
-import LCHandView from "./hand";
-import {LCCard} from "../model/model";
-import LCDeckView from "./deck";
+import LCCards from "./hand";
+import {randomCards} from "../model/mock";
 
 const useStyles = makeStyles({});
 
@@ -14,42 +13,30 @@ type BoardProp = {
 const LCBoard: React.FunctionComponent<BoardProp> = (props) => {
     return (
         <Box>
-            <LCHandView cards={[
-                new LCCard("unknown"),
-                new LCCard(1, "double"),
-                new LCCard(2, 2),
-                new LCCard(3, 9),
-                new LCCard(4, 7)
-            ]} onPlayCard={c => {
+            <LCCards cards={randomCards(5)} onPlayCard={c => {
                 console.log(c)
             }} vertical={false} reverse={false}/>
-            <LCHandView cards={[
-                new LCCard("unknown"),
-                new LCCard(1, "double"),
-                new LCCard(2, 2),
-                new LCCard(3, 9),
-                new LCCard(4, 7)
-            ]} onPlayCard={c => {
+            <LCCards cards={randomCards(5)} onPlayCard={c => {
                 console.log(c)
             }} vertical={false} reverse={true}/>
-            <LCHandView cards={[
-                new LCCard("unknown"),
-                new LCCard(1, "double"),
-                new LCCard(2, 2),
-                new LCCard(3, 9),
-                new LCCard(4, 7)
-            ]} onPlayCard={c => {
+            <LCCards cards={randomCards(5)} onPlayCard={c => {
                 console.log(c)
             }} vertical={true} reverse={false}/>
-            <LCHandView cards={[
-                new LCCard("unknown"),
-                new LCCard(1, "double"),
-                new LCCard(2, 2),
-                new LCCard(3, 9),
-                new LCCard(4, 7)
-            ]} onPlayCard={c => {
+            <LCCards cards={randomCards(5)} onPlayCard={c => {
                 console.log(c)
             }} vertical={true} reverse={true}/>
+            <LCCards cards={randomCards(5)} onPlayCard={c => {
+                console.log(c)
+            }} vertical={false} reverse={false} mini={true}/>
+            <LCCards cards={randomCards(5)} onPlayCard={c => {
+                console.log(c)
+            }} vertical={false} reverse={true} mini={true}/>
+            <LCCards cards={randomCards(5)} onPlayCard={c => {
+                console.log(c)
+            }} vertical={true} reverse={false} mini={true}/>
+            <LCCards cards={randomCards(5)} onPlayCard={c => {
+                console.log(c)
+            }} vertical={true} reverse={true} mini={true}/>
         </Box>
     )
 };

@@ -11,29 +11,29 @@ const useStyles = makeStyles<Theme, LCCardsProp>({
         margin: 10,
         width: props => {
             if (props.vertical) {
-                return 85
+                return props.mini ? 35 : 85
             } else {
-                return props.cards.length * 30 + 85
+                return props.cards.length * 35 + 85
             }
         },
         height: props => {
             if (props.vertical) {
                 return props.cards.length * 35 + 150
             } else {
-                return 150
+                return props.mini ? 35 : 150
             }
         }
     },
     horizontal: {
-        width: 30,
+        width: 35,
         "&:hover": {
-            width: 85,
+            width: props => props.mini ? 35 : 85,
         }
     },
     vertical: {
         height: 35,
         "&:hover": {
-            height: 150,
+            height: props => props.mini ? 35 : 150,
         }
     }
 });
@@ -43,6 +43,7 @@ type LCCardsProp = {
     onPlayCard?: (card: LCCard) => void,
     vertical?: boolean,
     reverse?: boolean,
+    mini?: boolean,
 }
 
 const LCCards: React.FunctionComponent<LCCardsProp> = (props) => {
@@ -60,7 +61,7 @@ const LCCards: React.FunctionComponent<LCCardsProp> = (props) => {
                               key={i} onDoubleClick={e => {
                             props.onPlayCard && props.onPlayCard(c)
                         }}>
-                            <LCCardView card={c}/>
+                            <LCCardView card={c} mini={props.mini}/>
                         </Grid>
                     )
                 })

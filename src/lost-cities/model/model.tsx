@@ -3,6 +3,5 @@ export class LCCard {
         readonly color: "unknown" | number,
         readonly point?: "double" | number
     ) {
-
     }
 }

@@ -8,8 +8,8 @@ import {LCCard} from "../model/model";
 const useStyles = makeStyles<Theme, CardProp>({
         card: {
             position: "relative",
-            height: 150,
-            width: 85,
+            height: props => props.mini ? 35 : 150,
+            width: props => props.mini ? 35 : 85,
             borderRadius: 5,
             borderWidth: 1,
             borderStyle: "solid",
@@ -17,20 +17,26 @@ const useStyles = makeStyles<Theme, CardProp>({
                 switch (props.card.color) {
                     case "unknown":
                         return "#999";
+                    case 0:
+                        return "#edd";
                     case 1:
                         return "#f00";
                     case 2:
                         return "#0f0";
                     case 3:
-                        return "#00f";
+                        return "#0ff";
                     case 4:
                         return "#ff0";
-                    case 5:
-                        return "#edd";
                 }
             },
         },
-        center: {
+        center: props => props.mini ? {
+            height: 35,
+            lineHeight: "30px",
+            textAlign: "center",
+            fontWeight: "bold",
+            fontSize: 30,
+        } : {
             fontSize: 48,
             textAlign: "center",
             lineHeight: "150px",
@@ -53,23 +59,43 @@ const useStyles = makeStyles<Theme, CardProp>({
             left: 3,
             top: 3,
         },
-        rightBottom: {
+        rightBottom: props => props.mini ? {
+            display: "none",
+        } : {
             right: 3,
             bottom: 3,
-        }
+        },
+        double: props=>props.mini?{
+            fontSize: 25,
+        }:{}
     }
 );
 
 type CardProp = {
-    card: LCCard
+    card: LCCard,
+    mini?: boolean,
 }
 
 const LCCardView: React.FunctionComponent<CardProp> = (props) => {
 
     const classes = useStyles(props);
-    const point = props.card.point === "double" ? <FontAwesomeIcon icon={faHandshake}/> : props.card.point;
+    const point = props.card.point === "double" ?
+        <FontAwesomeIcon className={classes.double} icon={faHandshake}/> : props.card.point;
 
-    if (props.card.color === "unknown") {
+    if (props.mini) {
+        return (
+            <Paper className={classes.card} elevation={3}>{
+                props.card.color === "unknown" ?
+                    <Box className={classes.center}>
+                        背
+                    </Box> :
+                    <Box className={classes.center}>
+                        {point}
+                    </Box>
+            }
+            </Paper>
+        )
+    } else if (props.card.color === "unknown") {
         return (
             <Paper className={classes.card} elevation={3}>
                 <Box className={classes.center}>
