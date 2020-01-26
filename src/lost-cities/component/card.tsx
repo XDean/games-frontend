@@ -18,9 +18,9 @@ const useStyles = makeStyles<Theme, CardProp>({
                     case "unknown":
                         return "#999";
                     case 0:
-                        return "#edd";
+                        return "#faa";
                     case 1:
-                        return "#f00";
+                        return "#fff";
                     case 2:
                         return "#0f0";
                     case 3:

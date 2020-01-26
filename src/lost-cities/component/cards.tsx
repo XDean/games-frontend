@@ -13,12 +13,12 @@ const useStyles = makeStyles<Theme, LCCardsProp>({
             if (props.vertical) {
                 return props.mini ? 35 : 85
             } else {
-                return props.cards.length * 35 + 85
+                return props.cards.length * 35 + (props.mini ? 0 : 85)
             }
         },
         height: props => {
             if (props.vertical) {
-                return props.cards.length * 35 + 150
+                return props.cards.length * 35 + (props.mini ? 0 : 150)
             } else {
                 return props.mini ? 35 : 150
             }
