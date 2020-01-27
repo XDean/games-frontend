@@ -5,7 +5,7 @@ export class LCCard {
 
     constructor(
         readonly color: "unknown" | number, // 0,1,2,3,4
-        readonly point?: "double" | number | undefined
+        readonly point?: "double" | number
     ) {
     }
 
@@ -16,6 +16,14 @@ export class LCCard {
         }
         return res
     }
+
+    colorNumber = (): number => {
+        return this.color === "unknown" ? -1 : this.color;
+    };
+
+    pointNumber = (): number => {
+        return this.point === "double" ? 0 : this.point || -1;
+    };
 }
 
 export class LCGame {

@@ -8,7 +8,6 @@ const useStyles = makeStyles<Theme, LCCardsProp>({
     hand: {
         userSelect: "none",
         display: "inline-flex",
-        margin: 10,
         width: props => {
             if (props.vertical) {
                 return props.mini ? 35 : 85
@@ -54,7 +53,7 @@ const LCCards: React.FunctionComponent<LCCardsProp> = (props) => {
         <Grid container className={classes.hand}
               direction={props.vertical ? "column" : "row"}>
             {
-                (props.reverse ? props.cards.reverse() : props.cards).map((c, i) => {
+                (props.reverse ? props.cards.slice().reverse() : props.cards).map((c, i) => {
                     return (
                         <Grid item
                               className={props.vertical ? classes.vertical : classes.horizontal}

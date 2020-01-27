@@ -5,6 +5,7 @@ import LCBoardView from "./component/board";
 import {Box} from "@material-ui/core";
 import Chip from "@material-ui/core/Chip";
 import ShareOutlinedIcon from '@material-ui/icons/ShareOutlined';
+import {connectLC} from "./fetch/fetch";
 
 const useStyles = makeStyles({});
 
@@ -20,12 +21,13 @@ const LCEntryPage: React.FunctionComponent<CreatePaneProp> = (props) => {
 
                 </div>
             } onCreate={() => {
-                fetch("/game/lostcities", {
+                fetch("api/game/lostcities", {
                     method: "POST",
                 }).then(res => {
                     if (res.ok) {
                         res.json().then(body => {
                             setId(body["id"])
+                            connectLC(body["id"])
                         })
                     }
                 })
