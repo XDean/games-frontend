@@ -2,10 +2,11 @@ import React, {useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import {Box, Button, Container, CssBaseline, Tooltip, Typography, Zoom} from "@material-ui/core";
 import LCCardsView from "./cards";
-import {mockGame} from "../model/mock";
 import {LCCard} from "../model/model";
 import Grid from '@material-ui/core/Grid';
 import LoopIcon from '@material-ui/icons/Loop';
+import {connectLC} from "../fetch/fetch";
+import {useStateByProp} from "../../util/property";
 
 const useStyles = makeStyles({
     otherHand: {},
@@ -38,15 +39,23 @@ enum HandSort {
     POINT
 }
 
-let game = mockGame();
 const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
     let classes = useStyles();
-    let [sort, setSort] = useState(HandSort.NULL);
+    let game = connectLC(props.id);
 
-    let sortedHand = game.myHand.value.slice().sort((a, b) => {
+    let [sort, setSort] = useState(HandSort.NULL);
+    let [hand] = useStateByProp(game.myHand);
+    let [deck] = useStateByProp(game.deck);
+    let [currentSeat] = useStateByProp(game.currentSeat);
+    let [player] = useStateByProp(game.player);
+    let [myBoard] = useStateByProp(game.myBoard);
+    let [otherBoard] = useStateByProp(game.otherBoard);
+    let [dropBoard] = useStateByProp(game.dropBoard);
+
+    let sortedHand = hand.slice().sort((a, b) => {
         switch (sort) {
             case HandSort.NULL:
-                return game.myHand.value.indexOf(a) - game.myHand.value.indexOf(b);
+                return hand.indexOf(a) - hand.indexOf(b);
             case HandSort.COLOR:
                 return (a.colorNumber() - b.colorNumber()) * 100 + (a.pointNumber() - b.pointNumber());
             case HandSort.POINT:
@@ -66,21 +75,22 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                     </Grid>
                     <Grid item xs={2}>
                         <Typography>
-                            牌库剩余：{game.deck.value}
+                            牌库剩余：{deck}
                         </Typography>
                     </Grid>
                     {LCCard.Colors.map((e, i) => {
-                        let dropCards = game.dropBoard.value[e];
+                        let dropCards = dropBoard[e];
                         return (
                             <Grid item container xs={12} key={i} className={classes.board}>
                                 <Grid item xs={5}>
                                     <Box className={classes.otherBoard}>
-                                        <LCCardsView cards={game.otherBoard.value[e]} mini reverse/>
+                                        <LCCardsView cards={otherBoard[e]} mini reverse/>
                                     </Box>
                                 </Grid>
                                 <Grid item>
                                     <Tooltip TransitionComponent={Zoom} placement={"right"} arrow leaveDelay={500}
-                                             title={dropCards.length===0?"":<LCCardsView cards={dropCards} mini/>}>
+                                             title={dropCards.length === 0 ? "" :
+                                                 <LCCardsView cards={dropCards} mini/>}>
                                         <Box className={classes.dropBoard}>
                                             <LCCardsView
                                                 cards={dropCards.length === 0 ? [new LCCard(e)] : dropCards.slice(dropCards.length - 1)}
@@ -90,7 +100,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                                 </Grid>
                                 <Grid item xs={5}>
                                     <Box className={classes.myBoard}>
-                                        <LCCardsView cards={game.myBoard.value[e]} mini/>
+                                        <LCCardsView cards={myBoard[e]} mini/>
                                     </Box>
                                 </Grid>
                             </Grid>

@@ -16,24 +16,23 @@ const LCEntryPage: React.FunctionComponent<CreatePaneProp> = (props) => {
 
     if (id === "") {
         return (
-            <CreatePane game={"lostcities"} configPane={
-                <div>
-
-                </div>
-            } onCreate={() => {
+            <CreatePane game={"lostcities"} onCreate={() => {
                 fetch("api/game/lostcities", {
                     method: "POST",
                 }).then(res => {
                     if (res.ok) {
                         res.json().then(body => {
-                            setId(body["id"])
-                            connectLC(body["id"])
+                            setId(body["id"]);
                         })
                     }
                 })
             }} onJoin={(id) => {
+                setId(id)
+            }}>
+                <div>
 
-            }}/>
+                </div>
+            </CreatePane>
         )
     } else {
         return (

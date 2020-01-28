@@ -25,8 +25,8 @@ function randInt(max: number): number {
 }
 
 export function mockGame(): LCGame {
-    let board = new LCGame(0);
-    board.currentId.value = 0;
+    let board = new LCGame();
+    board.currentSeat.value = 0;
     board.deck.value = 30;
     board.myBoard.value = randomBoard();
     board.otherBoard.value = randomBoard();

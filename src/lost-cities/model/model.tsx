@@ -27,19 +27,31 @@ export class LCCard {
 }
 
 export class LCGame {
-    currentId = new SimpleProperty(0);
+
+    gameId = new SimpleProperty<number>(0);
+    player = new SimpleProperty<LCPlayer>(LCPlayer.EMPTY);
+
+    mySeat = new SimpleProperty<number>(0);
+    currentSeat = new SimpleProperty(0);
     deck = new SimpleProperty<number>(0);
     myBoard = new SimpleProperty<LCCard[][]>(LCGame.emptyBoard());
     otherBoard = new SimpleProperty<LCCard[][]>(LCGame.emptyBoard());
     dropBoard = new SimpleProperty<LCCard[][]>(LCGame.emptyBoard());
     myHand = new SimpleProperty<LCCard[]>([]);
 
-    constructor(
-        readonly  myId: number,
-    ) {
-    }
-
     static emptyBoard(): LCCard[][] {
         return [[], [], [], [], []]
+    }
+}
+
+export class LCPlayer {
+    static EMPTY = new LCPlayer("", 0, false, false);
+
+    constructor(
+        public id: string,
+        public seat: number,
+        public connected: boolean,
+        public ready: boolean,
+    ) {
     }
 }

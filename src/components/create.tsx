@@ -14,9 +14,8 @@ const useStyles = makeStyles({
 
 type CreatePaneProp = {
     game: string,
-    configPane: React.ReactNode,
     onCreate: () => void,
-    onJoin: (id: number) => void,
+    onJoin: (id: string) => void,
 }
 
 const CreatePane: React.FunctionComponent<CreatePaneProp> = (props) => {
@@ -28,7 +27,7 @@ const CreatePane: React.FunctionComponent<CreatePaneProp> = (props) => {
         return <div>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
-                    {props.configPane}
+                    {props.children}
                 </Grid>
                 <Grid item xs={6}>
                     <Button onClick={() => setCreate(false)}>
@@ -54,7 +53,7 @@ const CreatePane: React.FunctionComponent<CreatePaneProp> = (props) => {
                     </Button>
                 </Grid>
                 <Grid item xs={6}>
-                    <Button onClick={() => props.onJoin(+id)}>
+                    <Button onClick={() => props.onJoin(id)}>
                         确定
                     </Button>
                 </Grid>
