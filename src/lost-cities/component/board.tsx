@@ -9,6 +9,7 @@ import {useStateByProp} from "../../util/property";
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import DoneIcon from '@material-ui/icons/Done';
 import SendIcon from '@material-ui/icons/Send';
+import {playLC} from "../fetch/fetch";
 
 const useStyles = makeStyles<Theme, BoardProp>({
     otherHand: {
@@ -117,7 +118,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
     }
 
     function submit() {
-
+        playLC(game, playCard!, playType!, drawType!)
     }
 
     return (
