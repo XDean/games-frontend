@@ -1,16 +1,16 @@
 import {LCCard, LCGame, LCPlayer} from "../model/model";
-import {mockGame} from "../model/mock";
 import global from "../../global"
 import {SimpleProperty} from "xdean-util";
 
-const games = new Map<string, LCGame>();
+const games = new Map<string, [LCGame, WebSocket]>();
 
 export function connectLC(id: string): LCGame {
     let saved = games.get(id);
     if (saved) {
-        return saved;
+        return saved[0];
     }
-    let game = mockGame();
+    let game = new LCGame();
+    game.gameId.value = id;
 
     let ws = relWebsocket(`socket/game/lostcities/${id}?user=${global.id}`);
 
@@ -24,7 +24,6 @@ export function connectLC(id: string): LCGame {
 
         switch (event.topic) {
             case "host-info":
-                game.gameId.value = data.id;
                 data.players.forEach((p: any) => {
                     if (p) {
                         if (p.id === global.id) {
@@ -34,10 +33,12 @@ export function connectLC(id: string): LCGame {
                         }
                     }
                 });
+                game.addMessage("您加入了游戏： " + data.id);
                 break;
             case "join":
                 if (data.seat === 1 - game.mySeat.value) {
                     game.player.value = new LCPlayer(data.id, data.seat, data.connected, data.ready);
+                    game.addMessage("玩家加入： " + data.id);
                 }
                 break;
             case "game-info":
@@ -56,13 +57,19 @@ export function connectLC(id: string): LCGame {
                 updateBoard("other-board", game.otherBoard);
                 updateBoard("drop-board", game.dropBoard);
                 break;
+            case "turn":
+                game.currentSeat.value = data;
         }
     };
     ws.onclose = e => {
         console.debug(e);
     };
-    games.set(id, game);
+    games.set(id, [game, ws]);
     return game;
+}
+
+export function playCard(game: LCGame, card: LCCard, op: "play" | "drop") {
+
 }
 
 function relWebsocket(rel: string): WebSocket {

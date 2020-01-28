@@ -1,17 +1,37 @@
 import React, {useState} from 'react';
-import {makeStyles} from '@material-ui/core/styles';
-import {Box, Button, Container, CssBaseline, Tooltip, Typography, Zoom} from "@material-ui/core";
+import {makeStyles, Theme} from '@material-ui/core/styles';
+import {
+    Box,
+    Button,
+    Container,
+    CssBaseline,
+    List,
+    ListItem,
+    ListItemText,
+    Paper,
+    Tooltip,
+    Typography,
+    Zoom
+} from "@material-ui/core";
 import LCCardsView from "./cards";
-import {LCCard} from "../model/model";
+import {LCCard, LCGame} from "../model/model";
 import Grid from '@material-ui/core/Grid';
 import LoopIcon from '@material-ui/icons/Loop';
-import {connectLC} from "../fetch/fetch";
 import {useStateByProp} from "../../util/property";
 
-const useStyles = makeStyles({
-    otherHand: {},
+const useStyles = makeStyles<Theme, BoardProp>({
+    otherHand: {
+        cursor: "not-allowed",
+    },
     myHand: {
         float: "right",
+        cursor: props => {
+            if (props.game.isMyTurn()) {
+                return "pointer";
+            } else {
+                return "not-allowed";
+            }
+        }
     },
     otherBoard: {
         float: "right",
@@ -26,11 +46,16 @@ const useStyles = makeStyles({
     },
     sortButton: {
         minWidth: 0,
+    },
+    messageBox: {
+        overflow: "auto",
+        width: "100%",
+        height: "100%",
     }
 });
 
 type BoardProp = {
-    id: string
+    game: LCGame
 }
 
 enum HandSort {
@@ -40,17 +65,25 @@ enum HandSort {
 }
 
 const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
-    let classes = useStyles();
-    let game = connectLC(props.id);
+    let classes = useStyles(props);
+    let game = props.game;
 
     let [sort, setSort] = useState(HandSort.NULL);
     let [hand] = useStateByProp(game.myHand);
     let [deck] = useStateByProp(game.deck);
-    let [currentSeat] = useStateByProp(game.currentSeat);
-    let [player] = useStateByProp(game.player);
+    // let [currentSeat] = useStateByProp(game.currentSeat);
+    // let [player] = useStateByProp(game.player);
     let [myBoard] = useStateByProp(game.myBoard);
     let [otherBoard] = useStateByProp(game.otherBoard);
     let [dropBoard] = useStateByProp(game.dropBoard);
+    let [messages] = useStateByProp(game.messages);
+
+    let [op, setOp] = useState<"play" | "draw" | "">(game.isMyTurn() ? "play" : "");
+    game.currentSeat.addListener((ob, o, n) => {
+        if (n === game.mySeat.value) {
+            setOp("play");
+        }
+    });
 
     let sortedHand = hand.slice().sort((a, b) => {
         switch (sort) {
@@ -106,9 +139,26 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                             </Grid>
                         )
                     })}
-                    <Grid item xs={11}>
+                    <Grid item xs={5}>
+                        <Paper className={classes.messageBox}>
+                            <Grid container>
+                                {
+                                    messages.map((msg, i) => {
+                                        return (
+                                            <Grid item xs={12} key={i}>
+                                                <ListItemText primary={msg}/>
+                                            </Grid>
+                                        )
+                                    })
+                                }
+                            </Grid>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={6}>
                         <Box className={classes.myHand}>
-                            <LCCardsView cards={sortedHand}/>
+                            <LCCardsView cards={sortedHand} onPlayCard={c => {
+
+                            }}/>
                         </Box>
                     </Grid>
                     <Grid item xs={1}>

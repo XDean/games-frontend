@@ -28,7 +28,7 @@ export class LCCard {
 
 export class LCGame {
 
-    gameId = new SimpleProperty<number>(0);
+    gameId = new SimpleProperty<string>("");
     player = new SimpleProperty<LCPlayer>(LCPlayer.EMPTY);
 
     mySeat = new SimpleProperty<number>(0);
@@ -39,8 +39,20 @@ export class LCGame {
     dropBoard = new SimpleProperty<LCCard[][]>(LCGame.emptyBoard());
     myHand = new SimpleProperty<LCCard[]>([]);
 
+    messages = new SimpleProperty<string[]>([]);
+
     static emptyBoard(): LCCard[][] {
         return [[], [], [], [], []]
+    }
+
+    isMyTurn = () => {
+        return this.currentSeat.value === this.mySeat.value;
+    };
+
+    addMessage = (msg: string) => {
+        this.messages.update(msgs => {
+            return [...msgs, msg]
+        })
     }
 }
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
-import {createHashHistory} from "history";
 import {Box} from "@material-ui/core";
 import attack from "../images/attack.png"
 import hp from "../images/hp.png"
@@ -61,7 +60,7 @@ const JgzqCard: React.FunctionComponent = () => {
 
     return (
         <Box className={classes.card}>
-            <Box className={classes.attack} >
+            <Box className={classes.attack}>
                 1
             </Box>
             <Box className={classes.hp}>

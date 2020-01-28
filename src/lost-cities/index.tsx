@@ -7,7 +7,7 @@ import Chip from "@material-ui/core/Chip";
 import ShareOutlinedIcon from '@material-ui/icons/ShareOutlined';
 import {connectLC} from "./fetch/fetch";
 
-const useStyles = makeStyles({});
+// const useStyles = makeStyles({});
 
 type CreatePaneProp = {}
 
@@ -35,6 +35,7 @@ const LCEntryPage: React.FunctionComponent<CreatePaneProp> = (props) => {
             </CreatePane>
         )
     } else {
+        let game = connectLC(id);
         return (
             <Box>
                 <Chip
@@ -46,7 +47,7 @@ const LCEntryPage: React.FunctionComponent<CreatePaneProp> = (props) => {
                     }}
                     deleteIcon={<ShareOutlinedIcon/>}
                 />
-                <LCBoardView id={id}/>
+                <LCBoardView game={game}/>
             </Box>
         )
     }
