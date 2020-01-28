@@ -59,6 +59,7 @@ export function connectLC(id: string): LCGame {
                 break;
             case "turn":
                 game.currentSeat.value = data;
+                break;
         }
     };
     ws.onclose = e => {
@@ -68,7 +69,7 @@ export function connectLC(id: string): LCGame {
     return game;
 }
 
-export function playCard(game: LCGame, card: LCCard, op: "play" | "drop") {
+export function playLC(game: LCGame, card: LCCard, op: "play" | "drop", draw: "deck" | number) {
 
 }
 

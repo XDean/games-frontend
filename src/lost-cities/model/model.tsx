@@ -1,4 +1,5 @@
 import {SimpleProperty} from "xdean-util";
+import Global from "../../global";
 
 export class LCCard {
     static Colors = [0, 1, 2, 3, 4];
@@ -31,15 +32,21 @@ export class LCGame {
     gameId = new SimpleProperty<string>("");
     player = new SimpleProperty<LCPlayer>(LCPlayer.EMPTY);
 
-    mySeat = new SimpleProperty<number>(0);
-    currentSeat = new SimpleProperty(0);
-    deck = new SimpleProperty<number>(0);
+    mySeat = new SimpleProperty<number>(-1);
+    currentSeat = new SimpleProperty(-1);
+    deck = new SimpleProperty<number>(-1);
     myBoard = new SimpleProperty<LCCard[][]>(LCGame.emptyBoard());
     otherBoard = new SimpleProperty<LCCard[][]>(LCGame.emptyBoard());
     dropBoard = new SimpleProperty<LCCard[][]>(LCGame.emptyBoard());
     myHand = new SimpleProperty<LCCard[]>([]);
 
     messages = new SimpleProperty<string[]>([]);
+
+    constructor() {
+        this.currentSeat.addListener(() => {
+            this.addMessage(`轮到玩家：${this.getCurrentPlayerId()}`);
+        })
+    }
 
     static emptyBoard(): LCCard[][] {
         return [[], [], [], [], []]
@@ -53,6 +60,10 @@ export class LCGame {
         this.messages.update(msgs => {
             return [...msgs, msg]
         })
+    };
+
+    getCurrentPlayerId = (): string => {
+        return this.isMyTurn() ? Global.id : this.player.value.id
     }
 }
 

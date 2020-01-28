@@ -10,6 +10,7 @@ import GameBoard from "./board/Board";
 import {createHashHistory} from "history";
 import Jgzq from "./jgzq/Jgzq";
 import LCEntryPage from "./lost-cities";
+import Global from "./global";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -46,6 +47,9 @@ const App: React.FunctionComponent = () => {
                         </IconButton>
                         <Typography variant="h5" className={classes.title}>
                             XDean's Game Board
+                        </Typography>
+                        <Typography variant="h5">
+                            {Global.id}
                         </Typography>
                     </Toolbar>
                 </AppBar>

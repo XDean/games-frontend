@@ -3,6 +3,7 @@ import {makeStyles, Theme} from '@material-ui/core/styles';
 import {LCCard} from "../model/model";
 import LCCardView from "./card";
 import Grid from "@material-ui/core/Grid";
+import {Box} from "@material-ui/core";
 
 const useStyles = makeStyles<Theme, LCCardsProp>({
     hand: {
@@ -12,7 +13,7 @@ const useStyles = makeStyles<Theme, LCCardsProp>({
             if (props.vertical) {
                 return props.mini ? 35 : 85
             } else {
-                return props.cards.length * 35 + (props.mini ? 0 : 85)
+                return props.cards.length * 35 + (props.mini ? 0 : 100)
             }
         },
         height: props => {
@@ -34,12 +35,17 @@ const useStyles = makeStyles<Theme, LCCardsProp>({
         "&:hover": {
             height: props => props.mini ? 35 : 150,
         }
+    },
+    highlight: {
+        position: "relative",
+        top: -10,
     }
 });
 
 type LCCardsProp = {
     cards: LCCard[]
-    onPlayCard?: (card: LCCard) => void,
+    highlight?: LCCard
+    onClickCard?: (card: LCCard) => void,
     vertical?: boolean,
     reverse?: boolean,
     mini?: boolean,
@@ -57,10 +63,12 @@ const LCCards: React.FunctionComponent<LCCardsProp> = (props) => {
                     return (
                         <Grid item
                               className={props.vertical ? classes.vertical : classes.horizontal}
-                              key={i} onDoubleClick={e => {
-                            props.onPlayCard && props.onPlayCard(c)
+                              key={i} onClick={e => {
+                            props.onClickCard && props.onClickCard(c)
                         }}>
-                            <LCCardView card={c} mini={props.mini}/>
+                            <Box className={props.highlight === c ? classes.highlight : ""}>
+                                <LCCardView card={c} mini={props.mini}/>
+                            </Box>
                         </Grid>
                     )
                 })
