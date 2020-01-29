@@ -1,8 +1,14 @@
 import React from 'react';
-import {Box, Button, Paper, TextField} from "@material-ui/core";
+import {Button, makeStyles, TextField} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 
-// const useStyles = makeStyles({});
+const useStyles = makeStyles({
+    container: {
+        width: "100%",
+        height: "100%",
+        margin: "auto",
+    }
+});
 
 type CreatePaneProp = {
     game: string,
@@ -11,6 +17,7 @@ type CreatePaneProp = {
 }
 
 const CreatePane: React.FunctionComponent<CreatePaneProp> = (props) => {
+    const classes = useStyles();
     let [id, setId] = React.useState("");
     let [create, setCreate] = React.useState(false);
     let [join, setJoin] = React.useState(false);
@@ -53,18 +60,28 @@ const CreatePane: React.FunctionComponent<CreatePaneProp> = (props) => {
         </div>
     } else {
         return (
-            <Box>
-                <Paper elevation={3}>
-                    <Button onClick={() => setCreate(true)}>
+            <Grid container className={classes.container}
+                  justify="center"
+                  alignItems="center">
+                <Grid item xs={6}>
+                    <Button
+                        style={{float: "right"}}
+                        color={"primary"} variant={"contained"} onClick={() => {
+                        if (props.children) {
+                            setCreate(true);
+                        } else {
+                            props.onCreate();
+                        }
+                    }}>
                         创建游戏
                     </Button>
-                </Paper>
-                <Paper elevation={3}>
-                    <Button onClick={() => setJoin(true)}>
+                </Grid>
+                <Grid item xs={6}>
+                    <Button color={"primary"} variant={"outlined"} onClick={() => setJoin(true)}>
                         加入游戏
                     </Button>
-                </Paper>
-            </Box>
+                </Grid>
+            </Grid>
         );
     }
 };
