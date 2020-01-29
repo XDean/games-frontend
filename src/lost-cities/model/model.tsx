@@ -4,16 +4,29 @@ import Global from "../../global";
 export class LCCard {
     static Colors = [0, 1, 2, 3, 4];
 
+    readonly color: "unknown" | number; // 0,1,2,3,4
+    readonly point?: "double" | number;
+
     constructor(
-        readonly color: "unknown" | number, // 0,1,2,3,4
-        readonly point?: "double" | number
+        readonly int: number,
+        colorOnly?: number,
     ) {
+        if (int < 0) {
+            this.color = "unknown";
+        } else {
+            this.color = Math.floor(int / 12);
+        }
+        this.point = int % 12 < 3 ? "double" : int % 12 - 1;
+        if (colorOnly !== undefined) {
+            this.color = colorOnly;
+            this.point = undefined;
+        }
     }
 
     static unknowns(i: number): LCCard[] {
         let res: LCCard[] = [];
         while (i-- > 0) {
-            res.push(new LCCard("unknown"));
+            res.push(new LCCard(-1));
         }
         return res
     }

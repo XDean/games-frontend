@@ -2,9 +2,9 @@ import {LCCard, LCGame} from "./model";
 
 export function randomCard(): LCCard {
     if (Math.random() > 0.9) {
-        return new LCCard("unknown");
+        return new LCCard(-1);
     }
-    return new LCCard(randInt(5), randomPoint());
+    return new LCCard(randInt(60));
 }
 
 function randomPoint() {
@@ -40,7 +40,7 @@ function randomBoard(): LCCard[][] {
     for (let i = 0; i < 5; i++) {
         let count = randInt(5);
         while (count-- > 0) {
-            res[i].push(new LCCard(i, randomPoint()));
+            res[i].push(new LCCard(i * 12 + randInt(12)));
         }
     }
     return res

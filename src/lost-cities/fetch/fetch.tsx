@@ -54,12 +54,12 @@ export function connectLC(id: string): LCGame {
                 case "game-info":
                     game.currentSeat.value = data["current-seat"];
                     game.deck.value = data.deck;
-                    game.myHand.value = data.hand.map((v: number) => intToCard(v));
+                    game.myHand.value = data.hand.map((v: number) => new LCCard(v));
 
                     let updateBoard = function (key: string, board: SimpleProperty<LCCard[][]>) {
                         let res = LCGame.emptyBoard();
                         data[key].forEach((colors: any[], index: number) => {
-                            res[index] = colors.map(card => intToCard(card));
+                            res[index] = colors.map(card => new LCCard(card));
                         });
                         board.value = res;
                     };
@@ -70,13 +70,23 @@ export function connectLC(id: string): LCGame {
                 case "turn":
                     game.currentSeat.value = data;
                     break;
+                case "play":
+                    game.myHand.update(hand => {
+                        let index = hand.indexOf(data.card);
+                        return hand.slice().splice(index, 1)
+                    });
+                    if (data.drop) {
+                    }
             }
         };
-        ws.onclose = e => {
+        res.onclose = e => {
             console.debug(e);
             if (!closed) {
                 games.get(id)!.ws = createWS()
             }
+        };
+        res.onerror = e => {
+            closed = true;
         };
         return res;
     }
@@ -94,6 +104,15 @@ export function connectLC(id: string): LCGame {
 
 export function playLC(game: LCGame, card: LCCard, op: "play" | "drop", draw: "deck" | number) {
     let ws = games.get(game.gameId.value)!.ws;
+    ws.send(JSON.stringify({
+        topic: "play",
+        payload: {
+            card: card.int,
+            drop: op === "drop",
+            deck: draw === "deck",
+            color: (draw === "deck") ? undefined : draw,
+        },
+    }));
 }
 
 function relWebsocket(rel: string): WebSocket {
@@ -116,12 +135,4 @@ export function resolveUrl(base: string, rel: string) {
     } else {
         return base.substring(0, base.lastIndexOf('/') + 1) + rel;
     }
-}
-
-function intToCard(v: number): LCCard {
-    if (v < 0) {
-        return new LCCard("unknown")
-    }
-    let point = v % 12;
-    return new LCCard(Math.floor(v / 12), point < 3 ? "double" : point - 1);
 }

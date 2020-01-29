@@ -1,11 +1,10 @@
 import React, {useState} from 'react';
-import {makeStyles} from '@material-ui/core/styles';
 import CreatePane from "../components/create";
 import LCBoardView from "./component/board";
-import {Box} from "@material-ui/core";
+import {Box, Snackbar} from "@material-ui/core";
 import Chip from "@material-ui/core/Chip";
 import ShareOutlinedIcon from '@material-ui/icons/ShareOutlined';
-import {connectLC} from "./fetch/fetch";
+import {Alert} from "../components/snippts";
 
 // const useStyles = makeStyles({});
 
@@ -13,29 +12,41 @@ type CreatePaneProp = {}
 
 const LCEntryPage: React.FunctionComponent<CreatePaneProp> = (props) => {
     let [id, setId] = useState("");
+    let [error, setError] = useState("");
 
     if (id === "") {
-        return (
-            <CreatePane game={"lostcities"} onCreate={() => {
-                fetch("api/game/lostcities", {
-                    method: "POST",
-                }).then(res => {
-                    if (res.ok) {
-                        res.json().then(body => {
-                            setId(body["id"]);
-                        })
-                    }
-                })
-            }} onJoin={(id) => {
-                setId(id)
-            }}>
-                <div>
 
-                </div>
-            </CreatePane>
+        return (
+            <React.Fragment>
+                <CreatePane game={"lostcities"} onCreate={() => {
+                    fetch("api/game/lostcities", {
+                        method: "POST",
+                    }).then(res => {
+                        if (res.ok) {
+                            res.json().then(body => {
+                                setId(body["id"]);
+                            })
+                        } else {
+                            throw `${res.status} ${res.statusText}`;
+                        }
+                    }).catch(e => {
+                        setError(`创建游戏失败：${e.toString()}`)
+                    })
+                }} onJoin={(id) => {
+                    setId(id)
+                }}>
+                    <div>
+
+                    </div>
+                </CreatePane>
+                <Snackbar open={error !== ""} transitionDuration={0} onClose={() => setError("")}>
+                    <Alert severity={"error"}>
+                        {error}
+                    </Alert>
+                </Snackbar>
+            </React.Fragment>
         )
     } else {
-        let game = connectLC(id);
         return (
             <Box>
                 <Chip
@@ -47,7 +58,7 @@ const LCEntryPage: React.FunctionComponent<CreatePaneProp> = (props) => {
                     }}
                     deleteIcon={<ShareOutlinedIcon/>}
                 />
-                <LCBoardView game={game}/>
+                <LCBoardView id={id}/>
             </Box>
         )
     }
