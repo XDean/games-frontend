@@ -1,16 +1,20 @@
 import React from 'react';
-import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
+import {createMuiTheme, createStyles, makeStyles, MuiThemeProvider, Theme} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import HomeIcon from '@material-ui/icons/Home'
-import {Redirect, Route, Router, Switch} from "react-router-dom";
+import {Redirect, Route, Router, Switch, useParams} from "react-router-dom";
 import GameBoard from "./board/Board";
 import {createHashHistory} from "history";
 import Jgzq from "./jgzq/Jgzq";
-import LCEntryPage from "./lost-cities";
 import Global from "./global";
+import LCBoardView from "./lost-cities/component/board";
+import Chip from "@material-ui/core/Chip";
+import ShareOutlinedIcon from '@material-ui/icons/ShareOutlined';
+import Box from "@material-ui/core/Box";
+import {grey} from "@material-ui/core/colors";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -38,7 +42,7 @@ const App: React.FunctionComponent = () => {
 
     return (
         <Router history={history}>
-            <div className={classes.root}>
+            <Box className={classes.root}>
                 <AppBar position="static">
                     <Toolbar>
                         <IconButton edge={"start"} className={classes.homeButton} color="inherit" aria-label="home"
@@ -48,9 +52,9 @@ const App: React.FunctionComponent = () => {
                         <Typography variant="h5" className={classes.title}>
                             XDean's Game Board
                         </Typography>
-                        <Typography variant="h5">
-                            {Global.id}
-                        </Typography>
+                        <Switch>
+                            <Route path="/game/:game/:id" children={<ShareRoom/>}/>
+                        </Switch>
                     </Toolbar>
                 </AppBar>
                 <Switch>
@@ -63,16 +67,51 @@ const App: React.FunctionComponent = () => {
                     <Route path="/jgzq">
                         <Jgzq/>
                     </Route>
-                    <Route path="/lc">
-                        <LCEntryPage/>
-                    </Route>
+                    <Route path="/game/lc/:id" children={<LCBoardView/>}/>
                     <Route path="*">
                         <Redirect to={"/board"}/>
                     </Route>
                 </Switch>
-            </div>
+                <Debug/>
+            </Box>
         </Router>
     );
 };
+
+const theme = createMuiTheme({
+        palette: {
+            primary: {
+                main: grey[300],
+            }
+        }
+    },
+);
+
+function ShareRoom() {
+    const {id} = useParams();
+    return (
+        <MuiThemeProvider theme={theme}>
+            <Chip
+                label={`房间号: ${id}`}
+                clickable
+                color={"primary"}
+                variant="outlined"
+                onDelete={() => {
+                }}
+                deleteIcon={<ShareOutlinedIcon/>}
+            />
+        </MuiThemeProvider>
+    )
+}
+
+function Debug() {
+    return (
+        <Box style={{position: "fixed", right: 0, bottom: 0}}>
+            <Typography>
+                {Global.id}
+            </Typography>
+        </Box>
+    );
+}
 
 export default App

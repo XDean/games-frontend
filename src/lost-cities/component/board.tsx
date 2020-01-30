@@ -23,8 +23,9 @@ import DoneIcon from '@material-ui/icons/Done';
 import SendIcon from '@material-ui/icons/Send';
 import {autoWs, WSHandle} from "../../util/ws";
 import global from "../../global";
-import MuiAlert, {AlertProps, Color} from '@material-ui/lab/Alert';
+import {Color} from '@material-ui/lab/Alert';
 import {Alert} from "../../components/snippts";
+import {useParams} from "react-router";
 
 const useStyles = makeStyles<Theme, BoardProp>({
     backdrop: {
@@ -66,9 +67,7 @@ const useStyles = makeStyles<Theme, BoardProp>({
     }
 });
 
-type BoardProp = {
-    id: string,
-}
+type BoardProp = {}
 
 type Player = {
     id: string,
@@ -101,6 +100,7 @@ enum HandSort {
 const emptyBoard = [[], [], [], [], []];
 
 const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
+    const {id} = useParams();
     let classes = useStyles(props);
 
     let [hand, setHand] = useState<LCCard[]>([]);
@@ -148,7 +148,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
 
         let mySeat = 0;
         let ws = autoWs({
-            rel: `socket/game/lostcities/${props.id}?user=${global.id}`,
+            rel: `socket/game/lostcities/${id}?user=${global.id}`,
             onopen: () => {
                 setState("wait");
             },
@@ -169,7 +169,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                             if (p) {
                                 if (p.id === global.id) {
                                     mySeat = p.seat;
-                                    addMessage(`你加入了游戏: ${props.id}`)
+                                    addMessage(`你加入了游戏: ${id}`)
                                 } else {
                                     setPlayer(new LCPlayer(p.id, p.seat, p.connected, p.ready));
                                     addMessage(`[${p.id}]加入了游戏`)
@@ -243,7 +243,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
             }
         });
         setWs(ws);
-    }, [props.id]);
+    }, [id]);
 
     let sortedHand = hand.slice().sort((a, b) => {
         switch (sort) {
@@ -357,7 +357,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                 <CircularProgress color="inherit"/>
                 正在连接服务器
             </Backdrop>
-            <Container maxWidth={"md"}>
+            <Container maxWidth={"md"} style={{paddingTop: 15}}>
                 <Grid container wrap={"wrap"}>
                     <Grid item xs={10}>
                         <Box>
