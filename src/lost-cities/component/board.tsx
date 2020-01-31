@@ -6,9 +6,17 @@ import {
     CircularProgress,
     Container,
     CssBaseline,
+    Dialog,
+    IconButton,
     Paper,
     Snackbar,
     SnackbarProps,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
     Tooltip,
     Typography,
     Zoom
@@ -26,7 +34,8 @@ import {Color} from '@material-ui/lab/Alert';
 import {Alert} from "../../components/snippts";
 import {useParams} from "react-router";
 import {blue} from "@material-ui/core/colors";
-import {cardColor, cardPoint} from "./card";
+import LCCardView, {cardColor, cardPoint} from "./card";
+import AssignmentIcon from '@material-ui/icons/Assignment';
 
 const useStyles = makeStyles<Theme, BoardProp>({
     backdrop: {
@@ -115,6 +124,10 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
     let [dropBoard, setDropBoard] = useState<CardBoard>(emptyBoard);
     let [messages, setMessages] = useState<React.ReactNode[]>([]);
 
+    let [showScore, setShowScore] = useState(false);
+    let [myScore, setMyScore] = useState<LineScore[]>([]);
+    let [otherScore, setOtherScore] = useState<LineScore[]>([]);
+
     let [state, setState] = useState<BoardState>("wait");
     let [error, setError] = useState("");
     let [validMsg, setValidMsg] = useState<Message | undefined>(undefined);
@@ -127,7 +140,6 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
     let [sort, setSort] = useState(HandSort.NULL);
 
     let [ws, setWs] = useState<WSHandle | undefined>(undefined);
-
 
     useEffect(() => {
         let mySeat = 0;
@@ -226,6 +238,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                             s.push(drawCard);
                             return s;
                         });
+                        addMessage(<PlayMessage who={"你"} op={"deck"} card={drawCard}/>);
                         break;
                     case "play":
                         let who = (data.seat === mySeat) ? "你" : (otherPlayer!.id);
@@ -251,7 +264,9 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         }
                         if (data.deck) {
                             setDeck(d => d - 1);
-                            addMessage(<PlayMessage who={who} op={"deck"}/>)
+                            if (data.seat !== mySeat) {
+                                addMessage(<PlayMessage who={who} op={"deck"}/>);
+                            }
                         } else {
                             let drawDropCard = new LCCard(data["draw-drop-card"]);
                             removeFromBoard(setDropBoard, drawDropCard);
@@ -332,6 +347,14 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
         }());
     }, [state, error]);
 
+    useEffect(() => {
+        setMyScore(calcBoardScore(myBoard));
+    }, [myBoard]);
+
+    useEffect(() => {
+        setOtherScore(calcBoardScore(otherBoard))
+    }, [otherBoard]);
+
     let canSubmit = state === "my" && playCard && playType && drawType !== undefined && (!validMsg || (validMsg.level === "info" || validMsg.level === "success"));
 
     function doInMyTurn(task: () => void) {
@@ -395,12 +418,16 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
         }
     }
 
+    function hasScore() {
+        return state === "my" || state === "other" || state === "over"
+    }
+
     return (
         <React.Fragment>
             <CssBaseline/>
             <Container maxWidth={"md"} style={{paddingTop: 15, position: "relative"}}>
                 <Grid container wrap={"wrap"}>
-                    <Grid item xs={10}>
+                    <Grid item xs={6}>
                         <Box>
                             {otherPlayer ? (
                                 `${otherPlayer!.id}`
@@ -412,25 +439,34 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                             <LCCardsView cards={LCCard.unknowns(8)}/>
                         </Box>
                     </Grid>
-                    <Grid item xs={2}>
-                        <Tooltip title={op === "selectDraw" ? "从牌库摸牌" : ""} open arrow>
-                            <Button
-                                className={`${drawType === "deck" && classes.selectedItem}`}
-                                onClick={() => selectDrawType("deck")}>
-                                <Typography>
-                                    牌库剩余：{deck}
-                                </Typography>
-                            </Button>
-                        </Tooltip>
+                    <Grid item xs={6}>
+                        <Box style={{float: "right"}}>
+                            <IconButton onClick={() => hasScore() && setShowScore(s => !s)}>
+                                <Tooltip title={"计分"}>
+                                    <AssignmentIcon/>
+                                </Tooltip>
+                            </IconButton>
+                            <Tooltip title={op === "selectDraw" ? "从牌库摸牌" : ""} open arrow>
+                                <Button
+                                    className={`${drawType === "deck" && classes.selectedItem}`}
+                                    onClick={() => selectDrawType("deck")}>
+                                    <Typography>
+                                        牌库剩余：{deck}
+                                    </Typography>
+                                </Button>
+                            </Tooltip>
+                        </Box>
                     </Grid>
                     {LCCard.Colors.map((e, i) => {
                         let dropCards = dropBoard[e];
                         return (
                             <Grid item container xs={12} key={i} className={classes.board} alignItems="center">
                                 <Grid item xs={5}>
-                                    <Box className={classes.otherBoard}>
-                                        <LCCardsView cards={otherBoard[e]} mini reverse/>
-                                    </Box>
+                                    <Tooltip title={otherScore[i]?.develop ? "" : ""}>
+                                        <Box className={classes.otherBoard}>
+                                            <LCCardsView cards={otherBoard[e]} mini reverse/>
+                                        </Box>
+                                    </Tooltip>
                                 </Grid>
                                 <Grid item>
                                     <Tooltip title={i === 0 && op === "selectDraw" ? "从弃牌堆摸牌" : ""} open arrow
@@ -537,6 +573,46 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                                      anchorOrigin: {horizontal: "center", vertical: "top"},
                                      style: {position: "absolute"}
                                  }}/>
+                {showScore && <Dialog open onClose={() => setShowScore(false)}>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell/>
+                                    <TableCell>对手得分</TableCell>
+                                    <TableCell>你的得分</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {
+                                    LCCard.Colors.map(i => (
+                                        <TableRow key={i}>
+                                            <TableCell>
+                                                <LCCardView card={new LCCard(0, i)} mini/>
+                                            </TableCell>
+                                            <TableCell align={"center"}>
+                                                {otherScore[i].sum}
+                                            </TableCell>
+                                            <TableCell align={"center"}>
+                                                {myScore[i].sum}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                }
+                                <TableRow>
+                                    <TableCell>总分</TableCell>
+                                    <TableCell align={"center"}>
+                                        {sumScore(otherScore)}
+                                    </TableCell>
+                                    <TableCell align={"center"}>
+                                        {sumScore(myScore)}
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Dialog>
+                }
             </Container>
         </React.Fragment>
     )
@@ -589,7 +665,7 @@ function PlayMessage(props: {
                         return "从弃牌堆中摸起了";
                 }
             }()}
-            {props.op === "deck" ? null : <CardMessage card={props.card!}/>}
+            {props.card && <CardMessage card={props.card!}/>}
         </Box>
     )
 }
@@ -618,6 +694,12 @@ function PlayerMessage(props: { who: string }) {
     </span>
 }
 
+function LineScoreView(props: { score: LineScore }) {
+    return <Box>
+        {`(${props.score.score} - 20) x ${props.score.times} + ${props.score.bonus ? 20 : 0} = ${props.score.sum}`}
+    </Box>
+}
+
 function addToBoard(setBoard: Dispatch<SetStateAction<CardBoard>>, card: LCCard) {
     setBoard(b => {
         let s = b.slice();
@@ -633,6 +715,57 @@ function removeFromBoard(setBoard: Dispatch<SetStateAction<CardBoard>>, card: LC
         s[card.colorNumber()].splice(index, 1);
         return s;
     });
+}
+
+type BoardScore = LineScore[];
+type LineScore = {
+    develop: boolean,
+    times: number,
+    score: number,
+    bonus: boolean,
+    sum: number,
+};
+
+function sumScore(s: BoardScore): number {
+    return s.reduce((a, b) => a + b.sum, 0);
+}
+
+function calcBoardScore(board: CardBoard): LineScore[] {
+    return board.map(calcLineScore);
+}
+
+function calcLineScore(board: LCCard[]): LineScore {
+    let score = 0;
+    let times = 1;
+    let points = 0;
+    if (board.length === 0) {
+        return {
+            develop: false,
+            times: times,
+            score: score,
+            bonus: false,
+            sum: 0,
+        };
+    }
+    board.forEach(c => {
+        if (c.color === "unknown" || c.point === undefined) {
+            return;
+        }
+        if (c.point === "double") {
+            times++;
+        } else {
+            points++;
+            score += c.point;
+        }
+    });
+    let bonus = points >= 8;
+    return {
+        develop: false,
+        times: times,
+        score: score,
+        bonus: bonus,
+        sum: times * (score - 20) + (bonus ? 20 : 0),
+    };
 }
 
 export default LCBoardView;

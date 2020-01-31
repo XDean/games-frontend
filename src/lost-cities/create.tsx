@@ -3,7 +3,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import {AppBar, Box, Button, CircularProgress, Dialog, Grid, Snackbar, Tab, Tabs, TextField} from "@material-ui/core";
 import {Alert} from "../components/snippts";
 import Backdrop from "@material-ui/core/Backdrop/Backdrop";
-import {useHistory, useRouteMatch} from "react-router";
+import {useHistory} from "react-router";
 
 const useStyles = makeStyles({
     content: {
@@ -24,14 +24,11 @@ type LCCreateProp = {
 
 const LCCreateView: React.FunctionComponent<LCCreateProp> = (props) => {
     const history = useHistory();
-    const {path, url} = useRouteMatch();
 
     const classes = useStyles();
     const [open, setOpen] = useState(true);
     const [id, setId] = React.useState("");
     const [value, setValue] = React.useState(0);
-    const [create, setCreate] = React.useState(false);
-    const [join, setJoin] = React.useState(false);
     const [connecting, setConnecting] = useState(false);
     const [error, setError] = useState("");
 
@@ -54,7 +51,7 @@ const LCCreateView: React.FunctionComponent<LCCreateProp> = (props) => {
                 setError(`创建游戏失败：${e.toString()}`)
             })
         } else {
-
+            history.push(`/game/lc/${id}`);
         }
     }
 
