@@ -1,15 +1,14 @@
 import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
 import {makeStyles, Theme} from '@material-ui/core/styles';
 import {
-    Backdrop,
     Box,
     Button,
     CircularProgress,
     Container,
     CssBaseline,
-    ListItemText,
     Paper,
     Snackbar,
+    SnackbarProps,
     Tooltip,
     Typography,
     Zoom
@@ -26,6 +25,8 @@ import global from "../../global";
 import {Color} from '@material-ui/lab/Alert';
 import {Alert} from "../../components/snippts";
 import {useParams} from "react-router";
+import {blue} from "@material-ui/core/colors";
+import LCCardView from "./card";
 
 const useStyles = makeStyles<Theme, BoardProp>({
     backdrop: {
@@ -82,8 +83,9 @@ type PlayType = "play" | "drop"
 type DrawType = "deck" | number
 type Message = {
     level: Color
-    msg: string
+    text: string
     hide?: boolean
+    graphics?: React.ReactNode
 }
 type CardBoard = LCCard[][];
 
@@ -106,15 +108,17 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
     let [hand, setHand] = useState<LCCard[]>([]);
     let [deck, setDeck] = useState<number>(0);
     // let [currentSeat] = useStateByProp(game.currentSeat);
-    let [player, setPlayer] = useState<Player | undefined>(undefined);
+    let [otherPlayer, setOtherPlayer] = useState<Player | undefined>(undefined);
+
     let [myBoard, setMyBoard] = useState<CardBoard>(emptyBoard);
     let [otherBoard, setOtherBoard] = useState<CardBoard>(emptyBoard);
     let [dropBoard, setDropBoard] = useState<CardBoard>(emptyBoard);
-    let [messages, setMessages] = useState<string[]>([]);
+    let [messages, setMessages] = useState<React.ReactNode[]>([]);
 
     let [state, setState] = useState<BoardState>("wait");
     let [error, setError] = useState("");
-    let [tempMsg, setTempMsg] = useState<Message | undefined>(undefined);
+    let [validMsg, setValidMsg] = useState<Message | undefined>(undefined);
+    let [infoMsg, setInfoMsg] = useState<Message | undefined>(undefined);
 
     let [playCard, setPlayCard] = useState<LCCard | undefined>(undefined);
     let [playType, setPlayType] = useState<PlayType | undefined>(undefined);
@@ -124,54 +128,58 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
 
     let [ws, setWs] = useState<WSHandle | undefined>(undefined);
 
+
     useEffect(() => {
-        function addMessage(msg: string) {
-            setMessages([...messages, msg]);
-        }
-
-        function addToBoard(setBoard: Dispatch<SetStateAction<CardBoard>>, card: LCCard) {
-            setBoard(b => {
-                let s = b.slice();
-                s[card.colorNumber()].push(card);
-                return s;
-            });
-        }
-
-        function removeFromBoard(setBoard: Dispatch<SetStateAction<CardBoard>>, card: LCCard) {
-            setBoard(b => {
-                let s = b.slice();
-                let index = s[card.colorNumber()].findIndex(c => c.int === card.int);
-                s[card.colorNumber()].splice(index, 1);
-                return s;
-            });
-        }
-
         let mySeat = 0;
-        let ws = autoWs({
+        let messages: React.ReactNode[] = [];
+        let otherPlayer: Player | undefined = undefined;
+
+        function addMessage(msg: React.ReactNode) {
+            messages.push(msg);
+            setMessages(messages.slice());
+        }
+
+        function innerSetOtherPlayer(player: Player) {
+            otherPlayer = player;
+            setOtherPlayer(player);
+        }
+
+        let aws = autoWs({
             rel: `socket/game/lostcities/${id}?user=${global.id}`,
-            onopen: () => {
+            oninit: () => {
                 setState("wait");
             },
             onretry: () => {
                 setState("connecting");
             },
-            onerror: (ws, e) => {
-                setError(e.type);
+            onerror: (e) => {
                 setState("error");
+                setError(`无法连接到服务器(${e.type})`)
             },
-            onmessage: (ws, e) => {
+            onmessage: (e) => {
                 let event = JSON.parse(e.data);
                 let data = event.payload;
 
                 switch (event.topic) {
+                    case "error":
+                        setState("error");
+                        setError(data);
+                        aws.close();
+                        break;
                     case "host-info":
                         data.players.forEach((p: any) => {
                             if (p) {
                                 if (p.id === global.id) {
                                     mySeat = p.seat;
+                                    if (!p.ready) {
+                                        aws.send(JSON.stringify({
+                                            topic: "ready",
+                                            payload: true,
+                                        }))
+                                    }
                                     addMessage(`你加入了游戏: ${id}`)
                                 } else {
-                                    setPlayer(new LCPlayer(p.id, p.seat, p.connected, p.ready));
+                                    innerSetOtherPlayer(new LCPlayer(p.id, p.seat, p.connected, p.ready));
                                     addMessage(`[${p.id}]加入了游戏`)
                                 }
                             }
@@ -179,10 +187,12 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         break;
                     case "join":
                         if (data.seat === 1 - mySeat) {
-                            setPlayer(new LCPlayer(data.id, data.seat, data.connected, data.ready));
+                            innerSetOtherPlayer(new LCPlayer(data.id, data.seat, data.connected, data.ready));
                             addMessage(`[${data.id}]加入了游戏`);
                         }
                         break;
+                    case "start":
+                        addMessage("游戏开始");
                     case "game-info":
                         if (data.over) {
                             setState("over")
@@ -218,6 +228,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         });
                         break;
                     case "play":
+                        let who = (data.seat === mySeat) ? "你" : (otherPlayer!.id);
                         let card = new LCCard(data.card);
                         if (data.seat === mySeat) {
                             setHand(h => {
@@ -229,20 +240,34 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         }
                         if (data.drop) {
                             addToBoard(setDropBoard, card);
-                        } else if (data.seat === mySeat) {
-                            addToBoard(setMyBoard, card);
+                            addMessage(<PlayMessage who={who} op={"drop"} card={card}/>)
                         } else {
-                            addToBoard(setOtherBoard, card);
+                            if (data.seat === mySeat) {
+                                addToBoard(setMyBoard, card);
+                            } else {
+                                addToBoard(setOtherBoard, card);
+                            }
+                            addMessage(<PlayMessage who={who} op={"play"} card={card}/>)
                         }
                         if (data.deck) {
                             setDeck(d => d - 1);
+                            addMessage(<PlayMessage who={who} op={"deck"}/>)
                         } else {
-                            removeFromBoard(setDropBoard, card);
+                            let drawDropCard = new LCCard(data["draw-drop-card"]);
+                            removeFromBoard(setDropBoard, drawDropCard);
+                            addMessage(<PlayMessage who={who} op={"draw-drop"} card={drawDropCard}/>);
+                            if (data.seat === mySeat) {
+                                setHand(h => {
+                                    let s = h.slice();
+                                    s.push(drawDropCard);
+                                    return s;
+                                });
+                            }
                         }
                 }
             }
         });
-        setWs(ws);
+        setWs(aws);
     }, [id]);
 
     let sortedHand = hand.slice().sort((a, b) => {
@@ -272,31 +297,51 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
         }
     }();
 
-    let warn = function (): Message | undefined {
-        if (playCard && playType === "drop" && playCard.color === drawType) {
-            return {level: "warning", msg: "你不可以摸起即将打出的牌"};
-        }
-        if (drawType !== undefined && drawType !== "deck" && dropBoard[drawType].length === 0) {
-            return {level: "warning", msg: "弃牌堆中没有可用的牌"};
-        }
-        if (playCard && playType === "play" && playCard.pointNumber() < maxPoint(myBoard[playCard.colorNumber()])) {
-            return {level: "warning", msg: "同一系列点数必须递增"}
-        }
-        return tempMsg && {
-            ...tempMsg,
-            hide: true,
-        };
-    }();
+    useEffect(() => {
+        setValidMsg(function (): Message | undefined {
+            if (playCard && playType === "drop" && playCard.color === drawType) {
+                return {level: "warning", text: "你不可以摸起即将打出的牌"};
+            }
+            if (drawType !== undefined && drawType !== "deck" && dropBoard[drawType].length === 0) {
+                return {level: "warning", text: "弃牌堆中没有可用的牌"};
+            }
+            if (playCard && playType === "play" && playCard.pointNumber() < maxPoint(myBoard[playCard.colorNumber()])) {
+                return {level: "warning", text: "同一系列点数必须递增"}
+            }
+            return undefined;
+        }());
+    }, [playCard, playType, drawType, dropBoard, myBoard]);
 
-    let canSubmit = state === "my" && playCard && playType && drawType && (!warn || (warn.level === "info" || warn.level === "success"));
+    useEffect(() => {
+        setInfoMsg(function (): Message | undefined {
+            switch (state) {
+                case "wait":
+                    return {level: "info", text: "等待其他玩家连接"};
+                case "connecting":
+                    return {level: "info", text: "正在连接", graphics: <CircularProgress color="inherit"/>};
+                case "error":
+                    return {level: "error", text: `错误：${error}`};
+                case "my":
+                    return {level: "info", text: "你的回合"};
+                case "other":
+                    return {level: "info", text: "对手回合"};
+                case "over":
+                    return {level: "info", text: "游戏结束"};
+            }
+            return undefined;
+        }());
+    }, [state, error]);
+
+    let canSubmit = state === "my" && playCard && playType && drawType && (!validMsg || (validMsg.level === "info" || validMsg.level === "success"));
 
     function doInMyTurn(task: () => void) {
         if (state === "my") {
             task()
         } else if (state === "other") {
-            setTempMsg({
-                msg: "现在不是你的回合",
+            setValidMsg({
+                text: "现在不是你的回合",
                 level: "warning",
+                hide: true,
             })
         }
     }
@@ -327,7 +372,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                     card: playCard!.int,
                     drop: playType! === "drop",
                     deck: drawType === "deck",
-                    color: (drawType === "deck") ? undefined : drawType,
+                    "draw-color": (drawType === "deck") ? undefined : drawType,
                 },
             }));
             setPlayCard(undefined);
@@ -353,22 +398,18 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
     return (
         <React.Fragment>
             <CssBaseline/>
-            <Backdrop className={classes.backdrop} open={state === "connecting"}>
-                <CircularProgress color="inherit"/>
-                正在连接服务器
-            </Backdrop>
-            <Container maxWidth={"md"} style={{paddingTop: 15}}>
+            <Container maxWidth={"md"} style={{paddingTop: 15, position: "relative"}}>
                 <Grid container wrap={"wrap"}>
                     <Grid item xs={10}>
                         <Box>
-                            {player ? (
-                                `${player!.id}`
+                            {otherPlayer ? (
+                                `${otherPlayer!.id}`
                             ) : (
                                 "等待玩家加入"
                             )}
                         </Box>
                         <Box className={classes.otherHand}>
-                            <LCCardsView cards={LCCard.unknowns(7)}/>
+                            <LCCardsView cards={LCCard.unknowns(8)}/>
                         </Box>
                     </Grid>
                     <Grid item xs={2}>
@@ -425,7 +466,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                                     messages.map((msg, i) => {
                                         return (
                                             <Grid item xs={12} key={i}>
-                                                <ListItemText primary={msg}/>
+                                                {msg}
                                             </Grid>
                                         )
                                     })
@@ -489,15 +530,88 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         </Grid>
                     </Tooltip>
                 </Grid>
-                <Snackbar open={warn !== undefined} autoHideDuration={warn && warn.hide ? 5000 : null}
-                          transitionDuration={0} onClose={() => setTempMsg(undefined)}>
-                    <Alert severity={warn && warn.level}>
-                        {warn && warn.msg}
-                    </Alert>
-                </Snackbar>
+                <MessageSnackbar message={validMsg}/>
+                <MessageSnackbar message={infoMsg}
+                                 snackbar={{
+                                     anchorOrigin: {horizontal: "center", vertical: "top"},
+                                     style: {position: "absolute"}
+                                 }}/>
             </Container>
         </React.Fragment>
     )
 };
+
+type MessageProp = {
+    message?: Message
+    snackbar?: Pick<SnackbarProps, Exclude<keyof SnackbarProps, "open">>
+};
+
+const MessageSnackbar: React.FunctionComponent<MessageProp> = (props) => {
+    const [open, setOpen] = useState(true);
+    if (props.message) {
+        return (
+            <Snackbar open={props.message.hide ? open : true} autoHideDuration={props.message.hide ? 5000 : null}
+                      onClose={() => setOpen(false)} {...props.snackbar}>
+                <Alert severity={props.message.level}>
+                    {props.message.text}
+                    {props.message.graphics}
+                </Alert>
+            </Snackbar>
+        )
+    } else {
+        return (null);
+    }
+};
+
+function PlayMessage(props: {
+    who: string,
+    op: "play" | "drop" | "deck" | "draw-drop",
+    card?: LCCard
+}) {
+    return (
+        <Box>
+            <PlayerMessage who={props.who}/>
+            {function () {
+                switch (props.op) {
+                    case "play":
+                        return "打出了";
+                    case "drop":
+                        return "弃置了";
+                    case "deck":
+                        return "从牌库抽牌";
+                    case "draw-drop":
+                        return "从弃牌堆中摸起了";
+                }
+            }()}
+            {props.op === "deck" ? null : <LCCardView card={props.card!} mini/>}
+        </Box>
+    )
+}
+
+function PlayerMessage(props: { who: string }) {
+    return <span style={{
+        borderColor: blue[100],
+        borderStyle: "solid",
+    }}>
+        {props.who}
+    </span>
+}
+
+function addToBoard(setBoard: Dispatch<SetStateAction<CardBoard>>, card: LCCard) {
+    setBoard(b => {
+        let s = b.slice();
+        s[card.colorNumber()].push(card);
+        return s;
+    });
+}
+
+function removeFromBoard(setBoard: Dispatch<SetStateAction<CardBoard>>, card: LCCard) {
+    setBoard(b => {
+        let s = b.slice();
+        let index = s[card.colorNumber()].findIndex(c => c.int === card.int);
+        s[card.colorNumber()].splice(index, 1);
+        return s;
+    });
+}
 
 export default LCBoardView;

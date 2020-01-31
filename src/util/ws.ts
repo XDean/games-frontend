@@ -3,15 +3,17 @@ export type WSHandle = {
     close(): void,
 }
 
-export function autoWs(config: {
+export type WSConfig = {
     rel: string,
-    oninit?: (ws: WebSocket, ev: Event) => void,
-    onretry?: (ws: WebSocket) => void,
-    onopen?: (ws: WebSocket, ev: Event) => void,
-    onmessage?: (ws: WebSocket, ev: MessageEvent) => void,
-    onerror?: (ws: WebSocket, ev: Event) => void,
-    onclose?: (ws: WebSocket, ev: CloseEvent) => void,
-}): WSHandle {
+    oninit?: (ev: Event) => void,
+    onretry?: () => void,
+    onopen?: (ev: Event) => void,
+    onmessage?: (ev: MessageEvent) => void,
+    onerror?: (ev: Event) => void,
+    onclose?: (ev: CloseEvent) => void,
+}
+
+export function autoWs(config: WSConfig): WSHandle {
     let init = false;
     let closed = false;
     let currentWs = createWs();
@@ -19,30 +21,30 @@ export function autoWs(config: {
     function createWs(): WebSocket {
         let ws = relWebsocket(config.rel);
         ws.onopen = (e) => {
-            console.trace("Websocket on open: " + e);
+            console.debug("Websocket on open", e);
             if (!init) {
                 init = true;
-                console.trace("Websocket init");
-                config.oninit && config.oninit(ws, e);
+                console.debug("Websocket init");
+                config.oninit && config.oninit(e);
             }
-            config.onopen && config.onopen(ws, e);
+            config.onopen && config.onopen(e);
         };
         ws.onmessage = (e) => {
-            console.trace("Websocket on message: " + e);
-            config.onmessage && config.onmessage(ws, e);
+            console.debug("Websocket on message", e);
+            config.onmessage && config.onmessage(e);
         };
         ws.onerror = (e) => {
-            console.trace("Websocket on error: " + e);
-            config.onerror && config.onerror(ws, e);
+            console.debug("Websocket on error", e);
+            config.onerror && config.onerror(e);
             closed = true;
         };
         ws.onclose = (e) => {
-            console.trace("Websocket on close: " + e);
+            console.debug("Websocket on close", e);
             if (closed) {
-                config.onclose && config.onclose(ws, e);
+                config.onclose && config.onclose(e);
             } else {
-                console.trace("Websocket on close: " + e);
-                config.onretry && config.onretry(ws);
+                console.debug("Websocket on close", e);
+                config.onretry && config.onretry();
                 currentWs = createWs();
             }
         };
