@@ -26,7 +26,7 @@ import {Color} from '@material-ui/lab/Alert';
 import {Alert} from "../../components/snippts";
 import {useParams} from "react-router";
 import {blue} from "@material-ui/core/colors";
-import LCCardView from "./card";
+import {cardColor, cardPoint} from "./card";
 
 const useStyles = makeStyles<Theme, BoardProp>({
     backdrop: {
@@ -332,7 +332,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
         }());
     }, [state, error]);
 
-    let canSubmit = state === "my" && playCard && playType && drawType && (!validMsg || (validMsg.level === "info" || validMsg.level === "success"));
+    let canSubmit = state === "my" && playCard && playType && drawType !== undefined && (!validMsg || (validMsg.level === "info" || validMsg.level === "success"));
 
     function doInMyTurn(task: () => void) {
         if (state === "my") {
@@ -460,7 +460,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         )
                     })}
                     <Grid item xs={5}>
-                        <Paper className={classes.messageBox}>
+                        <Paper className={classes.messageBox} style={{maxHeight: 150}}>
                             <Grid container>
                                 {
                                     messages.map((msg, i) => {
@@ -530,8 +530,9 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         </Grid>
                     </Tooltip>
                 </Grid>
-                <MessageSnackbar message={validMsg}/>
+                <MessageSnackbar message={validMsg} onClose={() => setValidMsg(undefined)}/>
                 <MessageSnackbar message={infoMsg}
+                                 onClose={() => setInfoMsg(undefined)}
                                  snackbar={{
                                      anchorOrigin: {horizontal: "center", vertical: "top"},
                                      style: {position: "absolute"}
@@ -542,16 +543,21 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
 };
 
 type MessageProp = {
-    message?: Message
-    snackbar?: Pick<SnackbarProps, Exclude<keyof SnackbarProps, "open">>
+    message?: Message,
+    onClose: () => void,
+    snackbar?: Pick<SnackbarProps, Exclude<keyof SnackbarProps, "open" | "onClose">>
 };
 
 const MessageSnackbar: React.FunctionComponent<MessageProp> = (props) => {
-    const [open, setOpen] = useState(true);
     if (props.message) {
         return (
-            <Snackbar open={props.message.hide ? open : true} autoHideDuration={props.message.hide ? 5000 : null}
-                      onClose={() => setOpen(false)} {...props.snackbar}>
+            <Snackbar open autoHideDuration={props.message.hide ? 5000 : null}
+                      onClose={() => {
+                          if (props.message!.hide) {
+                              props.onClose();
+                          }
+                      }}
+                      {...props.snackbar}>
                 <Alert severity={props.message.level}>
                     {props.message.text}
                     {props.message.graphics}
@@ -583,15 +589,30 @@ function PlayMessage(props: {
                         return "从弃牌堆中摸起了";
                 }
             }()}
-            {props.op === "deck" ? null : <LCCardView card={props.card!} mini/>}
+            {props.op === "deck" ? null : <CardMessage card={props.card!}/>}
         </Box>
     )
+}
+
+function CardMessage(props: { card: LCCard }) {
+    return <div style={{
+        display: "inline-block",
+        backgroundColor: cardColor(props.card.color),
+        borderColor: "black",
+        borderWidth: 1,
+        borderStyle: "solid",
+        minWidth: 15,
+        textAlign: "center",
+    }}>
+        {cardPoint(props.card.point)}
+    </div>
 }
 
 function PlayerMessage(props: { who: string }) {
     return <span style={{
         borderColor: blue[100],
         borderStyle: "solid",
+        borderWidth: 2,
     }}>
         {props.who}
     </span>

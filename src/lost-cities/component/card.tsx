@@ -3,7 +3,32 @@ import {makeStyles, Theme} from '@material-ui/core/styles';
 import {Box, Paper} from "@material-ui/core";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHandshake} from "@fortawesome/free-solid-svg-icons";
-import {LCCard} from "../model/model";
+import {LCCard, LCCardColor, LCCardPoint} from "../model/model";
+
+export function cardColor(color: LCCardColor) {
+    switch (color) {
+        case "unknown":
+            return "#999";
+        case 0:
+            return "#faa";
+        case 1:
+            return "#fff";
+        case 2:
+            return "#0f0";
+        case 3:
+            return "#0ff";
+        case 4:
+            return "#ff0";
+    }
+}
+
+export function cardPoint(point?: LCCardPoint, doubleClass?: string) {
+    if (point === undefined) {
+        return "";
+    } else {
+        return point === "double" ? <FontAwesomeIcon className={doubleClass} icon={faHandshake}/> : point;
+    }
+}
 
 const useStyles = makeStyles<Theme, CardProp>({
         card: {
@@ -13,29 +38,14 @@ const useStyles = makeStyles<Theme, CardProp>({
             borderRadius: 5,
             borderWidth: 1,
             borderStyle: "solid",
-            backgroundColor: props => {
-                switch (props.card.color) {
-                    case "unknown":
-                        return "#999";
-                    case 0:
-                        return "#faa";
-                    case 1:
-                        return "#fff";
-                    case 2:
-                        return "#0f0";
-                    case 3:
-                        return "#0ff";
-                    case 4:
-                        return "#ff0";
-                }
-            },
+            backgroundColor: props => cardColor(props.card.color),
         },
         center: props => props.mini ? {
             height: 35,
-            lineHeight: "30px",
+            lineHeight: "32px",
             textAlign: "center",
             fontWeight: "bold",
-            fontSize: 30,
+            fontSize: 27,
         } : {
             fontSize: 48,
             textAlign: "center",
@@ -65,9 +75,9 @@ const useStyles = makeStyles<Theme, CardProp>({
             right: 3,
             bottom: 3,
         },
-        double: props=>props.mini?{
+        double: props => props.mini ? {
             fontSize: 25,
-        }:{}
+        } : {}
     }
 );
 
@@ -79,8 +89,7 @@ type CardProp = {
 const LCCardView: React.FunctionComponent<CardProp> = (props) => {
 
     const classes = useStyles(props);
-    const point = props.card.point === "double" ?
-        <FontAwesomeIcon className={classes.double} icon={faHandshake}/> : props.card.point;
+    const point = props.card.point === undefined ? "" : cardPoint(props.card.point, classes.double);
 
     if (props.mini) {
         return (

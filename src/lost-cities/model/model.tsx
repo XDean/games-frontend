@@ -1,11 +1,14 @@
 import {SimpleProperty} from "xdean-util";
 import Global from "../../global";
 
+export type LCCardColor = "unknown" | number
+export type LCCardPoint = "double" | number
+
 export class LCCard {
     static Colors = [0, 1, 2, 3, 4];
 
-    readonly color: "unknown" | number; // 0,1,2,3,4
-    readonly point?: "double" | number;
+    readonly color: LCCardColor; // 0,1,2,3,4
+    readonly point?: LCCardPoint;
 
     constructor(
         readonly int: number,
