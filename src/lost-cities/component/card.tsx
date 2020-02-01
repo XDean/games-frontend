@@ -96,7 +96,7 @@ const LCCardView: React.FunctionComponent<CardProp> = (props) => {
             <Paper className={classes.card} elevation={3}>{
                 props.card.color === "unknown" ?
                     <Box className={classes.center}>
-                        背
+
                     </Box> :
                     <Box className={classes.center}>
                         {point}
@@ -108,7 +108,7 @@ const LCCardView: React.FunctionComponent<CardProp> = (props) => {
         return (
             <Paper className={classes.card} elevation={3}>
                 <Box className={classes.center}>
-                    背
+
                 </Box>
             </Paper>
         )

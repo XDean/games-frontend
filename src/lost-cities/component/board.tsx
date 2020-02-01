@@ -8,6 +8,7 @@ import {
     CssBaseline,
     Dialog,
     IconButton,
+    InputBase,
     Paper,
     Snackbar,
     SnackbarProps,
@@ -36,6 +37,7 @@ import {useParams} from "react-router";
 import {blue} from "@material-ui/core/colors";
 import LCCardView, {cardColor, cardPoint} from "./card";
 import AssignmentIcon from '@material-ui/icons/Assignment';
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles<Theme, BoardProp>({
     backdrop: {
@@ -123,6 +125,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
     let [otherBoard, setOtherBoard] = useState<CardBoard>(emptyBoard);
     let [dropBoard, setDropBoard] = useState<CardBoard>(emptyBoard);
     let [messages, setMessages] = useState<React.ReactNode[]>([]);
+    let [chatMsg, setChatMsg] = useState<string>("");
 
     let [showScore, setShowScore] = useState(false);
     let [myScore, setMyScore] = useState<LineScore[]>([]);
@@ -143,13 +146,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
 
     useEffect(() => {
         let mySeat = 0;
-        let messages: React.ReactNode[] = [];
         let otherPlayer: Player | undefined = undefined;
-
-        function addMessage(msg: React.ReactNode) {
-            messages.push(msg);
-            setMessages(messages.slice());
-        }
 
         function innerSetOtherPlayer(player: Player) {
             otherPlayer = player;
@@ -172,11 +169,22 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                 let event = JSON.parse(e.data);
                 let data = event.payload;
 
+                function getWhoBySeat(seat: number) {
+                    return (seat === mySeat) ? "你" : (otherPlayer!.id);
+                }
+
+                function getWhoById(id: string) {
+                    return (id === global.id) ? "你" : (otherPlayer!.id);
+                }
+
                 switch (event.topic) {
                     case "error":
                         setState("error");
                         setError(data);
                         aws.close();
+                        break;
+                    case "chat":
+                        addMessage(<ChatMessage who={getWhoById(data.id)} text={data.text}/>);
                         break;
                     case "host-info":
                         data.players.forEach((p: any) => {
@@ -241,7 +249,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         addMessage(<PlayMessage who={"你"} op={"deck"} card={drawCard}/>);
                         break;
                     case "play":
-                        let who = (data.seat === mySeat) ? "你" : (otherPlayer!.id);
+                        let who = getWhoById(data.seat);
                         let card = new LCCard(data.card);
                         if (data.seat === mySeat) {
                             setHand(h => {
@@ -404,6 +412,21 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
         });
     }
 
+    function addMessage(msg: React.ReactNode) {
+        setMessages(msgs => {
+            msgs.push(msg);
+            return msgs.slice();
+        });
+    }
+
+    function sendChat() {
+        ws && ws.send(JSON.stringify({
+            topic: "chat",
+            payload: chatMsg,
+        }));
+        setChatMsg("");
+    }
+
     function onSort() {
         switch (sort) {
             case HandSort.NULL:
@@ -503,18 +526,31 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         )
                     })}
                     <Grid item xs={5}>
-                        <Paper className={classes.messageBox} style={{maxHeight: 150}} ref={msgBoxRef}>
-                            <Grid container>
-                                {
-                                    messages.map((msg, i) => {
-                                        return (
-                                            <Grid item xs={12} key={i}>
-                                                {msg}
-                                            </Grid>
-                                        )
-                                    })
-                                }
-                            </Grid>
+                        <Paper style={{height: "100%"}} elevation={3}>
+                            <Paper className={classes.messageBox} style={{maxHeight: 130}} ref={msgBoxRef}>
+                                <Grid container>
+                                    {
+                                        messages.map((msg, i) => {
+                                            return (
+                                                <Grid item xs={12} key={i}>
+                                                    {msg}
+                                                </Grid>
+                                            )
+                                        })
+                                    }
+                                </Grid>
+                            </Paper>
+                            <Divider/>
+                            <InputBase placeholder="发送消息"
+                                       style={{width: "100%"}}
+                                       value={chatMsg}
+                                       onChange={e => setChatMsg(e.target.value)}
+                                       onKeyPress={(e) => {
+                                           if (e.key === 'Enter') {
+                                               sendChat();
+                                               e.preventDefault();
+                                           }
+                                       }}/>
                         </Paper>
                     </Grid>
                     <Grid item xs={6}>
@@ -651,6 +687,19 @@ const MessageSnackbar: React.FunctionComponent<MessageProp> = (props) => {
         return (null);
     }
 };
+
+function ChatMessage(props: {
+    who: string,
+    text: string,
+}) {
+    return (
+        <Box>
+            <PlayerMessage who={props.who}/>
+            :
+            <span>{props.text}</span>
+        </Box>
+    )
+}
 
 function PlayMessage(props: {
     who: string,
