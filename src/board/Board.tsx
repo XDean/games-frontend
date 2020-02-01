@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function GameBoard() {
     const classes = useStyles();
     const history = useHistory();
-    const {path, url} = useRouteMatch();
+    const {path} = useRouteMatch();
 
     function back() {
         history.push("/board");

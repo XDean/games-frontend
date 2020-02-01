@@ -50,11 +50,14 @@ const App: React.FunctionComponent = () => {
                             <HomeIcon/>
                         </IconButton>
                         <Typography variant="h5" className={classes.title}>
-                            XDean's Game Board
+                            XDean的玩吧
                         </Typography>
                         <Switch>
                             <Route path="/game/:game/:id" children={<ShareRoom/>}/>
                         </Switch>
+                        <Typography style={{marginLeft:15}}>
+                            {Global.id}
+                        </Typography>
                     </Toolbar>
                 </AppBar>
                 <Switch>
@@ -72,7 +75,6 @@ const App: React.FunctionComponent = () => {
                         <Redirect to={"/board"}/>
                     </Route>
                 </Switch>
-                <Debug/>
             </Box>
         </Router>
     );
@@ -102,16 +104,6 @@ function ShareRoom() {
             />
         </MuiThemeProvider>
     )
-}
-
-function Debug() {
-    return (
-        <Box style={{position: "fixed", right: 0, bottom: 0}}>
-            <Typography>
-                {Global.id}
-            </Typography>
-        </Box>
-    );
 }
 
 export default App

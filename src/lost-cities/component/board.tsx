@@ -177,6 +177,27 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                     return (id === global.id) ? "你" : (otherPlayer!.id);
                 }
 
+                function updateGameInfo() {
+                    if (data.over) {
+                        setState("over")
+                    } else {
+                        setState(data["current-seat"] === mySeat ? "my" : "other");
+                    }
+                    setDeck(data.deck);
+                    setHand(data.hand.map((v: number) => new LCCard(v)));
+
+                    let getBoard = function (key: string): CardBoard {
+                        let res = LCGame.emptyBoard();
+                        data[key].forEach((colors: any[], index: number) => {
+                            res[index] = colors.map(c => new LCCard(c));
+                        });
+                        return res
+                    };
+                    setMyBoard(getBoard("my-board"));
+                    setOtherBoard(getBoard("other-board"));
+                    setDropBoard(getBoard("drop-board"));
+                }
+
                 switch (event.topic) {
                     case "error":
                         setState("error");
@@ -213,25 +234,10 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         break;
                     case "start":
                         addMessage("游戏开始");
+                        updateGameInfo();
+                        break;
                     case "game-info":
-                        if (data.over) {
-                            setState("over")
-                        } else {
-                            setState(data["current-seat"] === mySeat ? "my" : "other");
-                        }
-                        setDeck(data.deck);
-                        setHand(data.hand.map((v: number) => new LCCard(v)));
-
-                        let getBoard = function (key: string): CardBoard {
-                            let res = LCGame.emptyBoard();
-                            data[key].forEach((colors: any[], index: number) => {
-                                res[index] = colors.map(c => new LCCard(c));
-                            });
-                            return res
-                        };
-                        setMyBoard(getBoard("my-board"));
-                        setOtherBoard(getBoard("other-board"));
-                        setDropBoard(getBoard("drop-board"));
+                        updateGameInfo();
                         break;
                     case "turn":
                         setState(data === mySeat ? "my" : "other");
@@ -249,7 +255,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         addMessage(<PlayMessage who={"你"} op={"deck"} card={drawCard}/>);
                         break;
                     case "play":
-                        let who = getWhoById(data.seat);
+                        let who = getWhoBySeat(data.seat);
                         let card = new LCCard(data.card);
                         if (data.seat === mySeat) {
                             setHand(h => {
@@ -634,10 +640,20 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                                                 <LCCardView card={new LCCard(0, i)} mini/>
                                             </TableCell>
                                             <TableCell align={"center"}>
-                                                {otherScore[i].sum}
+                                                <Tooltip title={<LineScoreView score={otherScore[i]}/>} arrow
+                                                         TransitionComponent={Zoom}>
+                                                    <Box>
+                                                        {otherScore[i].sum}
+                                                    </Box>
+                                                </Tooltip>
                                             </TableCell>
                                             <TableCell align={"center"}>
-                                                {myScore[i].sum}
+                                                <Tooltip title={<LineScoreView score={myScore[i]}/>} arrow
+                                                         TransitionComponent={Zoom}>
+                                                    <Box>
+                                                        {myScore[i].sum}
+                                                    </Box>
+                                                </Tooltip>
                                             </TableCell>
                                         </TableRow>
                                     ))
@@ -751,9 +767,13 @@ function PlayerMessage(props: { who: string }) {
 }
 
 function LineScoreView(props: { score: LineScore }) {
-    return <Box>
-        {`(${props.score.score} - 20) x ${props.score.times} + ${props.score.bonus ? 20 : 0} = ${props.score.sum}`}
-    </Box>
+    if (props.score.develop) {
+        return <Box>
+            {`(${props.score.score} - 20) x ${props.score.times} + ${props.score.bonus ? 20 : 0} = ${props.score.sum}`}
+        </Box>
+    } else {
+        return <Box>0</Box>;
+    }
 }
 
 function addToBoard(setBoard: Dispatch<SetStateAction<CardBoard>>, card: LCCard) {
@@ -816,7 +836,7 @@ function calcLineScore(board: LCCard[]): LineScore {
     });
     let bonus = points >= 8;
     return {
-        develop: false,
+        develop: true,
         times: times,
         score: score,
         bonus: bonus,
