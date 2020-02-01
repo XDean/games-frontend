@@ -1,4 +1,4 @@
-import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
+import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react';
 import {makeStyles, Theme} from '@material-ui/core/styles';
 import {
     Box,
@@ -422,6 +422,13 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
         return state === "my" || state === "other" || state === "over"
     }
 
+    let msgBoxRef = useRef<Element | undefined>(undefined);
+
+    useEffect(() => {
+        let current = msgBoxRef.current;
+        current && (current.scrollTop = current.scrollHeight);
+    }, [messages]);
+
     return (
         <React.Fragment>
             <CssBaseline/>
@@ -496,7 +503,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         )
                     })}
                     <Grid item xs={5}>
-                        <Paper className={classes.messageBox} style={{maxHeight: 150}}>
+                        <Paper className={classes.messageBox} style={{maxHeight: 150}} ref={msgBoxRef}>
                             <Grid container>
                                 {
                                     messages.map((msg, i) => {
