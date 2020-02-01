@@ -1,4 +1,4 @@
-import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react';
+import React, {Dispatch, SetStateAction, useContext, useEffect, useRef, useState} from 'react';
 import {makeStyles, Theme} from '@material-ui/core/styles';
 import {
     Box,
@@ -23,14 +23,12 @@ import {
     Zoom
 } from "@material-ui/core";
 import LCCardsView from "./cards";
-import {LCCard, LCGame, LCPlayer} from "../model/model";
 import Grid from '@material-ui/core/Grid';
 import LoopIcon from '@material-ui/icons/Loop';
 import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import DoneIcon from '@material-ui/icons/Done';
 import SendIcon from '@material-ui/icons/Send';
 import {autoWs, WSHandle} from "../../util/ws";
-import global from "../../global";
 import {Color} from '@material-ui/lab/Alert';
 import {Alert} from "../../components/snippts";
 import {useParams} from "react-router";
@@ -38,6 +36,8 @@ import {blue} from "@material-ui/core/colors";
 import LCCardView, {cardColor, cardPoint} from "./card";
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import Divider from '@material-ui/core/Divider';
+import {AppContext} from "../../App";
+import {LCCard, LCPlayer} from "../model/model";
 
 const useStyles = makeStyles<Theme, BoardProp>({
     backdrop: {
@@ -100,6 +100,10 @@ type Message = {
 }
 type CardBoard = LCCard[][];
 
+function emptyBoard(): CardBoard {
+    return [[], [], [], [], []]
+}
+
 function maxPoint(cards: LCCard[]): number {
     return cards.map(c => c.pointNumber()).reduce((a, b) => a > b ? a : b, -1);
 }
@@ -110,10 +114,9 @@ enum HandSort {
     POINT
 }
 
-const emptyBoard = [[], [], [], [], []];
-
 const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
     const {id} = useParams();
+    const ctx = useContext(AppContext);
     let classes = useStyles(props);
 
     let [hand, setHand] = useState<LCCard[]>([]);
@@ -121,9 +124,9 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
     // let [currentSeat] = useStateByProp(game.currentSeat);
     let [otherPlayer, setOtherPlayer] = useState<Player | undefined>(undefined);
 
-    let [myBoard, setMyBoard] = useState<CardBoard>(emptyBoard);
-    let [otherBoard, setOtherBoard] = useState<CardBoard>(emptyBoard);
-    let [dropBoard, setDropBoard] = useState<CardBoard>(emptyBoard);
+    let [myBoard, setMyBoard] = useState<CardBoard>(emptyBoard());
+    let [otherBoard, setOtherBoard] = useState<CardBoard>(emptyBoard());
+    let [dropBoard, setDropBoard] = useState<CardBoard>(emptyBoard());
     let [messages, setMessages] = useState<React.ReactNode[]>([]);
     let [chatMsg, setChatMsg] = useState<string>("");
 
@@ -154,7 +157,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
         }
 
         let aws = autoWs({
-            rel: `socket/game/lostcities/${id}?user=${global.id}`,
+            rel: `socket/game/lostcities/${id}?user=${ctx.id}`,
             oninit: () => {
                 setState("wait");
             },
@@ -174,7 +177,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                 }
 
                 function getWhoById(id: string) {
-                    return (id === global.id) ? "你" : (otherPlayer!.id);
+                    return (id === ctx.id) ? "你" : (otherPlayer!.id);
                 }
 
                 function updateGameInfo() {
@@ -187,7 +190,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                     setHand(data.hand.map((v: number) => new LCCard(v)));
 
                     let getBoard = function (key: string): CardBoard {
-                        let res = LCGame.emptyBoard();
+                        let res = emptyBoard();
                         data[key].forEach((colors: any[], index: number) => {
                             res[index] = colors.map(c => new LCCard(c));
                         });
@@ -210,7 +213,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                     case "host-info":
                         data.players.forEach((p: any) => {
                             if (p) {
-                                if (p.id === global.id) {
+                                if (p.id === ctx.id) {
                                     mySeat = p.seat;
                                     if (!p.ready) {
                                         aws.send(JSON.stringify({
@@ -297,7 +300,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
             }
         });
         setWs(aws);
-    }, [id]);
+    }, [id, ctx.id]);
 
     let sortedHand = hand.slice().sort((a, b) => {
         switch (sort) {
