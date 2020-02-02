@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
             flexGrow: 1,
             backgroundColor: "#eee",
             height: "100%",
+            overflow: "auto",
         },
         homeButton: {
             marginRight: theme.spacing(2),
