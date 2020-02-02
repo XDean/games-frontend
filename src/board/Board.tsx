@@ -39,7 +39,7 @@ export default function GameBoard() {
         <Box className={classes.root}>
             <Grid container spacing={3}>
                 <Grid item>
-                    <GameCard name={"酒馆战棋模拟器"} desc={"炉石酒馆战棋单机模拟器"} link={"/jgzq"} image={jgzq}/>
+                    <GameCard name={"酒馆战棋模拟器"} desc={"炉石酒馆战棋单机模拟器"} image={jgzq}/>
                 </Grid>
                 <Grid item>
                     <GameCard name={"失落的城市"} desc={"双人桌面游戏"} image={lostCities} link={"/board/lc"}/>
