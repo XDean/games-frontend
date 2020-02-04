@@ -683,7 +683,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                     </TableContainer>
                 </Dialog>
                 }
-                {showHelp && <Dialog style={{zIndex:99999}} open onClose={() => setShowHelp(false)}><LCHelpView/></Dialog>}
+                {showHelp && <Dialog maxWidth={"lg"} fullWidth style={{zIndex:99999}} open onClose={() => setShowHelp(false)}><LCHelpView/></Dialog>}
             </Container>
         </React.Fragment>
     )

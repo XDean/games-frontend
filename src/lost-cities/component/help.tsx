@@ -74,7 +74,7 @@ const LCHelpView: React.FunctionComponent<LCHelpProp> = (props) => {
             </Typography>
             <Typography component={"span"} paragraph>
                 <Typography>
-                    1. 打出 <SendIcon/>
+                    1. 打出 <SendIcon style={{verticalAlign: "text-bottom"}}/>
                 </Typography>
                 <ul>
                     <li>打出的卡牌会被放置在己方对应颜色的队列末尾</li>
@@ -84,7 +84,7 @@ const LCHelpView: React.FunctionComponent<LCHelpProp> = (props) => {
             </Typography>
             <Typography component={"span"} paragraph>
                 <Typography>
-                    2. 弃置 <CancelOutlinedIcon/>
+                    2. 弃置 <CancelOutlinedIcon style={{verticalAlign: "text-bottom"}}/>
                 </Typography>
                 <ul>
                     <li>弃置的卡牌会放在对应颜色的弃牌堆顶</li>
@@ -123,7 +123,7 @@ const LCHelpView: React.FunctionComponent<LCHelpProp> = (props) => {
             <Typography paragraph>
                 对于每一列，如果没有牌则计0分，否则如下计分
             </Typography>
-            <Paper elevation={5} style={{padding: 5, marginBottom: 15}}>
+            <Paper elevation={5} style={{display: "inline-block", padding: 5, marginBottom: 15}}>
                 得分 = (点数牌之和 - 20) × (1 + 翻倍牌数) + 奖励分
             </Paper>
             <Typography paragraph>
@@ -133,13 +133,13 @@ const LCHelpView: React.FunctionComponent<LCHelpProp> = (props) => {
                 界面工具
             </Typography>
             <Typography>
-                <LoopIcon/> 排序 (按颜色或点数)
+                <LoopIcon style={{verticalAlign: "text-bottom"}}/> 排序 (按颜色或点数)
             </Typography>
             <Typography>
-                <AssignmentIcon/> 计分板
+                <AssignmentIcon style={{verticalAlign: "text-bottom"}}/> 计分板
             </Typography>
             <Typography>
-                <HelpOutlineIcon/> 帮助也
+                <HelpOutlineIcon style={{verticalAlign: "text-bottom"}}/> 帮助
             </Typography>
         </Paper>
     )
