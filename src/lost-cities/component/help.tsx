@@ -42,6 +42,25 @@ const LCHelpView: React.FunctionComponent<LCHelpProp> = (props) => {
             <Typography variant={"h3"} paragraph>
                 失落的城市
             </Typography>
+            <Typography>
+                人数： 2人
+            </Typography>
+            <Typography>
+                时间： 10~20分钟
+            </Typography>
+            <Typography>
+                量级： 轻中
+            </Typography>
+            <Typography paragraph>
+                机制： 组合收集/手牌管理
+            </Typography>
+            <Typography paragraph>
+                游戏中玩家扮演一支探险队，对五个曾经繁荣却突然没落的古文明城市进行探索。
+                玩家必须选择从哪里开始冒险而哪里要留给另一位玩家去探索。
+                你或许会有机会提高你的探险投资以得到更高的成功报酬，
+                但也将承担更大的失败风险。
+                能够找到平衡点的玩家就能成功探索并且赢得游戏。
+            </Typography>
             <Typography variant={"h4"} paragraph>
                 游戏配置
             </Typography>
