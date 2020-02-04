@@ -26,15 +26,9 @@ const useStyles = makeStyles<Theme, LCCardsProp>({
     },
     horizontal: {
         width: 35,
-        "&:hover": {
-            width: props => props.mini ? 35 : 85,
-        }
     },
     vertical: {
         height: 35,
-        "&:hover": {
-            height: props => props.mini ? 35 : 150,
-        }
     },
     highlight: {
         position: "relative",
