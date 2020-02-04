@@ -38,6 +38,8 @@ import AssignmentIcon from '@material-ui/icons/Assignment';
 import Divider from '@material-ui/core/Divider';
 import {AppContext} from "../../App";
 import {LCCard, LCPlayer} from "../model/model";
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import LCHelpView from "./help";
 
 const useStyles = makeStyles<Theme, BoardProp>({
     backdrop: {
@@ -144,6 +146,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
     let [drawType, setDrawType] = useState<DrawType | undefined>(undefined);
 
     let [sort, setSort] = useState(HandSort.NULL);
+    let [showHelp, setShowHelp] = useState(false);
 
     let [ws, setWs] = useState<WSHandle | undefined>(undefined);
 
@@ -480,6 +483,11 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                     </Grid>
                     <Grid item xs={6}>
                         <Box style={{float: "right"}}>
+                            <IconButton onClick={() => setShowHelp(s => !s)}>
+                                <Tooltip title={"帮助"}>
+                                    <HelpOutlineIcon/>
+                                </Tooltip>
+                            </IconButton>
                             <IconButton onClick={() => hasScore() && setShowScore(s => !s)}>
                                 <Tooltip title={"计分"}>
                                     <AssignmentIcon/>
@@ -675,6 +683,7 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                     </TableContainer>
                 </Dialog>
                 }
+                {showHelp && <Dialog style={{zIndex:99999}} open onClose={() => setShowHelp(false)}><LCHelpView/></Dialog>}
             </Container>
         </React.Fragment>
     )

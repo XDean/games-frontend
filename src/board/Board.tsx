@@ -12,11 +12,9 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             flexGrow: 1,
-            height: "100%",
             paddingLeft: 30,
             paddingRight: 30,
             paddingTop: 20,
-            overflow: "auto",
         },
         paper: {
             padding: theme.spacing(2),
