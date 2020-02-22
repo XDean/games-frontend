@@ -1,16 +1,16 @@
 import {LCCards} from "./card"
 import {MultiPlayerBoard} from "../../common/model/multi-player";
 import {LCPlayerScore} from "./score";
-import {ChatPlugin} from "../../common/model/chat";
+import {ChatController} from "../../common/model/chat";
 import {SimpleProperty} from "xdean-util";
-import {SocketEventHandler} from "../../common/model/socket";
+import {SocketInit, SocketTopicHandler, SocketTopicSender} from "../../common/model/socket";
 
 
-export class LCGame implements SocketEventHandler {
+export class LCGame implements SocketTopicHandler, SocketInit {
     readonly host: MultiPlayerBoard = new MultiPlayerBoard();
     readonly board: LCBoard = new LCBoard();
     readonly plugins = {
-        chat: new ChatPlugin()
+        chat: new ChatController()
     };
 
     constructor(
@@ -18,6 +18,13 @@ export class LCGame implements SocketEventHandler {
     ) {
         this.host.setPlayerCount(2);
     }
+
+    init = (sender: SocketTopicSender) => {
+        this.host.init(sender);
+        Object.values(this.plugins).forEach(p => {
+            p.init(sender);
+        });
+    };
 
     handle = (topic: string, data: any): void => {
         this.host.handle(topic, data);

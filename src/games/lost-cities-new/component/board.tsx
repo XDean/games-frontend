@@ -5,10 +5,17 @@ import LCHandView from "./hand";
 import {createCards} from "../model/card";
 import {LCTheme} from "../theme";
 import ChatView from "../../common/component/chat";
+import {LCGame} from "../model/board";
+import {SocketTopicSender} from "../../common/model/socket";
 
-const useStyles = makeStyles({});
+const useStyles = makeStyles({
 
-type LCBoardProp = {}
+});
+
+type LCBoardProp = {
+    game: LCGame
+    sender: SocketTopicSender
+}
 
 const LCBoardView: React.FunctionComponent<LCBoardProp> = (props) => {
     return (
@@ -16,7 +23,9 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = (props) => {
             <Box>
                 <LCHandView cards={createCards(8)} unknown/>
             </Box>
-            {/*<ChatView messages={} send={}/>*/}
+            <Box>
+                <ChatView controller={props.game.plugins.chat} sender={props.sender}/>
+            </Box>
         </ThemeProvider>
     )
 };

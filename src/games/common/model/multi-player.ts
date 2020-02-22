@@ -1,8 +1,8 @@
 import {Wither} from "./util";
 import {SimpleProperty} from "xdean-util";
-import {SocketEventHandler} from "./socket";
+import {SocketInit, SocketTopicHandler, SocketTopicSender} from "./socket";
 
-export class MultiPlayerBoard implements SocketEventHandler {
+export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
     readonly myRole = new SimpleProperty<"none" | "play" | "watch">("none");
     readonly mySeat = new SimpleProperty<number>(0);
     readonly playerCount = new SimpleProperty<number>(0);
@@ -15,7 +15,11 @@ export class MultiPlayerBoard implements SocketEventHandler {
     };
 
     handle = (topic: string, data: any): void => {
-    }
+    };
+
+    init = (sender: SocketTopicSender) => {
+
+    };
 }
 
 export class MultiGamePlayer extends Wither<MultiGamePlayer> {

@@ -11,7 +11,7 @@ import {AppTheme} from "../../theme";
 import RefreshIcon from '@material-ui/icons/Refresh';
 import HomeIcon from '@material-ui/icons/Home';
 import Typography from "@material-ui/core/Typography";
-import Toolbar from "@material-ui/core/Toolbar";
+import {EmptyTopicSender, SocketTopicSender} from "../common/model/socket";
 
 const useStyles = makeStyles<typeof AppTheme>((theme) => createStyles({
     backdrop: theme.backdropStyle,
@@ -32,16 +32,26 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
     const history = useHistory();
 
     const [game, setGame] = useState<LCGame>();
+    const [sender, setSender] = useState<SocketTopicSender>(EmptyTopicSender);
     const [connectState, setConnectState] = useState<"open" | "connecting" | "retry" | "error">("connecting");
     const [connectError, setConnectError] = useState<string>();
 
     useEffect(() => {
         let newGame = new LCGame(id!);
-        setGame(newGame);
         let ws = autoWs({
             rel: `socket/game/lostcities/${id}?user=${ctx.id}`,
             oninit: () => {
-
+                let sender = {
+                    send(topic: string, data: any): void {
+                        ws.send(JSON.stringify({
+                            topic: topic,
+                            payload: data,
+                        }))
+                    }
+                };
+                newGame.init(sender);
+                setGame(newGame);
+                setSender(sender);
             },
             onopen: () => {
                 setConnectState("open");
@@ -86,7 +96,7 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
     return (
         <React.Fragment>
             <div>abc</div>
-            <LCBoardView/>
+            {game && <LCBoardView game={game} sender={sender}/>}
             {!(connectState in ["open"]) && function () {
                 switch (connectState) {
                     case "connecting":
