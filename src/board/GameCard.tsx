@@ -6,7 +6,6 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import {CardActionArea, CardMedia, Dialog, IconButton, Tooltip} from "@material-ui/core";
-import {useHistory} from "react-router";
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 const useStyles = makeStyles({
@@ -21,21 +20,14 @@ type GameCardProp = {
     name: string,
     desc: string,
     image: string,
-    link?: string,
+    onPlay?: () => void,
     help?: React.ReactNode,
 }
 
 const GameCard: React.FunctionComponent<GameCardProp> = (props) => {
-    const history = useHistory();
     const classes = useStyles();
 
     const [showHelp, setShowHelp] = useState(false);
-
-    const onPlay = () => {
-        if (props.link) {
-            history.push(props.link);
-        }
-    };
 
     return (
         <Card className={classes.card}>
@@ -55,16 +47,17 @@ const GameCard: React.FunctionComponent<GameCardProp> = (props) => {
                 </CardContent>
             </CardActionArea>
             <CardActions>
-                {props.link ? (
-                    <Button size="small" color="primary" onClick={onPlay}>
-                        PLAY NOW!
+                {props.onPlay ? (
+                    <Button size="small" color="primary" onClick={props.onPlay}>
+                        开始游戏!
                     </Button>
                 ) : (
                     <Button size="small" color="primary">
-                        NOT READY NOW
+                        尚未就绪
                     </Button>
                 )}
-                {props.help && <IconButton onClick={() => setShowHelp(s => !s)} size={"small"} style={{marginLeft:"auto"}}>
+                {props.help &&
+                <IconButton onClick={() => setShowHelp(s => !s)} size={"small"} style={{marginLeft: "auto"}}>
                     <Tooltip title={"帮助"}>
                         <HelpOutlineIcon/>
                     </Tooltip>

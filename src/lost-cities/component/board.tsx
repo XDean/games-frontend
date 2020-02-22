@@ -509,11 +509,9 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                         return (
                             <Grid item container xs={12} key={i} className={classes.board} alignItems="center">
                                 <Grid item xs={5}>
-                                    <Tooltip title={otherScore[i]?.develop ? "" : ""}>
-                                        <Box className={classes.otherBoard}>
-                                            <LCCardsView cards={otherBoard[e]} mini reverse/>
-                                        </Box>
-                                    </Tooltip>
+                                    <Box className={classes.otherBoard}>
+                                        <LCCardsView cards={otherBoard[e]} mini reverse/>
+                                    </Box>
                                 </Grid>
                                 <Grid item>
                                     <Tooltip title={i === 0 && op === "selectDraw" ? "从弃牌堆摸牌" : ""} open arrow
@@ -683,7 +681,8 @@ const LCBoardView: React.FunctionComponent<BoardProp> = (props) => {
                     </TableContainer>
                 </Dialog>
                 }
-                {showHelp && <Dialog maxWidth={"lg"} fullWidth style={{zIndex:99999}} open onClose={() => setShowHelp(false)}><LCHelpView/></Dialog>}
+                {showHelp && <Dialog maxWidth={"lg"} fullWidth style={{zIndex: 99999}} open
+                                     onClose={() => setShowHelp(false)}><LCHelpView/></Dialog>}
             </Container>
         </React.Fragment>
     )

@@ -1,12 +1,11 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import GameCard from "./GameCard";
 import jgzq from "../jgzq/images/banner.png"
 import lostCities from "../lost-cities/images/banner.jpg"
-import {Route, Switch, useHistory, useRouteMatch} from "react-router";
-import LCCreateView from "../lost-cities/create";
-import {Box} from "@material-ui/core";
+import LCCreateView from "../games/lost-cities-new/component/create";
+import {Box, Dialog} from "@material-ui/core";
 import LCHelpView from "../lost-cities/component/help";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -27,29 +26,34 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function GameBoard() {
     const classes = useStyles();
-    const history = useHistory();
-    const {path} = useRouteMatch();
+    const [item, setItem] = useState("");
 
     function back() {
-        history.push("/board");
+        setItem("")
     }
 
-    return (
-        <Box className={classes.root}>
-            <Grid container spacing={3}>
-                <Grid item>
-                    <GameCard name={"酒馆战棋模拟器"} desc={"炉石酒馆战棋单机模拟器"} image={jgzq}/>
-                </Grid>
-                <Grid item>
-                    <GameCard name={"失落的城市"} desc={"双人桌面游戏"} image={lostCities} link={"/board/lc"} help={<LCHelpView/>}/>
-                </Grid>
-            </Grid>
+    let dialogContent = function () {
+        switch (item) {
+            case "lc":
+                return <LCCreateView onCancel={back}/>
+        }
+    }();
 
-            <Switch>
-                <Route path={`${path}/lc`}>
-                    <LCCreateView onClose={back}/>
-                </Route>
-            </Switch>
-        </Box>
-    );
+    return <Box className={classes.root}>
+        <Grid container spacing={3}>
+            <Grid item>
+                <GameCard name={"酒馆战棋模拟器"} desc={"炉石酒馆战棋单机模拟器"} image={jgzq}/>
+            </Grid>
+            <Grid item>
+                <GameCard name={"失落的城市"} desc={"双人桌面游戏"} image={lostCities} onPlay={() => setItem("lc")}
+                          help={<LCHelpView/>}/>
+            </Grid>
+        </Grid>
+
+        {dialogContent && (
+            <Dialog open onClose={back}>
+                {dialogContent}
+            </Dialog>
+        )}
+    </Box>;
 }

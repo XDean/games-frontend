@@ -1,13 +1,13 @@
 import React from 'react';
-import {makeStyles, Theme} from '@material-ui/core/styles';
+import {createStyles, makeStyles} from '@material-ui/core/styles';
 import {Box, Paper} from "@material-ui/core";
 import {LCCard} from "../model/card";
-import {cardColor} from "./style";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHandshake} from "@fortawesome/free-solid-svg-icons";
+import {LCTheme} from "../theme";
 
 
-const useStyles = makeStyles<Theme, LCMiniCardProp>({
+const useStyles = makeStyles<typeof LCTheme, LCMiniCardProp>((theme) => createStyles({
         card: {
             position: "relative",
             height: 35,
@@ -15,7 +15,7 @@ const useStyles = makeStyles<Theme, LCMiniCardProp>({
             borderRadius: 5,
             borderWidth: 1,
             borderStyle: "solid",
-            backgroundColor: props => cardColor(props.card.color),
+            backgroundColor: props => theme.cardBackground(props.unknown ? "unknown" : props.card.color, "square"),
         },
         center: {
             height: 35,
@@ -44,11 +44,12 @@ const useStyles = makeStyles<Theme, LCMiniCardProp>({
         double: {
             fontSize: 25,
         }
-    }
+    })
 );
 
 type LCMiniCardProp = {
-    card: LCCard,
+    card: LCCard
+    unknown?: boolean
 }
 
 const LCMiniCardView: React.FunctionComponent<LCMiniCardProp> = (props) => {

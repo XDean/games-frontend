@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import {AppBar, Box, Button, CircularProgress, Grid, Snackbar, Tab, Tabs, TextField} from "@material-ui/core";
-import {Alert} from "../../components/snippts";
+import {Alert} from "../../../components/snippts";
 import Backdrop from "@material-ui/core/Backdrop/Backdrop";
 import {useHistory} from "react-router";
 

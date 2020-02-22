@@ -13,3 +13,12 @@ export class LCCard {
         this.point = int % 12 < 3 ? "double" : int % 12 - 1 as LCCardPoint;
     }
 }
+
+export type LCCards = LCCard[]
+
+export function createCards(count: number): LCCards {
+    let res = [];
+    for (; count-- > 0;)
+        res.push(new LCCard(0));
+    return res;
+}

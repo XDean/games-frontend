@@ -1,7 +1,13 @@
-import {LCCardColor} from "../model/card";
+import {LCCardColor} from "./model/card";
 
-export function cardColor(color: LCCardColor) {
+export const LCTheme = {
+    cardBackground: cardBackground,
+};
+
+function cardBackground(color: LCCardColor | "unknown", type: "card" | "square") {
     switch (color) {
+        case "unknown":
+            return "#999";
         case 0:
             return "#faa";
         case 1:
