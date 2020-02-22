@@ -56,8 +56,10 @@ export function autoWs(config: WSConfig): WSHandle {
             currentWs.send(data)
         },
         close() {
-            closed = true;
-            currentWs.close();
+            if (!closed) {
+                closed = true;
+                currentWs.close();
+            }
         }
     }
 }

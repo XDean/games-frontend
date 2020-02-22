@@ -1,13 +1,13 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import {Box} from "@material-ui/core";
-import {LCGameBoard} from "../model/board";
+import {LCBoard} from "../model/board";
 import {LCCardColor} from "../model/card";
 
 const useStyles = makeStyles({});
 
 type LCColorBoardProp = {
-    board: LCGameBoard
+    board: LCBoard
     color: LCCardColor
 }
 

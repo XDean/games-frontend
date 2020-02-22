@@ -23,6 +23,7 @@ import Box from "@material-ui/core/Box";
 import {grey} from "@material-ui/core/colors";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@material-ui/core";
 import {AppTheme} from "./theme";
+import LCMainView from "./games/lost-cities-new/lostcities";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -113,7 +114,7 @@ const App: React.FunctionComponent = () => {
                                 <Route path="/jgzq">
                                     <Jgzq/>
                                 </Route>
-                                <Route path="/game/lc/:id" children={<LCBoardView/>}/>
+                                <Route path="/game/lc/:id" children={<LCMainView/>}/>
                                 <Route path="*">
                                     <Redirect to={"/board"}/>
                                 </Route>

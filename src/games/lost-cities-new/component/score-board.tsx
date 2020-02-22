@@ -14,13 +14,13 @@ import {
 } from "@material-ui/core";
 import {LCCard} from "../../../lost-cities/model/model";
 import LCCardView from "../../../lost-cities/component/card";
-import {LCGameBoard} from "../model/board";
+import {LCBoard} from "../model/board";
 import {LCSingleScore} from "../model/score";
 
 const useStyles = makeStyles({});
 
 type LCScoreBoardProp = {
-    board: LCGameBoard
+    board: LCBoard
 }
 
 const LCScoreBoardView: React.FunctionComponent<LCScoreBoardProp> = (props) => {

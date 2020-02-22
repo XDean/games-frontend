@@ -97,7 +97,7 @@ const LCCreateView: React.FunctionComponent<LCCreateProp> = (props) => {
             <Backdrop open={connecting} className={classes.backdrop}>
                 <CircularProgress color="inherit"/>
                 <Box style={{padding: 10}}>
-                    正在连接
+                    正在创建游戏
                 </Box>
             </Backdrop>
         </Box>

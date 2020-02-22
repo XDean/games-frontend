@@ -4,6 +4,7 @@ import {Box} from "@material-ui/core";
 import LCHandView from "./hand";
 import {createCards} from "../model/card";
 import {LCTheme} from "../theme";
+import ChatView from "../../common/component/chat";
 
 const useStyles = makeStyles({});
 
@@ -15,6 +16,7 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = (props) => {
             <Box>
                 <LCHandView cards={createCards(8)} unknown/>
             </Box>
+            {/*<ChatView messages={} send={}/>*/}
         </ThemeProvider>
     )
 };
