@@ -70,6 +70,13 @@ const ChatView: React.FunctionComponent<ChatProp> = (props) => {
         )
     }
 
+    function send(){
+        if (inputRef.current){
+            props.sender.send("chat", inputRef.current.value);
+            inputRef.current.value = "";
+        }
+    }
+
     return (
         <Paper {...props} className={`${classes.container} ${props.className}`} elevation={3}>
             <Paper className={classes.messageBox} ref={msgBoxRef} variant={"outlined"}>
@@ -92,16 +99,15 @@ const ChatView: React.FunctionComponent<ChatProp> = (props) => {
                            inputRef={inputRef}
                            style={{width: "100%"}}
                            onKeyPress={(e) => {
-                               if (e.key === 'Enter' && inputRef.current) {
-                                   props.sender.send("chat", inputRef.current.value);
-                                   inputRef.current.value = "";
+                               if (e.key === 'Enter') {
+                                   send();
                                    e.preventDefault();
                                }
                            }}/>
                 <IconButton className={classes.iconButton} onClick={(e) => setEmojiPaneAnchor(e.currentTarget)}>
                     <SentimentVerySatisfiedIcon/>
                 </IconButton>
-                <IconButton className={classes.iconButton}>
+                <IconButton className={classes.iconButton} onClick={send}>
                     <SendIcon/>
                 </IconButton>
             </Paper>

@@ -37,7 +37,7 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
     const [connectError, setConnectError] = useState<string>();
 
     useEffect(() => {
-        let newGame = new LCGame(id!);
+        let newGame = new LCGame(id!, ctx.id);
         let ws = autoWs({
             rel: `socket/game/lostcities/${id}?user=${ctx.id}`,
             oninit: () => {

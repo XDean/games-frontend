@@ -7,6 +7,7 @@ import {LCTheme} from "../theme";
 import ChatView from "../../common/component/chat";
 import {LCGame} from "../model/board";
 import {SocketTopicSender} from "../../common/model/socket";
+import LCColorBoardView from "./color-board";
 
 const useStyles = makeStyles({
     chat: {
@@ -27,6 +28,11 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = (props) => {
             <Box>
                 <LCHandView cards={createCards(8)} unknown/>
             </Box>
+            <LCColorBoardView board={props.game.board} color={0} rightSeat={props.game.host.mySeat.value}/>
+            <LCColorBoardView board={props.game.board} color={1} rightSeat={props.game.host.mySeat.value}/>
+            <LCColorBoardView board={props.game.board} color={2} rightSeat={props.game.host.mySeat.value}/>
+            <LCColorBoardView board={props.game.board} color={3} rightSeat={props.game.host.mySeat.value}/>
+            <LCColorBoardView board={props.game.board} color={4} rightSeat={props.game.host.mySeat.value}/>
             <ChatView controller={props.game.plugins.chat} sender={props.sender} className={classes.chat}/>
         </ThemeProvider>
     )

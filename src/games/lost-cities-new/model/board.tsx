@@ -14,7 +14,8 @@ export class LCGame implements SocketTopicHandler, SocketInit {
     };
 
     constructor(
-        readonly id: string
+        readonly hostId: string,
+        readonly myId: string
     ) {
         this.host.setPlayerCount(2);
     }
