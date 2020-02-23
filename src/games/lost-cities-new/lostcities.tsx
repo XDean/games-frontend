@@ -12,6 +12,7 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import HomeIcon from '@material-ui/icons/Home';
 import Typography from "@material-ui/core/Typography";
 import {EmptyTopicSender, SocketTopicSender} from "../common/model/socket";
+import {useStateByProp} from "../../util/property";
 
 const useStyles = makeStyles<typeof AppTheme>((theme) => createStyles({
     backdrop: theme.backdropStyle,
@@ -33,15 +34,19 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
 
     const [game, setGame] = useState<LCGame>();
     const [sender, setSender] = useState<SocketTopicSender>(EmptyTopicSender);
+
     const [connectState, setConnectState] = useState<"open" | "connecting" | "retry" | "error">("connecting");
     const [connectError, setConnectError] = useState<string>();
 
+    // const [gameState, setGameState] = useStateByProp();
+
     useEffect(() => {
         let newGame = new LCGame(id!, ctx.id);
+        let sender: SocketTopicSender = EmptyTopicSender;
         let ws = autoWs({
             rel: `socket/game/lostcities/${id}?user=${ctx.id}`,
             oninit: () => {
-                let sender = {
+                sender = {
                     send(topic: string, data: any): void {
                         ws.send(JSON.stringify({
                             topic: topic,

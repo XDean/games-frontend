@@ -7,16 +7,18 @@ import {SocketInit, SocketTopicHandler, SocketTopicSender} from "../../common/mo
 
 
 export class LCGame implements SocketTopicHandler, SocketInit {
-    readonly host: MultiPlayerBoard = new MultiPlayerBoard();
+    readonly host: MultiPlayerBoard;
     readonly board: LCBoard = new LCBoard();
     readonly plugins = {
         chat: new ChatController()
     };
 
+
     constructor(
         readonly hostId: string,
         readonly myId: string
     ) {
+        this.host = new MultiPlayerBoard(myId);
         this.host.setPlayerCount(2);
     }
 

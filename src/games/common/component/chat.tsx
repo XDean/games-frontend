@@ -8,6 +8,7 @@ import {ChatController, ChatMessage} from "../model/chat";
 import Typography from "@material-ui/core/Typography";
 import SendIcon from '@material-ui/icons/Send';
 import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied';
+import {useStateByProp} from "../../../util/property";
 
 const useStyles = makeStyles(theme => createStyles({
     container: {
@@ -47,20 +48,16 @@ const ChatView: React.FunctionComponent<ChatProp> = (props) => {
     const msgBoxRef = useRef<Element>();
     const inputRef = useRef<HTMLInputElement>();
 
-    const [lockScroll, setLockScroll] = useState(false);
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [lockScroll, setLockScroll] = useState(true);
+    const [messages, setMessages] = useStateByProp(props.controller.messages, []);
     const [emojiPaneAnchor, setEmojiPaneAnchor] = useState();
 
     useEffect(() => {
-        setMessages(props.controller.messages.value);
-        props.controller.messages.addListener((ob, o, n) => {
-            setMessages(n.slice());
-            if (!lockScroll) {
-                let current = msgBoxRef.current;
-                current && (current.scrollTop = current.scrollHeight);
-            }
-        });
-    }, [lockScroll, props.controller]);
+        if (lockScroll) {
+            let current = msgBoxRef.current;
+            current && (current.scrollTop = current.scrollHeight);
+        }
+    }, [lockScroll, messages]);
 
     function simpleMessage(msg: ChatMessage) {
         return (
@@ -70,8 +67,8 @@ const ChatView: React.FunctionComponent<ChatProp> = (props) => {
         )
     }
 
-    function send(){
-        if (inputRef.current){
+    function send() {
+        if (inputRef.current) {
             props.sender.send("chat", inputRef.current.value);
             inputRef.current.value = "";
         }

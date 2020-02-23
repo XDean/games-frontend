@@ -12,7 +12,6 @@ export class ChatController implements SocketTopicHandler, SocketInit {
     readonly messages = new SimpleProperty<ChatMessage[]>([]);
 
     handle = (topic: string, data: any): void => {
-        console.log("accept", topic, data);
         if (topic === "chat") {
             this.messages.update(msgs => {
                 msgs.push({

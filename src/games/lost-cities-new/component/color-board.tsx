@@ -7,11 +7,16 @@ import LCSquareView from "./square";
 
 const useStyles = makeStyles({
     root: {},
-    left: {
-        float: "right",
+    leftRightContainer: {
+        overflowX: "auto",
+    },
+    leftRightBox: {
         display: "flex",
         justifyContent: "center",
-        overflow: "auto",
+        padding: "5px 0",
+    },
+    left: {
+        float: "right",
 
     },
     center: {
@@ -21,9 +26,6 @@ const useStyles = makeStyles({
     },
     right: {
         float: "left",
-        display: "flex",
-        justifyContent: "center",
-        overflow: "auto",
     },
 });
 
@@ -38,11 +40,11 @@ const LCColorBoardView: React.FunctionComponent<LCColorBoardProp> = (props) => {
     const classes = useStyles();
     return (
         <Grid container className={classes.root} justify={"center"} alignItems={"center"} wrap={"nowrap"}>
-            <Grid item xs={5}>
-                <Box className={classes.left}>
-                    <LCSquareView card={new LCCard(4 + 12 * props.color)}/>
-                    <LCSquareView card={new LCCard(3 + 12 * props.color)}/>
-                    <LCSquareView card={new LCCard(2 + 12 * props.color)}/>
+            <Grid item xs={5} className={classes.leftRightContainer}>
+                <Box className={classes.left + " " + classes.leftRightBox}>
+                    {new Array(12).fill(0).map((a, i) => (
+                        <LCSquareView key={i} card={new LCCard(11 - i + 12 * props.color)}/>
+                    ))}
                 </Box>
             </Grid>
             <Grid item>
@@ -50,11 +52,11 @@ const LCColorBoardView: React.FunctionComponent<LCColorBoardProp> = (props) => {
                     <LCSquareView card={new LCCard(1 + 12 * props.color)}/>
                 </Button>
             </Grid>
-            <Grid item xs={5}>
-                <Box className={classes.right}>
-                    <LCSquareView card={new LCCard(2 + 12 * props.color)}/>
-                    <LCSquareView card={new LCCard(3 + 12 * props.color)}/>
-                    <LCSquareView card={new LCCard(4 + 12 * props.color)}/>
+            <Grid item xs={5} className={classes.leftRightContainer}>
+                <Box className={classes.right + " " + classes.leftRightBox}>
+                    {new Array(12).fill(0).map((a, i) => (
+                        <LCSquareView key={i} card={new LCCard(i + 12 * props.color)}/>
+                    ))}
                 </Box>
             </Grid>
         </Grid>
