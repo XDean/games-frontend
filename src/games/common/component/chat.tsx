@@ -14,6 +14,7 @@ const useStyles = makeStyles(theme => createStyles({
     container: {
         display: "flex",
         flexDirection: "column",
+        height: "100%",
     },
     messageBox: {
         overflow: "auto",
@@ -34,6 +35,9 @@ const useStyles = makeStyles(theme => createStyles({
         maxHeight: 200,
         maxWidth: 600,
         overflow: "auto",
+    },
+    simpleMessage: {
+        wordWrap: "break-word",
     }
 }));
 
@@ -61,9 +65,14 @@ const ChatView: React.FunctionComponent<ChatProp> = (props) => {
 
     function simpleMessage(msg: ChatMessage) {
         return (
-            <Typography>
-                [{msg.who}]: {msg.content}
-            </Typography>
+            <React.Fragment>
+                <Typography className={classes.simpleMessage} component={"span"}>
+                    [{msg.who}]:
+                </Typography>
+                <Typography className={classes.simpleMessage} component={"span"}>
+                    {msg.content}
+                </Typography>
+            </React.Fragment>
         )
     }
 

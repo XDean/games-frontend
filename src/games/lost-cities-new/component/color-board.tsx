@@ -1,9 +1,10 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import {Box, Button, Grid} from "@material-ui/core";
-import {LCBoard} from "../model/board";
+import {EmptyBoard, LCBoard} from "../model/board";
 import {LCCard, LCCardColor} from "../model/card";
 import LCSquareView from "./square";
+import {useStateByProp} from "../../../util/property";
 
 const useStyles = makeStyles({
     root: {},
@@ -38,12 +39,13 @@ type LCColorBoardProp = {
 
 const LCColorBoardView: React.FunctionComponent<LCColorBoardProp> = (props) => {
     const classes = useStyles();
+    const board = useStateByProp(props.board.board, EmptyBoard)[0];
     return (
         <Grid container className={classes.root} justify={"center"} alignItems={"center"} wrap={"nowrap"}>
             <Grid item xs={5} className={classes.leftRightContainer}>
                 <Box className={classes.left + " " + classes.leftRightBox}>
-                    {new Array(12).fill(0).map((a, i) => (
-                        <LCSquareView key={i} card={new LCCard(11 - i + 12 * props.color)}/>
+                    {board[1-props.rightSeat][props.color].reverse().map((c, i) => (
+                        <LCSquareView key={i} card={c}/>
                     ))}
                 </Box>
             </Grid>
@@ -54,8 +56,8 @@ const LCColorBoardView: React.FunctionComponent<LCColorBoardProp> = (props) => {
             </Grid>
             <Grid item xs={5} className={classes.leftRightContainer}>
                 <Box className={classes.right + " " + classes.leftRightBox}>
-                    {new Array(12).fill(0).map((a, i) => (
-                        <LCSquareView key={i} card={new LCCard(i + 12 * props.color)}/>
+                    {board[props.rightSeat][props.color].map((c, i) => (
+                        <LCSquareView key={i} card={c}/>
                     ))}
                 </Box>
             </Grid>

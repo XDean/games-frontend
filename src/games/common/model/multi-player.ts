@@ -2,9 +2,12 @@ import {Wither} from "./util";
 import {SimpleProperty} from "xdean-util";
 import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "./socket";
 
+export type MultiPlayerRole = "none" | "not-determined" | "play" | "watch";
+
 export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
-    readonly myRole = new SimpleProperty<"none" | "not-determined" | "play" | "watch">("none");
+    readonly myRole = new SimpleProperty<MultiPlayerRole>("none");
     readonly mySeat = new SimpleProperty<number>(0);
+    readonly playing = new SimpleProperty<boolean>(false);
     readonly playerCount = new SimpleProperty<number>(0);
     readonly players = new SimpleProperty<MultiGamePlayer[]>([]);
     readonly watchers = new SimpleProperty<MultiGameWatcher[]>([]);
@@ -33,6 +36,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
     handle = (topic: string, data: any): void => {
         switch (topic) {
             case "host-info":
+                this.playing.value = data.playing;
                 this.players.value = data.players.map((p: any) => p === null ? MultiGamePlayer.EMPTY : new MultiGamePlayer(p.id, p.seat, p.ready));
                 this.watchers.value = data.watchers.map((p: any) => new MultiGameWatcher(p.id));
                 let find = false;

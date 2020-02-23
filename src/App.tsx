@@ -16,7 +16,6 @@ import {Redirect, Route, Router, Switch, useParams} from "react-router-dom";
 import GameBoard from "./board/Board";
 import {createHashHistory} from "history";
 import Jgzq from "./jgzq/Jgzq";
-import LCBoardView from "./games/lost-cities-new/component/board";
 import Chip from "@material-ui/core/Chip";
 import ShareOutlinedIcon from '@material-ui/icons/ShareOutlined';
 import Box from "@material-ui/core/Box";
@@ -29,6 +28,8 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
             backgroundColor: "#eee",
             height: "100%",
             overflow: "auto",
@@ -39,20 +40,28 @@ const useStyles = makeStyles((theme: Theme) =>
         title: {
             flexGrow: 1,
         },
+        contentRoot: {
+            flexGrow: 1,
+            height: 0,
+        }
     }),
 );
 
-export const AppContext = createContext<{
-    id: string,
-}>({
-    id: "a",
-});
+export type AppContextType = {
+    id: string
+}
+
+let AppDefaultContext = {
+    id: "",
+};
+
+export const AppContext = createContext<AppContextType>(AppDefaultContext);
 
 const App: React.FunctionComponent = () => {
     const history = createHashHistory();
     const classes = useStyles();
 
-    const [ctx, setCtx] = useState({id: "a"});
+    const [ctx, setCtx] = useState<AppContextType>(AppDefaultContext);
     const [id, setId] = useState(ctx.id);
 
     function handleClick() {
@@ -85,7 +94,7 @@ const App: React.FunctionComponent = () => {
                         {ctx.id === "" ?
                             <Dialog open>
                                 <DialogTitle>
-                                    欢迎来到XDean的地盘
+                                    欢迎来到XDean的玩吧
                                 </DialogTitle>
                                 <DialogContent>
                                     <TextField
@@ -104,21 +113,23 @@ const App: React.FunctionComponent = () => {
                                     </Button>
                                 </DialogActions>
                             </Dialog> :
-                            <Switch>
-                                <Route exact path="/">
-                                    <Redirect to={"/board"}/>
-                                </Route>
-                                <Route path="/board">
-                                    <GameBoard/>
-                                </Route>
-                                <Route path="/jgzq">
-                                    <Jgzq/>
-                                </Route>
-                                <Route path="/game/lc/:id" children={<LCMainView/>}/>
-                                <Route path="*">
-                                    <Redirect to={"/board"}/>
-                                </Route>
-                            </Switch>
+                            <Box className={classes.contentRoot}>
+                                <Switch>
+                                    <Route exact path="/">
+                                        <Redirect to={"/board"}/>
+                                    </Route>
+                                    <Route path="/board">
+                                        <GameBoard/>
+                                    </Route>
+                                    <Route path="/jgzq">
+                                        <Jgzq/>
+                                    </Route>
+                                    <Route path="/game/lc/:id" children={<LCMainView/>}/>
+                                    <Route path="*">
+                                        <Redirect to={"/board"}/>
+                                    </Route>
+                                </Switch>
+                            </Box>
                         }
                     </Box>
                 </Router>

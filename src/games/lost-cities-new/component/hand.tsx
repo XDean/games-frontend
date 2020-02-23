@@ -29,8 +29,6 @@ type LCHandProp = {
 }
 
 const LCHandView: React.FunctionComponent<LCHandProp> = (props) => {
-    console.log(props.cards);
-
     const classes = useStyles(props);
 
     return (

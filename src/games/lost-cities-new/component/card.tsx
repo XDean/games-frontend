@@ -48,6 +48,10 @@ const useStyles = makeStyles<typeof LCTheme, CardProp>((theme) => createStyles({
             left: 3,
             top: 3,
         },
+        rightBottom: {
+            right: 3,
+            bottom: 3,
+        },
     })
 );
 

@@ -12,10 +12,13 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import HomeIcon from '@material-ui/icons/Home';
 import Typography from "@material-ui/core/Typography";
 import {EmptyTopicSender, SocketTopicSender} from "../common/model/socket";
-import {useStateByProp} from "../../util/property";
+import {MultiPlayerRole} from "../common/model/multi-player";
+import {SelectDialog} from "../../components/selectDialog";
 
 const useStyles = makeStyles<typeof AppTheme>((theme) => createStyles({
-    backdrop: theme.backdropStyle,
+    root: {
+        height: "100%",
+    },
     errorDialogContent: {
         paddingLeft: theme.spacing(4),
         paddingRight: theme.spacing(4),
@@ -37,11 +40,14 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
 
     const [connectState, setConnectState] = useState<"open" | "connecting" | "retry" | "error">("connecting");
     const [connectError, setConnectError] = useState<string>();
-
-    // const [gameState, setGameState] = useStateByProp();
+    const [gameState, setGameState] = useState<MultiPlayerRole>("none");
 
     useEffect(() => {
         let newGame = new LCGame(id!, ctx.id);
+        setGameState(newGame.host.myRole.value);
+        newGame.host.myRole.addListener((ob, o, n) => {
+            setGameState(n);
+        });
         let sender: SocketTopicSender = EmptyTopicSender;
         let ws = autoWs({
             rel: `socket/game/lostcities/${id}?user=${ctx.id}`,
@@ -87,52 +93,71 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
         };
     }, [id, ctx.id]);
 
-    function connecting(text: string) {
+    function connectStateView() {
+        function connecting(text: string) {
+            return (
+                <Backdrop open>
+                    <CircularProgress color="inherit"/>
+                    <Box style={{padding: 10}}>
+                        {text}
+                    </Box>
+                </Backdrop>
+            )
+        }
+
+        switch (connectState) {
+            case "connecting":
+                return connecting("正在连接");
+            case "retry":
+                return connecting("连接断开，正在重连");
+            case "error":
+                return <Dialog open>
+                    <Grid container className={classes.errorDialogContent} justify={"center"}
+                          alignItems={"center"}>
+                        <Grid item>
+                            <Typography variant="h5" className={classes.title}>
+                                {connectError}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                    <Grid container justify="space-evenly">
+                        <Grid item>
+                            <IconButton onClick={() => history.push("/")} title={"回到主页"}>
+                                <HomeIcon fontSize={"large"}/>
+                            </IconButton>
+                        </Grid>
+                        <Grid item>
+                            <IconButton onClick={() => window.location.reload()} title={"刷新页面"}>
+                                <RefreshIcon fontSize={"large"}/>
+                            </IconButton>
+                        </Grid>
+                    </Grid>
+                </Dialog>
+        }
+    }
+
+    function selectJoinWatch() {
+        let canJoin = !game!.host.isFull();
         return (
-            <Backdrop open className={classes.backdrop}>
-                <CircularProgress color="inherit"/>
-                <Box style={{padding: 10}}>
-                    {text}
-                </Box>
-            </Backdrop>
+            <SelectDialog options={["加入游戏", "观看游戏"]} onSelect={(i) => {
+                if (i === 0) {
+                    if (canJoin) {
+                        game!.joinGame();
+                    }
+                } else {
+                    game!.watchGame();
+                }
+            }}/>
         )
     }
 
     return (
         <React.Fragment>
-            <div>abc</div>
-            {game && <LCBoardView game={game} sender={sender}/>}
-            {!(connectState in ["open"]) && function () {
-                switch (connectState) {
-                    case "connecting":
-                        return connecting("正在连接");
-                    case "retry":
-                        return connecting("连接断开，正在重连");
-                    case "error":
-                        return <Dialog open>
-                            <Grid container className={classes.errorDialogContent} justify={"center"}
-                                  alignItems={"center"}>
-                                <Grid item>
-                                    <Typography variant="h5" className={classes.title}>
-                                        {connectError}
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-                            <Grid container justify="space-evenly">
-                                <Grid item>
-                                    <IconButton onClick={() => history.push("/")} title={"回到主页"}>
-                                        <HomeIcon fontSize={"large"}/>
-                                    </IconButton>
-                                </Grid>
-                                <Grid item>
-                                    <IconButton onClick={() => window.location.reload()} title={"刷新页面"}>
-                                        <RefreshIcon fontSize={"large"}/>
-                                    </IconButton>
-                                </Grid>
-                            </Grid>
-                        </Dialog>
-                }
-            }()}
+            <Box className={classes.root}>
+                {game && <LCBoardView game={game} sender={sender}/>}
+                {!(connectState in ["open"]) && connectStateView()}
+                {connectState === "open" && gameState === "not-determined" && selectJoinWatch()}
+            </Box>
         </React.Fragment>
     )
 };
