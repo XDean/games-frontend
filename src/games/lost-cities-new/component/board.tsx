@@ -9,7 +9,10 @@ import {LCGame} from "../model/board";
 import {SocketTopicSender} from "../../common/model/socket";
 
 const useStyles = makeStyles({
-
+    chat: {
+        height: 300,
+        position: "relative",
+    }
 });
 
 type LCBoardProp = {
@@ -18,14 +21,13 @@ type LCBoardProp = {
 }
 
 const LCBoardView: React.FunctionComponent<LCBoardProp> = (props) => {
+    const classes = useStyles();
     return (
         <ThemeProvider theme={outer => ({...outer, ...LCTheme})}>
             <Box>
                 <LCHandView cards={createCards(8)} unknown/>
             </Box>
-            <Box>
-                <ChatView controller={props.game.plugins.chat} sender={props.sender}/>
-            </Box>
+            <ChatView controller={props.game.plugins.chat} sender={props.sender} className={classes.chat}/>
         </ThemeProvider>
     )
 };

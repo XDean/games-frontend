@@ -15,15 +15,16 @@ export function cardPoint(point?: LCCardPoint, doubleClass?: string) {
 }
 
 const useStyles = makeStyles<typeof LCTheme, CardProp>((theme) => createStyles({
-        card: {
+        card: props => ({
             position: "relative",
             height: 150,
             width: 85,
             borderRadius: 5,
             borderWidth: 1,
             borderStyle: "solid",
-            backgroundColor: props => theme.cardBackground(props.unknown ? "unknown" : props.card.color, "card"),
-        },
+            background: theme.cardBackground(props.unknown ? "unknown" : props.card.color, "card"),
+            backgroundSize: "cover",
+        }),
         center: {
             fontSize: 48,
             textAlign: "center",

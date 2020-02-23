@@ -1,4 +1,5 @@
 import {LCCardColor} from "./model/card";
+import cardBgImg from "./resources/card-background.webp"
 
 export const LCTheme = {
     cardBackground: cardBackground,
@@ -7,7 +8,7 @@ export const LCTheme = {
 function cardBackground(color: LCCardColor | "unknown", type: "card" | "square") {
     switch (color) {
         case "unknown":
-            return "#999";
+            return `url(${cardBgImg})`;
         case 0:
             return "#faa";
         case 1:
