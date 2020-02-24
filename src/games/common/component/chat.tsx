@@ -27,9 +27,10 @@ const useStyles = makeStyles(theme => createStyles({
     input: {
         marginLeft: theme.spacing(1),
         flex: 1,
+        width: "100%"
     },
     iconButton: {
-        padding: 10,
+        padding: 3,
     },
     emojiContainer: {
         maxHeight: 200,
@@ -103,7 +104,6 @@ const ChatView: React.FunctionComponent<ChatProp> = (props) => {
                 <InputBase placeholder="发送消息"
                            className={classes.input}
                            inputRef={inputRef}
-                           style={{width: "100%"}}
                            onKeyPress={(e) => {
                                if (e.key === 'Enter') {
                                    send();

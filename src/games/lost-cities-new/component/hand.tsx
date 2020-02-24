@@ -24,7 +24,7 @@ const useStyles = makeStyles<Theme, LCHandProp>({
 type LCHandProp = {
     cards: LCCard[]
     unknown?: boolean,
-    selected?: LCCard[]
+    selected?: LCCard
     onClick?: (card: LCCard) => void
 }
 
@@ -37,7 +37,7 @@ const LCHandView: React.FunctionComponent<LCHandProp> = (props) => {
                 return (
                     <Grid item className={classes.horizontal}
                           key={i} onClick={e => props.onClick && props.onClick(c)}>
-                        <Box className={(props.selected?.indexOf(c) || -1) > -1 ? classes.selected : ""}>
+                        <Box className={props.selected === c ? classes.selected : ""}>
                             <LCCardView card={c} unknown={props.unknown}/>
                         </Box>
                     </Grid>

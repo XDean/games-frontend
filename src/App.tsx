@@ -1,4 +1,4 @@
-import React, {createContext, useState} from 'react';
+import React, {createContext, useRef, useState} from 'react';
 import {
     createMuiTheme,
     createStyles,
@@ -43,6 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
         contentRoot: {
             flexGrow: 1,
             height: 0,
+            overflow: "auto",
         }
     }),
 );
@@ -61,11 +62,15 @@ const App: React.FunctionComponent = () => {
     const history = createHashHistory();
     const classes = useStyles();
 
+    const idRef = useRef<HTMLInputElement>();
     const [ctx, setCtx] = useState<AppContextType>(AppDefaultContext);
-    const [id, setId] = useState(ctx.id);
 
     function handleClick() {
         history.push("/board");
+    }
+
+    function submitId() {
+        setCtx({...ctx, id: idRef.current!.value})
     }
 
     return (
@@ -99,16 +104,20 @@ const App: React.FunctionComponent = () => {
                                 <DialogContent>
                                     <TextField
                                         autoFocus
+                                        inputRef={idRef}
                                         margin="dense"
                                         label="请输入你的名字"
                                         fullWidth
-                                        onChange={e => setId(e.target.value)}
+                                        onKeyPress={e => {
+                                            if (e.key === "Enter") {
+                                                submitId();
+                                                e.preventDefault();
+                                            }
+                                        }}
                                     />
                                 </DialogContent>
                                 <DialogActions>
-                                    <Button color="primary" onClick={() => {
-                                        setCtx({...ctx, id: id})
-                                    }}>
+                                    <Button color="primary" onClick={submitId}>
                                         确定
                                     </Button>
                                 </DialogActions>

@@ -1,8 +1,8 @@
-import React, {useEffect} from 'react';
+import React, {useState} from 'react';
 import {createStyles, makeStyles, ThemeProvider} from '@material-ui/core/styles';
 import {Grid} from "@material-ui/core";
 import LCHandView from "./hand";
-import {createCards} from "../model/card";
+import {createCards, LCCard} from "../model/card";
 import {LCTheme} from "../theme";
 import ChatView from "../../common/component/chat";
 import {LCGame} from "../model/board";
@@ -19,7 +19,7 @@ const useStyles = makeStyles<typeof AppTheme>(theme => createStyles({
         margin: "auto",
     },
     chat: {
-        height: 200,
+        height: 180,
         position: "relative",
         padding: theme.spacing(1),
     },
@@ -41,8 +41,10 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = (props) => {
     const classes = useStyles();
     const role = useStateByProp(props.game.host.myRole, "none")[0];
     const playing = useStateByProp(props.game.host.playing, false)[0];
-    const hand = useStateByProp(props.game.board.hand, [[],[]])[0];
+    const hand = useStateByProp(props.game.board.hand, [[], []])[0];
     const mySeat = useStateByProp(props.game.host.mySeat, 0)[0];
+
+    const [cardToPlay, setCardToPlay] = useState<LCCard>();
 
     return (
         <ThemeProvider theme={outer => ({...outer, ...LCTheme})}>
@@ -72,7 +74,9 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = (props) => {
                     <ChatView controller={props.game.plugins.chat} sender={props.sender}/>
                 </Grid>
                 <Grid item xs={5} className={classes.myHand}>
-                    <LCHandView cards={hand[mySeat]}/>
+                    <LCHandView cards={hand[mySeat]} selected={cardToPlay}
+                                onClick={c => setCardToPlay(c === cardToPlay ? undefined : c)}/>
+
                 </Grid>
             </Grid>
         </ThemeProvider>
