@@ -44,7 +44,6 @@ const useStyles = makeStyles(theme => createStyles({
 
 type ChatProp = {
     controller: ChatController
-    sender: SocketTopicSender
     messageViewer?: (msg: any) => ReactNode
 } & PaperProps
 
@@ -54,7 +53,7 @@ const ChatView: React.FunctionComponent<ChatProp> = (props) => {
     const inputRef = useRef<HTMLInputElement>();
 
     const [lockScroll, setLockScroll] = useState(true);
-    const [messages, setMessages] = useStateByProp(props.controller.messages, []);
+    const [messages, setMessages] = useStateByProp(props.controller.messages);
     const [emojiPaneAnchor, setEmojiPaneAnchor] = useState();
 
     useEffect(() => {
@@ -79,7 +78,7 @@ const ChatView: React.FunctionComponent<ChatProp> = (props) => {
 
     function send() {
         if (inputRef.current) {
-            props.sender.send("chat", inputRef.current.value);
+            props.controller.sendMessage(inputRef.current.value);
             inputRef.current.value = "";
         }
     }

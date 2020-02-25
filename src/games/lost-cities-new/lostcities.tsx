@@ -36,7 +36,6 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
     const history = useHistory();
 
     const [game, setGame] = useState<LCGame>();
-    const [sender, setSender] = useState<SocketTopicSender>(EmptyTopicSender);
 
     const [connectState, setConnectState] = useState<"open" | "connecting" | "retry" | "error">("connecting");
     const [connectError, setConnectError] = useState<string>();
@@ -62,7 +61,6 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
                 };
                 newGame.init(sender);
                 setGame(newGame);
-                setSender(sender);
             },
             onopen: () => {
                 setConnectState("open");
@@ -154,7 +152,7 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
     return (
         <React.Fragment>
             <Box className={classes.root}>
-                {game && <LCBoardView game={game} sender={sender}/>}
+                {game && <LCBoardView game={game}/>}
                 {!(connectState in ["open"]) && connectStateView()}
                 {connectState === "open" && gameState === "not-determined" && selectJoinWatch()}
             </Box>

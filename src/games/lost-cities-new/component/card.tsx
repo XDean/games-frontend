@@ -14,7 +14,7 @@ const useStyles = makeStyles<typeof LCTheme, CardProp>((theme) => createStyles({
             borderRadius: 5,
             borderWidth: 1,
             borderStyle: "solid",
-            background: theme.cardBackground(props.unknown ? "unknown" : props.card.color, "card"),
+            background: theme.cardBackground(props.unknown ? "unknown" : props.card!.color, "card"),
             backgroundSize: "cover",
         }),
         center: {
@@ -28,7 +28,7 @@ const useStyles = makeStyles<typeof LCTheme, CardProp>((theme) => createStyles({
             height: 30,
             lineHeight: "30px",
             fontSize: props => {
-                if (props.card.isDouble()) {
+                if (props.card && props.card.isDouble()) {
                     return 20;
                 } else {
                     return 30;
@@ -48,25 +48,24 @@ const useStyles = makeStyles<typeof LCTheme, CardProp>((theme) => createStyles({
 );
 
 type CardProp = {
-    card: LCCard
     unknown?: boolean
+    card?: LCCard
+    className?:string,
 }
 
 const LCCardView: React.FunctionComponent<CardProp> = (props) => {
-
     const classes = useStyles(props);
-    const point = props.card.isDouble() ? <FontAwesomeIcon icon={faHandshake}/> : props.card.point;
-
     if (props.unknown) {
         return (
-            <Paper className={classes.card} elevation={3}>
+            <Paper className={classes.card+" "+props.className} elevation={3}>
                 <Box className={classes.center}>
                 </Box>
             </Paper>
         )
     } else {
+        let point = props.card!.isDouble() ? <FontAwesomeIcon icon={faHandshake}/> : props.card!.point;
         return (
-            <Paper className={classes.card} elevation={3}>
+            <Paper className={classes.card+" "+props.className} elevation={3}>
                 <Box className={`${classes.minorNumber} ${classes.leftTop}`}>
                     {point}
                 </Box>

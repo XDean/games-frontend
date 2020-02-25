@@ -9,7 +9,7 @@ import {LCTheme} from "../theme";
 
 const useStyles = makeStyles<typeof LCTheme, LCSquareProp>((theme) => createStyles({
         card: props=>({
-            display: "inline-flex",
+            display: "flex",
             alignItems: "center",
             justifyContent: "center",
 

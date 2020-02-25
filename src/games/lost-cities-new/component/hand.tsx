@@ -8,7 +8,7 @@ import {Box} from "@material-ui/core";
 const useStyles = makeStyles<Theme, LCHandProp>({
     hand: {
         userSelect: "none",
-        display: "inline-flex",
+        display: "flex",
         width: props => props.cards.length * 35 + 50,
         height: 150
     },

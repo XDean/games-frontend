@@ -1,4 +1,4 @@
-export const LCCardColors = [0, 1, 2, 3, 4];
+export const LCCardColors: LCCardColor[] = [0, 1, 2, 3, 4];
 export type LCCardColor = 0 | 1 | 2 | 3 | 4;
 export type LCCardPoint = 0 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 

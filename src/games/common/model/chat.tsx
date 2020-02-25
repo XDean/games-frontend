@@ -1,5 +1,5 @@
 import {SimpleProperty} from "xdean-util";
-import {SocketInit, SocketTopicHandler, SocketTopicSender} from "./socket";
+import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "./socket";
 import React from "react";
 
 
@@ -10,6 +10,12 @@ export type ChatMessage = {
 
 export class ChatController implements SocketTopicHandler, SocketInit {
     readonly messages = new SimpleProperty<ChatMessage[]>([]);
+    private sender = EmptyTopicSender;
+
+    init = (sender: SocketTopicSender) => {
+        this.sender = sender;
+        sender.send("chat-history");
+    };
 
     handle = (topic: string, data: any): void => {
         if (topic === "chat") {
@@ -24,7 +30,7 @@ export class ChatController implements SocketTopicHandler, SocketInit {
         }
     };
 
-    init = (sender: SocketTopicSender) => {
-        sender.send("chat-history");
-    };
+    sendMessage = (msg: string) => {
+        this.sender.send("chat", msg);
+    }
 }

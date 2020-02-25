@@ -1,68 +1,71 @@
 import React from 'react';
-import {makeStyles} from '@material-ui/core/styles';
+import {createStyles, makeStyles} from '@material-ui/core/styles';
 import {Box, Button, Grid} from "@material-ui/core";
-import {EmptyBoard, LCBoard} from "../model/board";
-import {LCCard, LCCardColor} from "../model/card";
-import LCSquareView from "./square";
+import {LCBoard} from "../model/board";
 import {useStateByProp} from "../../../util/property";
+import {LCCard, LCCardColors} from "../model/card";
+import LCSquareView from "./square";
+import {AppTheme} from "../../../theme";
 
-const useStyles = makeStyles({
-    root: {},
-    leftRightContainer: {
-        overflowX: "auto",
+const useStyles = makeStyles<typeof AppTheme>((theme) => createStyles({
+    root: {
+        display: "grid",
+        height: "100%",
+        gridAutoFlow: "column",
+        gridTemplateColumns: "repeat(5 20%)",
+        gridTemplateRows: "1fr auto 1fr",
+        justifyItems: "center"
     },
-    leftRightBox: {
-        display: "flex",
-        justifyContent: "center",
-        padding: "5px 0",
+    other: {
+        overflow: "auto",
+        ...theme.hideScrollBar,
     },
-    left: {
-        float: "right",
-
+    my: {
+        overflow: "auto",
+        ...theme.hideScrollBar,
     },
-    center: {
-        padding: "3px 7px",
-        margin: "5px 7px",
-        minWidth: 0,
-    },
-    right: {
-        float: "left",
-    },
-});
+    drop: {
+        margin: "5px 0",
+        padding: "3px 5px",
+        [theme.breakpoints.down('sm')]: {
+            minWidth: 40,
+        },
+        [theme.breakpoints.up('lg')]: {
+            minWidth: 60,
+        },
+    }
+}));
 
 type LCColorBoardProp = {
     board: LCBoard
-    color: LCCardColor
-    rightSeat: number,
+    mySeat: number,
     onClickDrop?: () => void
 }
 
 const LCColorBoardView: React.FunctionComponent<LCColorBoardProp> = (props) => {
     const classes = useStyles();
-    const board = useStateByProp(props.board.board, EmptyBoard)[0];
+    const board = useStateByProp(props.board.board)[0];
     return (
-        <Grid container className={classes.root} justify={"center"} alignItems={"center"} wrap={"nowrap"}>
-            <Grid item xs={5} className={classes.leftRightContainer}>
-                <Box className={classes.left + " " + classes.leftRightBox}>
-                    {board[1-props.rightSeat][props.color].reverse().map((c, i) => (
-                        <LCSquareView key={i} card={c}/>
-                    ))}
-                </Box>
-            </Grid>
-            <Grid item>
-                <Button className={classes.center}>
-                    <LCSquareView card={new LCCard(1 + 12 * props.color)}/>
-                </Button>
-            </Grid>
-            <Grid item xs={5} className={classes.leftRightContainer}>
-                <Box className={classes.right + " " + classes.leftRightBox}>
-                    {board[props.rightSeat][props.color].map((c, i) => (
-                        <LCSquareView key={i} card={c}/>
-                    ))}
-                </Box>
-            </Grid>
+        <Grid className={classes.root}>
+            {LCCardColors.map(color => (
+                <React.Fragment key={color}>
+                    <Box className={classes.other}>
+                        {board[1 - props.mySeat][color].map((card, i) => (
+                            <LCSquareView key={i} card={card}/>
+                        ))}
+                    </Box>
+                    <Button className={classes.drop}>
+                        <LCSquareView card={new LCCard(1 + 12 * color)}/>
+                    </Button>
+                    <Box className={classes.my}>
+                        {board[props.mySeat][color].map((card, i) => (
+                            <LCSquareView key={i} card={card}/>
+                        ))}
+                    </Box>
+                </React.Fragment>
+            ))}
         </Grid>
-    )
+    );
 };
 
 export default LCColorBoardView;

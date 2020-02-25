@@ -52,7 +52,7 @@ export type AppContextType = {
 }
 
 let AppDefaultContext = {
-    id: "",
+    id: "a",
 };
 
 export const AppContext = createContext<AppContextType>(AppDefaultContext);
