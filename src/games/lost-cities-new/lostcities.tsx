@@ -142,10 +142,10 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
             <SelectDialog options={["加入游戏", "观看游戏"]} onSelect={(i) => {
                 if (i === 0) {
                     if (canJoin) {
-                        game!.joinGame();
+                        game!.host.joinGame();
                     }
                 } else {
-                    game!.watchGame();
+                    game!.host.watchGame();
                 }
             }}/>
         )

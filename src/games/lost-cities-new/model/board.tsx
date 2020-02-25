@@ -1,10 +1,12 @@
-import {LCCard, LCCards} from "./card"
+import {LCCard, LCCardColor, LCCards} from "./card"
 import {MultiPlayerBoard} from "../../common/model/multi-player";
 import {LCPlayerScore} from "./score";
 import {ChatController} from "../../common/model/chat";
 import {SimpleProperty} from "xdean-util";
 import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "../../common/model/socket";
 
+export type PlayType = "play" | "drop"
+export type DrawType = "deck" | LCCardColor
 
 export class LCGame implements SocketTopicHandler, SocketInit {
     readonly host: MultiPlayerBoard;
@@ -53,14 +55,14 @@ export class LCGame implements SocketTopicHandler, SocketInit {
         }
     };
 
-    joinGame = () => {
-        this.sender.send("join");
-        this.sender.send("ready", true);
-    };
-
-    watchGame = () => {
-        this.sender.send("watch")
-    };
+    submitPlay = (playCard: LCCard, playType: PlayType, drawType: DrawType) => {
+        this.sender.send("play", {
+            card: playCard!.int,
+            drop: playType! === "drop",
+            deck: drawType === "deck",
+            "draw-color": (drawType === "deck") ? undefined : drawType,
+        });
+    }
 }
 
 export type LCCardBoard = LCCards[]

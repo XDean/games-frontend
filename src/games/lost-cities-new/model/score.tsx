@@ -22,7 +22,7 @@ export class LCSingleScore {
         let times = 1;
         let points = 0;
         cards.forEach(c => {
-            if (c.point === "double") {
+            if (c.isDouble()) {
                 times++;
             } else {
                 points++;

@@ -40,7 +40,7 @@ type LCSquareProp = {
 const LCSquareView: React.FunctionComponent<LCSquareProp> = (props) => {
 
     const classes = useStyles(props);
-    const point = props.card.point === "double" ?
+    const point = props.card.isDouble() ?
         <FontAwesomeIcon icon={faHandshake} className={classes.double}/> :
         <Typography className={classes.point}>{props.card.point}</Typography>;
 

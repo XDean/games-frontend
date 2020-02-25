@@ -32,7 +32,6 @@ const useStyles = makeStyles((theme: Theme) =>
             flexDirection: "column",
             backgroundColor: "#eee",
             height: "100%",
-            overflow: "auto",
         },
         homeButton: {
             marginRight: theme.spacing(2),

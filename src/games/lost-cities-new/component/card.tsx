@@ -3,16 +3,8 @@ import {createStyles, makeStyles} from '@material-ui/core/styles';
 import {Box, Paper} from "@material-ui/core";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHandshake} from "@fortawesome/free-solid-svg-icons";
-import {LCCard, LCCardPoint} from "../model/card";
+import {LCCard} from "../model/card";
 import {LCTheme} from "../theme";
-
-export function cardPoint(point?: LCCardPoint, doubleClass?: string) {
-    if (point === undefined) {
-        return "";
-    } else {
-        return point === "double" ? <FontAwesomeIcon className={doubleClass} icon={faHandshake}/> : point;
-    }
-}
 
 const useStyles = makeStyles<typeof LCTheme, CardProp>((theme) => createStyles({
         card: props => ({
@@ -36,7 +28,7 @@ const useStyles = makeStyles<typeof LCTheme, CardProp>((theme) => createStyles({
             height: 30,
             lineHeight: "30px",
             fontSize: props => {
-                if (props.card.point === "double") {
+                if (props.card.isDouble()) {
                     return 20;
                 } else {
                     return 30;
@@ -63,7 +55,7 @@ type CardProp = {
 const LCCardView: React.FunctionComponent<CardProp> = (props) => {
 
     const classes = useStyles(props);
-    const point = props.card.point === "double" ? <FontAwesomeIcon icon={faHandshake}/> : props.card.point;
+    const point = props.card.isDouble() ? <FontAwesomeIcon icon={faHandshake}/> : props.card.point;
 
     if (props.unknown) {
         return (

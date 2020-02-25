@@ -12,6 +12,8 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
     readonly players = new SimpleProperty<MultiGamePlayer[]>([]);
     readonly watchers = new SimpleProperty<MultiGameWatcher[]>([]);
 
+    private sender: SocketTopicSender = EmptyTopicSender;
+
     constructor(
         readonly myId: string
     ) {
@@ -26,7 +28,14 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
         return this.players.value.every(p => !p.isEmpty());
     };
 
-    private sender: SocketTopicSender = EmptyTopicSender;
+    joinGame = () => {
+        this.sender.send("join");
+        this.sender.send("ready", true);
+    };
+
+    watchGame = () => {
+        this.sender.send("watch")
+    };
 
     init = (sender: SocketTopicSender) => {
         sender.send("host-info");
