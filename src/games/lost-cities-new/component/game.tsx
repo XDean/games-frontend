@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Box, Button, Dialog, Grid, Tooltip, Typography} from "@material-ui/core";
+import {Box, Button, Dialog, Grid, Paper, Tooltip, Typography} from "@material-ui/core";
 import LCHandView from "./hand";
 import {createCards, LCCard, LCCards} from "../model/card";
 import {LCTheme} from "../theme";
@@ -10,7 +10,7 @@ import LCBoardView from "./board";
 import {AppTheme} from "../../../theme";
 import {useStateByProp} from "../../../util/property";
 import LCDeckView from "./deck";
-import LCHelpView from "../../../lost-cities/component/help";
+import LCHelpView from "./help";
 import LCScoreBoardView from "./score";
 
 const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createStyles({
@@ -27,7 +27,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createSt
     },
     chat: {
         height: "100%",
-        minWidth: 200,
+        minWidth: "30%",
         padding: theme.spacing(1),
     },
     board: {
@@ -57,6 +57,10 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createSt
     },
     selectedPlayType: {
         boxShadow: theme.selectedShadow,
+    },
+    info: {
+        padding: theme.spacing(1, 2),
+        marginLeft: theme.spacing(5),
     },
 //
     otherHand: {
@@ -131,13 +135,11 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                     return 0;
             }
         }));
-    }, [myHand, sort]);
+    }, [hand, sort]);
 
     const isMyTurn = current === props.game.host.mySeat.value;
     const op: Operation = function () {
-        if (!isMyTurn) {
-            return "idle";
-        } else if (playCard === "none") {
+        if (playCard === "none") {
             return "selectCard";
         } else if (playType === "none") {
             return "selectPlayType";
@@ -147,7 +149,6 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
             return "submit";
         }
     }();
-    console.log(op)
 
     function onSort() {
         setSort((sort + 1) % 3);
@@ -168,24 +169,25 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
     return (
         <React.Fragment>
             {showHelp &&
-            <Dialog open onClose={() => setShowHelp(false)}>
+            <Dialog open onClose={() => setShowHelp(false)} style={{zIndex: 9999}}>
                 <LCHelpView/>
             </Dialog>}
             {showScore &&
-            <Dialog open onClose={() => setShowScore(false)}>
+            <Dialog open onClose={() => setShowScore(false)} style={{zIndex: 9999}}>
                 <LCScoreBoardView board={props.game.board}/>
             </Dialog>}
+
             <Grid container wrap={"nowrap"} alignItems={"center"} className={classes.root}>
                 <Grid item className={classes.chat}>
                     <ChatView controller={props.game.plugins.chat}/>
                 </Grid>
                 <Grid item className={classes.board}>
-                    <Tooltip open={op === "selectDraw"} title={"从弃牌堆抽牌"} arrow placement={"right"}>
+                    <Tooltip open={isMyTurn && op === "selectDraw"} title={"从弃牌堆抽牌"} arrow placement={"right"}>
                         <LCBoardView game={props.game}/>
                     </Tooltip>
                 </Grid>
                 <Grid item container className={classes.rightContainer} direction={"column"} justify={"space-between"}>
-                    <Grid container wrap={"nowrap"}>
+                    <Grid item container wrap={"nowrap"}>
                         <Box>
                             <Typography>
                                 {otherPlayer ? `${otherPlayer!.id}` : "等待玩家加入"}
@@ -202,7 +204,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                                 </Button>
                             </Grid>
                             <Grid item>
-                                <Button disabled={!isMyTurn} variant={"outlined"} className={classes.button}
+                                <Button variant={"outlined"} className={classes.button}
                                         onClick={() => setShowScore(s => !s)}>
                                     <Typography>
                                         计分
@@ -211,15 +213,31 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                             </Grid>
                         </Grid>
                     </Grid>
-
-                    <Tooltip open={op === "selectDraw"} title={"或从牌库抽牌"} arrow placement={"bottom"}>
-                        <Box style={{width:"min-content"}}>
-                            <LCDeckView game={props.game}/>
-                        </Box>
-                    </Tooltip>
-                    <Grid container wrap={"nowrap"}>
+                    <Grid item container alignItems={"center"}>
+                        <Tooltip open={isMyTurn && op === "selectDraw"} title={"或从牌库抽牌"} arrow placement={"bottom"}>
+                            <Grid item style={{width: "min-content"}}>
+                                <LCDeckView game={props.game}/>
+                            </Grid>
+                        </Tooltip>
+                        <Grid item>
+                            <Paper elevation={5} className={classes.info}>
+                                {function () {
+                                    switch (role) {
+                                        case "none":
+                                        case "not-determined":
+                                            return "准备数据";
+                                        case "play":
+                                            return isMyTurn ? "你的回合" : "对方回合";
+                                        case "watch":
+                                            return "正在观战 - " + (isMyTurn ? "己方回合" : "对方回合");
+                                    }
+                                }()}
+                            </Paper>
+                        </Grid>
+                    </Grid>
+                    <Grid item container wrap={"nowrap"}>
                         <Box>
-                            <Tooltip open={op === "selectCard"} title={"选择手牌"} arrow placement={"top"}>
+                            <Tooltip open={isMyTurn && op === "selectCard"} title={"选择手牌"} arrow placement={"top"}>
                                 <LCHandView cards={sortedHand} selected={playCard === "none" ? undefined : playCard}
                                             onClick={onSelectPlayCard}/>
                             </Tooltip>
@@ -236,13 +254,12 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                                 </Button>
                             </Grid>
                             <Grid item>
-                                <Button disabled={!isMyTurn}
-                                        variant={"outlined"}
+                                <Button variant={"outlined"}
                                         className={`${classes.button} ${playType === "play" ? classes.selectedPlayType : ""}`}
                                         onClick={() => onSelectPlayType("play")}>
                                     <Tooltip
                                         title={"选择出牌或弃牌"}
-                                        open={op === "selectPlayType"}
+                                        open={isMyTurn && op === "selectPlayType"}
                                         arrow placement={"right"}>
                                         <Typography>
                                             出牌
@@ -251,8 +268,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                                 </Button>
                             </Grid>
                             <Grid item>
-                                <Button disabled={!isMyTurn}
-                                        variant={"outlined"}
+                                <Button variant={"outlined"}
                                         className={`${classes.button} ${playType === "drop" ? classes.selectedPlayType : ""}`}
                                         onClick={() => onSelectPlayType("drop")}>
                                     <Typography>
@@ -267,7 +283,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                                     variant={"outlined"}
                                     onClick={() => submit()}>
                                     <Tooltip
-                                        title={"点击确认操作"}
+                                        title={isMyTurn ? "点击确认操作" : "等待对手操作"}
                                         open={op === "submit"}
                                         arrow placement={"right"}>
                                         <Typography>

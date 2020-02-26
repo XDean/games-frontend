@@ -91,6 +91,12 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                     ps[data.seat] = ps[data.seat].with({ready: data.ready})
                 });
                 break;
+            case "game-start":
+                this.playing.value = true;
+                break;
+            case "over":
+                this.playing.value = false;
+                break;
         }
     };
 }

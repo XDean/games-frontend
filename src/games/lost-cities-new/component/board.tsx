@@ -19,6 +19,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>((theme) => create
     },
     other: {
         overflow: "auto",
+        alignSelf: "end",
         ...theme.hideScrollBar,
     },
     my: {

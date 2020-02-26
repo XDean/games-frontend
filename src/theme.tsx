@@ -3,6 +3,9 @@ import {MsOverflowStyleProperty} from "csstype";
 
 export const AppTheme = {
     ...createMuiTheme({
+        zIndex:{
+
+        },
         props: {
             MuiToolbar: {
                 variant: 'dense',
