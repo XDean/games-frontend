@@ -1,24 +1,37 @@
 import {LCCard, LCCardColor, LCCards} from "./card"
-import {MultiPlayerBoard} from "../../common/model/multi-player";
+import {MultiPlayerBoard} from "../../common/model/multi-player/host";
 import {LCPlayerScore} from "./score";
-import {ChatController} from "../../common/model/chat";
+import {ChatPlugin} from "../../common/model/chat";
 import {SimpleProperty} from "xdean-util";
 import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "../../common/model/socket";
 import React from "react";
+import {LogPlugin} from "../../common/model/log";
+import {SocketPlugin} from "../../common/model/plugin";
+import {MultiPlayerMessage} from "../../common/model/multi-player/message";
+import {LCDrawMessage, LCGameMessage, LCPlayMessage} from "./message";
 
-export type PlayType = "none" | "play" | "drop"
-export type DrawType = "none" | "deck" | LCCardColor
+export type LCPlayType = "none" | "play" | "drop"
+export type LCDrawType = "none" | "deck" | LCCardColor
+export type LCMessage = MultiPlayerMessage | LCGameMessage
 
 export class LCGame implements SocketTopicHandler, SocketInit {
+
+    private log = new LogPlugin<LCMessage>();
+    private chat = new ChatPlugin();
+
     readonly host: MultiPlayerBoard;
     readonly board: LCBoard = new LCBoard();
+
     readonly plugins = {
-        chat: new ChatController()
+        log: this.log,
+        chat: this.chat,
     };
+
+
     readonly playInfo = {
         card: new SimpleProperty<LCCard | "none">("none"),
-        playType: new SimpleProperty<PlayType>("none"),
-        drawType: new SimpleProperty<DrawType>("none"),
+        playType: new SimpleProperty<LCPlayType>("none"),
+        drawType: new SimpleProperty<LCDrawType>("none"),
         canSubmit: () => {
             let isMyTurn = this.host.mySeat.value === this.board.current.value;
             return isMyTurn &&
@@ -45,7 +58,7 @@ export class LCGame implements SocketTopicHandler, SocketInit {
         readonly hostId: string,
         readonly myId: string
     ) {
-        this.host = new MultiPlayerBoard(myId);
+        this.host = new MultiPlayerBoard(myId, this.log);
         this.host.setPlayerCount(2);
     }
 
@@ -53,14 +66,18 @@ export class LCGame implements SocketTopicHandler, SocketInit {
         this.sender = sender;
         this.host.init(sender);
         Object.values(this.plugins).forEach(p => {
-            p.init(sender);
+            if (p instanceof SocketPlugin) {
+                p.init(sender);
+            }
         });
     };
 
     handle = (topic: string, data: any): void => {
         this.host.handle(topic, data);
         Object.values(this.plugins).forEach(p => {
-            p.handle(topic, data)
+            if (p instanceof SocketPlugin) {
+                p.handle(topic, data)
+            }
         });
         switch (topic) {
             case "host-info":
@@ -95,22 +112,29 @@ export class LCGame implements SocketTopicHandler, SocketInit {
                         ds[data.seat][card.color].push(card);
                     });
                 }
+                this.log.log(new LCPlayMessage(data.seat, card, data.drop));
                 if (data.deck) {
                     this.board.deck.update(d => d - 1);
+                    if (data["deck-card"] !== -1) {
+                        let deckCard = new LCCard(data["deck-card"]);
+                        this.board.hand.update(hs => {
+                            hs[data.seat].push(deckCard)
+                        });
+                        this.log.log(new LCDrawMessage(data.seat, "deck", deckCard))
+                    } else {
+                        this.log.log(new LCDrawMessage(data.seat, "deck"))
+                    }
                 } else {
-                    let dropColor = data["draw-drop"] as LCCardColor;
+                    let dropColor = data["draw-color"] as LCCardColor;
+                    let dropCard = new LCCard(data["draw-drop-card"]);
                     this.board.drop.update(ds => {
                         ds[dropColor].slice(ds[dropColor].length - 1, 1);
                     });
-                    this.board.hand.update(hs=>{
-                        hs[data.seat].push(new LCCard(data["draw-drop-card"]))
+                    this.board.hand.update(hs => {
+                        hs[data.seat].push(dropCard)
                     });
+                    this.log.log(new LCDrawMessage(data.seat, dropColor, dropCard))
                 }
-                break;
-            case "draw":
-                this.board.hand.update(hs=>{
-                    hs[data.seat].push(new LCCard(data.card))
-                });
                 break;
             case "turn":
                 this.board.current.value = data;
@@ -128,7 +152,7 @@ export const EmptyHand = [[], []];
 export class LCBoard {
     readonly over = new SimpleProperty<boolean>(false);
     readonly current = new SimpleProperty<number>(0);
-    readonly deck = new SimpleProperty<number>(0);
+    readonly deck = new SimpleProperty<number>(44);
     readonly drop = new SimpleProperty<LCCardBoard>(EmptyDrop);
     readonly board = new SimpleProperty<LCCardBoard[]>(EmptyBoard);
     readonly hand = new SimpleProperty<LCCards[]>(EmptyHand);

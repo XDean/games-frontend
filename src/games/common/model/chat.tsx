@@ -1,6 +1,7 @@
 import {SimpleProperty} from "xdean-util";
-import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "./socket";
+import {EmptyTopicSender, SocketTopicSender} from "./socket";
 import React from "react";
+import {SocketPlugin} from "./plugin";
 
 
 export type ChatMessage = {
@@ -8,7 +9,7 @@ export type ChatMessage = {
     content: any
 }
 
-export class ChatController implements SocketTopicHandler, SocketInit {
+export class ChatPlugin extends SocketPlugin {
     readonly messages = new SimpleProperty<ChatMessage[]>([]);
     private sender = EmptyTopicSender;
 

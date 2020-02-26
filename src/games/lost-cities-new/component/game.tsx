@@ -5,13 +5,16 @@ import LCHandView from "./hand";
 import {createCards, LCCard, LCCards} from "../model/card";
 import {LCTheme} from "../theme";
 import ChatView from "../../common/component/chat";
-import {LCGame, PlayType} from "../model/board";
+import {LCGame, LCPlayType} from "../model/board";
 import LCBoardView from "./board";
 import {AppTheme} from "../../../theme";
 import {useStateByProp} from "../../../util/property";
 import LCDeckView from "./deck";
 import LCHelpView from "./help";
 import LCScoreBoardView from "./score";
+import LogView from "../../common/component/log";
+import LCMessageView from "./message";
+import {MultiGamePlayer} from "../../common/model/multi-player/host";
 
 const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createStyles({
     root: {
@@ -25,14 +28,23 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createSt
             padding: theme.spacing(1, 10),
         },
     },
-    chat: {
+    logchat: {
         height: "100%",
-        minWidth: "30%",
+        minWidth: "26%",
         padding: theme.spacing(1),
+        display: "grid",
+        gridTemplateColumns: "100%",
+        gridTemplateRows: "50% 50%",
+        gridRowGap: theme.spacing(1),
     },
     board: {
         height: "100%",
-        padding: theme.spacing(1, 4),
+        [theme.breakpoints.down('sm')]: {
+            padding: theme.spacing(1, 1),
+        },
+        [theme.breakpoints.up('lg')]: {
+            padding: theme.spacing(1, 4),
+        },
     },
     rightContainer: {
         height: "100%",
@@ -49,6 +61,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createSt
         padding: "3px 5px"
     },
     myButtonBar: {
+        minWidth: "fit-content",
         marginLeft: theme.spacing(1),
     },
     otherButtonBar: {
@@ -105,8 +118,8 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
     const otherHand = hand[otherSeat];
 
     const player = useStateByProp(props.game.host.players);
-    const myPlayer = player[mySeat];
-    const otherPlayer = player[otherSeat];
+    const myPlayer = player[mySeat] || MultiGamePlayer.EMPTY;
+    const otherPlayer = player[otherSeat] || MultiGamePlayer.EMPTY;
 
     const deck = useStateByProp(props.game.board.deck);
 
@@ -158,7 +171,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
         props.game.playInfo.card.value = (playCard === card ? "none" : card);
     }
 
-    function onSelectPlayType(type: PlayType) {
+    function onSelectPlayType(type: LCPlayType) {
         props.game.playInfo.playType.value = (playType === type ? "none" : type);
     }
 
@@ -178,7 +191,9 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
             </Dialog>}
 
             <Grid container wrap={"nowrap"} alignItems={"center"} className={classes.root}>
-                <Grid item className={classes.chat}>
+                <Grid item className={classes.logchat}>
+                    <LogView model={props.game.plugins.log}
+                             handle={msg => <LCMessageView message={msg} game={props.game}/>}/>
                     <ChatView controller={props.game.plugins.chat}/>
                 </Grid>
                 <Grid item className={classes.board}>
@@ -190,7 +205,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                     <Grid item container wrap={"nowrap"}>
                         <Box>
                             <Typography>
-                                {otherPlayer ? `${otherPlayer!.id}` : "等待玩家加入"}
+                                {otherPlayer.isEmpty() ? "等待玩家加入" : `${otherPlayer!.id}`}
                             </Typography>
                             <LCHandView cards={createCards(8)} unknown/>
                         </Box>
@@ -238,11 +253,13 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                     <Grid item container wrap={"nowrap"}>
                         <Box>
                             <Tooltip open={isMyTurn && op === "selectCard"} title={"选择手牌"} arrow placement={"top"}>
-                                <LCHandView cards={sortedHand} selected={playCard === "none" ? undefined : playCard}
+                                <LCHandView cards={sortedHand.length === 0 ? createCards(8) : sortedHand}
+                                            unknown={sortedHand.length === 0}
+                                            selected={playCard === "none" ? undefined : playCard}
                                             onClick={onSelectPlayCard}/>
                             </Tooltip>
                             <Typography>
-                                {myPlayer ? `${myPlayer!.id}` : "等待玩家加入"}
+                                {myPlayer.isEmpty() ? "等待玩家加入" : `${myPlayer!.id}`}
                             </Typography>
                         </Box>
                         <Grid container direction={"column"} className={classes.myButtonBar}>

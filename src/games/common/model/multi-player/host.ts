@@ -1,6 +1,8 @@
-import {Wither} from "./util";
+import {Wither} from "../util";
 import {SimpleProperty} from "xdean-util";
-import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "./socket";
+import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "../socket";
+import {LogPlugin} from "../log";
+import {JoinMessage, MultiPlayerMessage, OverMessage, ReadyMessage, StartMessage, WatchMessage} from "./message";
 
 export type MultiPlayerRole = "none" | "not-determined" | "play" | "watch";
 
@@ -15,7 +17,8 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
     private sender: SocketTopicSender = EmptyTopicSender;
 
     constructor(
-        readonly myId: string
+        readonly myId: string,
+        readonly log: LogPlugin<MultiPlayerMessage>,
     ) {
     }
 
@@ -76,6 +79,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 this.players.update(ps => {
                     ps[data.seat] = new MultiGamePlayer(data.id, data.seat, data.ready);
                 });
+                this.log.log(new JoinMessage(data.id));
                 break;
             case "watch":
                 if (data.id === this.myId) {
@@ -85,17 +89,21 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 this.watchers.update(ws => {
                     ws.push(new MultiGameWatcher(data.id));
                 });
+                this.log.log(new WatchMessage(data.id));
                 break;
             case "ready":
                 this.players.update(ps => {
                     ps[data.seat] = ps[data.seat].with({ready: data.ready})
                 });
+                this.log.log(new ReadyMessage(data.id, true));
                 break;
             case "game-start":
                 this.playing.value = true;
+                this.log.log(new StartMessage());
                 break;
             case "over":
                 this.playing.value = false;
+                this.log.log(new OverMessage());
                 break;
         }
     };

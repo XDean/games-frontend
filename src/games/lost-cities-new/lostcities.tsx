@@ -12,7 +12,7 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import HomeIcon from '@material-ui/icons/Home';
 import Typography from "@material-ui/core/Typography";
 import {EmptyTopicSender, SocketTopicSender} from "../common/model/socket";
-import {MultiPlayerRole} from "../common/model/multi-player";
+import {MultiPlayerRole} from "../common/model/multi-player/host";
 import {SelectDialog} from "../../components/selectDialog";
 import {LCTheme} from "./theme";
 

@@ -20,6 +20,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>((theme) => create
     other: {
         overflow: "auto",
         alignSelf: "end",
+        padding: 3,
         ...theme.hideScrollBar,
     },
     my: {
@@ -58,7 +59,7 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = React.forwardRef((prop
             {LCCardColors.map(color => (
                 <React.Fragment key={color}>
                     <Box className={classes.other}>
-                        {board[1 - mySeat][color].map((card, i) => (
+                        {board[1 - mySeat][color].slice().reverse().map((card, i) => (
                             <LCSquareView key={i} card={card}/>
                         ))}
                     </Box>
@@ -66,7 +67,7 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = React.forwardRef((prop
                             onClick={() => props.game.playInfo.drawType.update(v => v === color ? "none" : color)}>
                         {drop[color].length === 0 ?
                             <LCSquareView card={new LCCard(color * 12)} colorOnly/> :
-                            <LCSquareView card={drop[color][-1]}/>
+                            <LCSquareView card={drop[color][drop[color].length - 1]}/>
                         }
 
                     </Button>

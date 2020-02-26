@@ -4,7 +4,7 @@ import {IconButton, InputBase, Paper, PaperProps, Popover} from "@material-ui/co
 import Grid from "@material-ui/core/Grid";
 import Divider from "@material-ui/core/Divider";
 import {SocketTopicSender} from "../model/socket";
-import {ChatController, ChatMessage} from "../model/chat";
+import {ChatPlugin, ChatMessage} from "../model/chat";
 import Typography from "@material-ui/core/Typography";
 import SendIcon from '@material-ui/icons/Send';
 import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied';
@@ -14,7 +14,6 @@ const useStyles = makeStyles(theme => createStyles({
     container: {
         display: "flex",
         flexDirection: "column",
-        height: "100%",
     },
     messageBox: {
         overflow: "auto",
@@ -43,7 +42,7 @@ const useStyles = makeStyles(theme => createStyles({
 }));
 
 type ChatProp = {
-    controller: ChatController
+    controller: ChatPlugin
     messageViewer?: (msg: any) => ReactNode
 } & PaperProps
 
