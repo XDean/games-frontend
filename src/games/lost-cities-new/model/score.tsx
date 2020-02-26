@@ -17,25 +17,26 @@ export class LCSingleScore {
             this.score = 0;
             this.bonus = false;
             this.sum = 0;
-        }
-        let score = 0;
-        let times = 1;
-        let points = 0;
-        cards.forEach(c => {
-            if (c.isDouble()) {
-                times++;
-            } else {
-                points++;
-                score += c.point;
-            }
-        });
-        let bonus = points >= 8;
+        } else {
+            let score = 0;
+            let times = 1;
+            let points = 0;
+            cards.forEach(c => {
+                if (c.isDouble()) {
+                    times++;
+                } else {
+                    points++;
+                    score += c.point;
+                }
+            });
+            let bonus = points >= 8;
 
-        this.develop = true;
-        this.times = times;
-        this.score = score;
-        this.bonus = bonus;
-        this.sum = times * (score - 20) + (bonus ? 20 : 0);
+            this.develop = true;
+            this.times = times;
+            this.score = score;
+            this.bonus = bonus;
+            this.sum = times * (score - 20) + (bonus ? 20 : 0);
+        }
     }
 }
 

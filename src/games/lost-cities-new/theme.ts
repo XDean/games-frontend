@@ -8,6 +8,7 @@ import card4 from "./resources/card-4.webp"
 
 export const LCTheme = {
     cardBackground: cardBackground,
+    selectedShadow: "0 0 10px #4a4",
 };
 
 function cardBackground(color: LCCardColor | "unknown", type: "card" | "square") {

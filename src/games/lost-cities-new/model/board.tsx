@@ -5,14 +5,37 @@ import {ChatController} from "../../common/model/chat";
 import {SimpleProperty} from "xdean-util";
 import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "../../common/model/socket";
 
-export type PlayType = "play" | "drop"
-export type DrawType = "deck" | LCCardColor
+export type PlayType = "none" | "play" | "drop"
+export type DrawType = "none" | "deck" | LCCardColor
 
 export class LCGame implements SocketTopicHandler, SocketInit {
     readonly host: MultiPlayerBoard;
     readonly board: LCBoard = new LCBoard();
     readonly plugins = {
         chat: new ChatController()
+    };
+    readonly playInfo = {
+        card: new SimpleProperty<LCCard | "none">("none"),
+        playType: new SimpleProperty<PlayType>("none"),
+        drawType: new SimpleProperty<DrawType>("none"),
+        canSubmit: () => {
+            let isMyTurn = this.host.mySeat === this.board.current;
+            return isMyTurn &&
+                this.playInfo.card.value !== "none" &&
+                this.playInfo.playType.value !== "none" &&
+                this.playInfo.drawType.value !== "none";
+        },
+        submit: () => {
+            this.sender.send("play", {
+                card: (this.playInfo.card.value as LCCard).int,
+                drop: this.playInfo.playType.value === "drop",
+                deck: this.playInfo.drawType.value === "deck",
+                "draw-color": (this.playInfo.drawType.value === "deck") ? undefined : this.playInfo.drawType.value,
+            });
+            this.playInfo.card.value = "none";
+            this.playInfo.playType.value = "none";
+            this.playInfo.drawType.value = "none";
+        }
     };
 
     private sender = EmptyTopicSender;
@@ -54,15 +77,6 @@ export class LCGame implements SocketTopicHandler, SocketInit {
                 break;
         }
     };
-
-    submitPlay = (playCard: LCCard, playType: PlayType, drawType: DrawType) => {
-        this.sender.send("play", {
-            card: playCard!.int,
-            drop: playType! === "drop",
-            deck: drawType === "deck",
-            "draw-color": (drawType === "deck") ? undefined : drawType,
-        });
-    }
 }
 
 export type LCCardBoard = LCCards[]

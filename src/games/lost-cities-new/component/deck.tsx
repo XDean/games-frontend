@@ -1,27 +1,61 @@
 import React from 'react';
-import {makeStyles} from '@material-ui/core/styles';
+import {createStyles, makeStyles} from '@material-ui/core/styles';
 import {Box, Typography} from "@material-ui/core";
 import LCCardView from "./card";
+import {AppTheme} from "../../../theme";
+import {LCGame} from "../model/board";
+import {useStateByProp} from "../../../util/property";
+import {LCTheme} from "../theme";
 
-const useStyles = makeStyles({
-    root: {
-        position: "relative",
-        boxShadow: "4px 4px 0px 2px #333",
-    }
-});
+const useStyles = makeStyles<typeof AppTheme & typeof LCTheme, LCDeckProp>(theme => createStyles({
+        root: {
+            width: "min-content",
+            padding: theme.spacing(1),
+        },
+        deck: {
+            position: "relative",
+            width: 100,
+            height: 160,
+            marginTop: theme.spacing(1),
+        },
+        cardBox: {
+            position: "absolute",
+        },
+        card: {
+            boxShadow: "none",
+        },
+        selected: {
+            boxShadow: theme.selectedShadow,
+        }
+    }))
+;
 
 type LCDeckProp = {
-    count: number,
+    game: LCGame,
 }
 
 const LCDeckView: React.FunctionComponent<LCDeckProp> = (props) => {
-    const classes = useStyles();
+    const classes = useStyles(props);
+
+    const deck = useStateByProp(props.game.board.deck);
+    const drawType = useStateByProp(props.game.playInfo.drawType);
+
+    function onSelectDrawType() {
+        props.game.playInfo.drawType.update(t => t === "deck" ? "none" : "deck");
+    }
+
     return (
-        <Box>
+        <Box className={`${classes.root} ${drawType === "deck" ? classes.selected : ""}`}>
             <Typography>
-                牌库剩余：{props.count}
+                牌库剩余：{deck}
             </Typography>
-            <LCCardView unknown className={classes.root}/>
+            <Box className={classes.deck} onClick={onSelectDrawType}>
+                {new Array(deck).fill(0).map((z, i) => (
+                    <Box className={classes.cardBox} style={{left: i * 0.3, top: i * 0.2}} key={i}>
+                        <LCCardView unknown className={classes.card}/>
+                    </Box>
+                ))}
+            </Box>
         </Box>
     )
 };

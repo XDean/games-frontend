@@ -1,16 +1,15 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import {
-    Box,
     Paper,
+    Switch,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    Tooltip,
-    Zoom
+    Typography
 } from "@material-ui/core";
 import {LCCard} from "../../../lost-cities/model/model";
 import LCCardView from "../../../lost-cities/component/card";
@@ -24,14 +23,19 @@ type LCScoreBoardProp = {
 }
 
 const LCScoreBoardView: React.FunctionComponent<LCScoreBoardProp> = (props) => {
-    let score = props.board.calcScore();
+    const score = props.board.calcScore();
+    const [details, setDetails] = useState(false);
 
     return (
         <TableContainer component={Paper}>
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell/>
+                        <TableCell>
+                            显示细节
+                            <Switch color="primary" size={"small"} checked={details}
+                                    onChange={e => setDetails(d => !d)}/>
+                        </TableCell>
                         <TableCell>对手得分</TableCell>
                         <TableCell>你的得分</TableCell>
                     </TableRow>
@@ -44,13 +48,11 @@ const LCScoreBoardView: React.FunctionComponent<LCScoreBoardProp> = (props) => {
                                     <LCCardView card={new LCCard(0, color)} mini/>
                                 </TableCell>
                                 {[0, 1].map(player =>
-                                    <TableCell align={"center"}>
-                                        <Tooltip title={<LineScoreView score={score[player].scores[color]}/>} arrow
-                                                 TransitionComponent={Zoom}>
-                                            <Box>
-                                                {score[player].scores[color].sum}
-                                            </Box>
-                                        </Tooltip>
+                                    <TableCell align={"center"} key={player}>
+                                        {details ?
+                                            <LineScoreView score={score[player].scores[color]}/> :
+                                            <Typography>{score[player].scores[color].sum}</Typography>
+                                        }
                                     </TableCell>
                                 )}
                             </TableRow>
@@ -59,7 +61,7 @@ const LCScoreBoardView: React.FunctionComponent<LCScoreBoardProp> = (props) => {
                     <TableRow>
                         <TableCell>总分</TableCell>
                         {[0, 1].map(player =>
-                            <TableCell align={"center"}>
+                            <TableCell align={"center"} key={player}>
                                 {score[player].sum}
                             </TableCell>
                         )}
@@ -72,11 +74,11 @@ const LCScoreBoardView: React.FunctionComponent<LCScoreBoardProp> = (props) => {
 
 function LineScoreView(props: { score: LCSingleScore }) {
     if (props.score.develop) {
-        return <Box>
+        return <Typography>
             {`(${props.score.score} - 20) x ${props.score.times} + ${props.score.bonus ? 20 : 0} = ${props.score.sum}`}
-        </Box>
+        </Typography>
     } else {
-        return <Box>0</Box>;
+        return <Typography>0</Typography>;
     }
 }
 

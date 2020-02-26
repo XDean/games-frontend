@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Box, CircularProgress, Dialog, Grid, IconButton} from "@material-ui/core";
-import LCBoardView from "./component/board";
+import {Box, CircularProgress, Dialog, Grid, IconButton, ThemeProvider} from "@material-ui/core";
+import LCGameView from "./component/game";
 import {AppContext} from "../../App";
 import {autoWs} from "../../util/ws";
 import {LCGame} from "./model/board";
@@ -14,6 +14,7 @@ import Typography from "@material-ui/core/Typography";
 import {EmptyTopicSender, SocketTopicSender} from "../common/model/socket";
 import {MultiPlayerRole} from "../common/model/multi-player";
 import {SelectDialog} from "../../components/selectDialog";
+import {LCTheme} from "./theme";
 
 const useStyles = makeStyles<typeof AppTheme>((theme) => createStyles({
     root: {
@@ -150,13 +151,13 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
     }
 
     return (
-        <React.Fragment>
+        <ThemeProvider theme={outer => ({...outer, ...LCTheme})}>
             <Box className={classes.root}>
-                {game && <LCBoardView game={game}/>}
+                {game && <LCGameView game={game}/>}
                 {!(connectState in ["open"]) && connectStateView()}
                 {connectState === "open" && gameState === "not-determined" && selectJoinWatch()}
             </Box>
-        </React.Fragment>
+        </ThemeProvider>
     )
 };
 

@@ -53,7 +53,7 @@ const ChatView: React.FunctionComponent<ChatProp> = (props) => {
     const inputRef = useRef<HTMLInputElement>();
 
     const [lockScroll, setLockScroll] = useState(true);
-    const [messages, setMessages] = useStateByProp(props.controller.messages);
+    const messages = useStateByProp(props.controller.messages);
     const [emojiPaneAnchor, setEmojiPaneAnchor] = useState();
 
     useEffect(() => {

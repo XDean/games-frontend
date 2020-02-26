@@ -1,7 +1,7 @@
 import {Property} from "xdean-util";
-import {Dispatch, SetStateAction, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 
-export function useStateByProp<S extends (any | any[])>(p: Property<S>): [S, Dispatch<SetStateAction<S>>] {
+export function useStateByProp<S extends (any | any[])>(p: Property<S>): S {
     let [state, setState] = useState<S>(() => p.value);
     useEffect(() => {
         setState(p.value);
@@ -9,5 +9,5 @@ export function useStateByProp<S extends (any | any[])>(p: Property<S>): [S, Dis
             setState(n.slice ? n.slice() : n);
         });
     }, [p]);
-    return [state, setState]
+    return state
 }
