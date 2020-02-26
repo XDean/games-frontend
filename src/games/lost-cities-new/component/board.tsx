@@ -44,15 +44,16 @@ type LCBoardProp = {
     game: LCGame
 }
 
-const LCBoardView: React.FunctionComponent<LCBoardProp> = (props) => {
+const LCBoardView: React.FunctionComponent<LCBoardProp> = React.forwardRef((props, ref) => {
     const classes = useStyles();
     const board = useStateByProp(props.game.board.board);
+    const drop = useStateByProp(props.game.board.drop);
     const mySeat = useStateByProp(props.game.host.mySeat);
 
     const drawType = useStateByProp(props.game.playInfo.drawType);
 
     return (
-        <Grid className={classes.root}>
+        <Grid className={classes.root} innerRef={ref}>
             {LCCardColors.map(color => (
                 <React.Fragment key={color}>
                     <Box className={classes.other}>
@@ -62,7 +63,11 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = (props) => {
                     </Box>
                     <Button className={classes.drop + " " + (drawType === color ? classes.selectedDrawType : "")}
                             onClick={() => props.game.playInfo.drawType.update(v => v === color ? "none" : color)}>
-                        <LCSquareView card={new LCCard(1 + 12 * color)}/>
+                        {drop[color].length === 0 ?
+                            <LCSquareView card={new LCCard(color * 12)} colorOnly/> :
+                            <LCSquareView card={drop[color][-1]}/>
+                        }
+
                     </Button>
                     <Box className={classes.my}>
                         {board[mySeat][color].map((card, i) => (
@@ -73,6 +78,6 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = (props) => {
             ))}
         </Grid>
     );
-};
+});
 
 export default LCBoardView;

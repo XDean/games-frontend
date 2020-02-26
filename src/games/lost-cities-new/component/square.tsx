@@ -34,6 +34,7 @@ const useStyles = makeStyles<typeof LCTheme, LCSquareProp>((theme) => createStyl
 type LCSquareProp = {
     card: LCCard
     unknown?: boolean
+    colorOnly?: boolean
     root?: Partial<PaperProps>
 }
 
@@ -46,7 +47,7 @@ const LCSquareView: React.FunctionComponent<LCSquareProp> = (props) => {
 
     return (
         <Paper elevation={3}{...props.root} className={`${classes.card} ${props.root?.className}`}>
-            {point}
+            {props.colorOnly ? "" : point}
         </Paper>
     )
 };

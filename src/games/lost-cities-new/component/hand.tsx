@@ -28,11 +28,11 @@ type LCHandProp = {
     onClick?: (card: LCCard) => void
 }
 
-const LCHandView: React.FunctionComponent<LCHandProp> = (props) => {
+const LCHandView: React.FunctionComponent<LCHandProp> = React.forwardRef((props, ref) =>{
     const classes = useStyles(props);
 
     return (
-        <Grid container className={classes.hand}>
+        <Grid container className={classes.hand} innerRef={ref}>
             {(props.cards.map((c, i) => {
                 return (
                     <Grid item className={classes.horizontal}
@@ -45,6 +45,6 @@ const LCHandView: React.FunctionComponent<LCHandProp> = (props) => {
             }))}
         </Grid>
     )
-};
+});
 
 export default LCHandView;

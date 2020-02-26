@@ -147,6 +147,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
             return "submit";
         }
     }();
+    console.log(op)
 
     function onSort() {
         setSort((sort + 1) % 3);
@@ -179,7 +180,9 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                     <ChatView controller={props.game.plugins.chat}/>
                 </Grid>
                 <Grid item className={classes.board}>
-                    <LCBoardView game={props.game}/>
+                    <Tooltip open={op === "selectDraw"} title={"从弃牌堆抽牌"} arrow placement={"right"}>
+                        <LCBoardView game={props.game}/>
+                    </Tooltip>
                 </Grid>
                 <Grid item container className={classes.rightContainer} direction={"column"} justify={"space-between"}>
                     <Grid container wrap={"nowrap"}>
@@ -209,12 +212,17 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                         </Grid>
                     </Grid>
 
-                    <LCDeckView game={props.game}/>
-
+                    <Tooltip open={op === "selectDraw"} title={"或从牌库抽牌"} arrow placement={"bottom"}>
+                        <Box style={{width:"min-content"}}>
+                            <LCDeckView game={props.game}/>
+                        </Box>
+                    </Tooltip>
                     <Grid container wrap={"nowrap"}>
                         <Box>
-                            <LCHandView cards={sortedHand} selected={playCard === "none" ? undefined : playCard}
-                                        onClick={onSelectPlayCard}/>
+                            <Tooltip open={op === "selectCard"} title={"选择手牌"} arrow placement={"top"}>
+                                <LCHandView cards={sortedHand} selected={playCard === "none" ? undefined : playCard}
+                                            onClick={onSelectPlayCard}/>
+                            </Tooltip>
                             <Typography>
                                 {myPlayer ? `${myPlayer!.id}` : "等待玩家加入"}
                             </Typography>
