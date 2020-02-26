@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Box, Button, Dialog, Grid, Paper, Tooltip, Typography} from "@material-ui/core";
+import {Box, Button, Dialog, Grid, Paper, Snackbar, Tooltip, Typography} from "@material-ui/core";
 import LCHandView from "./hand";
 import {createCards, LCCard, LCCards} from "../model/card";
 import {LCTheme} from "../theme";
@@ -15,6 +15,7 @@ import LCScoreBoardView from "./score";
 import LogView from "../../common/component/log";
 import LCMessageView from "./message";
 import {MultiGamePlayer} from "../../common/model/multi-player/host";
+import {Alert} from "../../../components/snippts";
 
 const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createStyles({
     root: {
@@ -30,7 +31,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createSt
     },
     logchat: {
         height: "100%",
-        minWidth: "26%",
+        width: "70%",
         padding: theme.spacing(1),
         display: "grid",
         gridTemplateColumns: "100%",
@@ -48,6 +49,8 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createSt
     },
     rightContainer: {
         height: "100%",
+        overflow: "auto",
+        padding: theme.spacing(0, 1),
         [theme.breakpoints.down('sm')]: {
             marginLeft: theme.spacing(0),
         },
@@ -65,6 +68,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createSt
         marginLeft: theme.spacing(1),
     },
     otherButtonBar: {
+        minWidth: "fit-content",
         marginLeft: theme.spacing(1),
         marginTop: 20,
     },
@@ -74,22 +78,6 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createSt
     info: {
         padding: theme.spacing(1, 2),
         marginLeft: theme.spacing(5),
-    },
-//
-    otherHand: {
-        padding: theme.spacing(1),
-    },
-    myHand: {
-        padding: theme.spacing(1),
-        marginLeft: theme.spacing(3),
-    },
-    handBar: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1)
-    },
-    deck: {
-        float: "right",
-        paddingRight: theme.spacing(2),
     },
 }));
 
@@ -121,8 +109,6 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
     const myPlayer = player[mySeat] || MultiGamePlayer.EMPTY;
     const otherPlayer = player[otherSeat] || MultiGamePlayer.EMPTY;
 
-    const deck = useStateByProp(props.game.board.deck);
-
     const current = useStateByProp(props.game.board.current);
 
     const playCard = useStateByProp(props.game.playInfo.card);
@@ -148,9 +134,10 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                     return 0;
             }
         }));
-    }, [hand, sort]);
+    }, [hand, myHand, sort]);
 
     const isMyTurn = current === props.game.host.mySeat.value;
+    const validateMsg = props.game.playInfo.validate();
     const op: Operation = function () {
         if (playCard === "none") {
             return "selectCard";
@@ -181,6 +168,12 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
 
     return (
         <React.Fragment>
+            {validateMsg !== "" &&
+            <Snackbar open>
+                <Alert severity={"warning"}>
+                    {validateMsg}
+                </Alert>
+            </Snackbar>}
             {showHelp &&
             <Dialog open onClose={() => setShowHelp(false)} style={{zIndex: 9999}}>
                 <LCHelpView/>
@@ -201,7 +194,8 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                         <LCBoardView game={props.game}/>
                     </Tooltip>
                 </Grid>
-                <Grid item container className={classes.rightContainer} direction={"column"} justify={"space-between"}>
+                <Grid item container className={classes.rightContainer} direction={"column"} justify={"space-between"}
+                      wrap={"nowrap"}>
                     <Grid item container wrap={"nowrap"}>
                         <Box>
                             <Typography>
@@ -295,12 +289,12 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                             </Grid>
                             <Grid item>
                                 <Button
-                                    disabled={!props.game.playInfo.canSubmit()}
+                                    disabled={!isMyTurn || validateMsg !== ""}
                                     className={classes.button}
                                     variant={"outlined"}
                                     onClick={() => submit()}>
                                     <Tooltip
-                                        title={isMyTurn ? "点击确认操作" : "等待对手操作"}
+                                        title={validateMsg !== "" ? "操作不合法" : (isMyTurn ? "点击确认操作" : "等待对手操作")}
                                         open={op === "submit"}
                                         arrow placement={"right"}>
                                         <Typography>

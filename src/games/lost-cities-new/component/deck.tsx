@@ -17,6 +17,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme, LCDeckProp>(theme
             width: 100,
             height: 160,
             marginTop: theme.spacing(1),
+            cursor: "pointer",
         },
         cardBox: {
             position: "absolute",

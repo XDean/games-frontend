@@ -32,12 +32,23 @@ export class LCGame implements SocketTopicHandler, SocketInit {
         card: new SimpleProperty<LCCard | "none">("none"),
         playType: new SimpleProperty<LCPlayType>("none"),
         drawType: new SimpleProperty<LCDrawType>("none"),
-        canSubmit: () => {
-            let isMyTurn = this.host.mySeat.value === this.board.current.value;
-            return isMyTurn &&
-                this.playInfo.card.value !== "none" &&
-                this.playInfo.playType.value !== "none" &&
-                this.playInfo.drawType.value !== "none";
+        validate: () => {
+            let playCard = this.playInfo.card.value;
+            let playType = this.playInfo.playType.value;
+            let drawType = this.playInfo.drawType.value;
+            if (playCard !== "none" && playType === "drop" && playCard.color === drawType) {
+                return "你不可以摸起即将打出的牌";
+            }
+            if (drawType !== "none" && drawType !== "deck" && this.board.drop.value[drawType].length === 0) {
+                return "弃牌堆中没有可用的牌";
+            }
+            if (playCard !== "none" && playType === "play") {
+                let playCards = this.board.board.value[this.host.mySeat.value][playCard.color];
+                if (playCard.point < playCards[playCards.length - 1].point) {
+                    return "同一系列点数必须递增";
+                }
+            }
+            return "";
         },
         submit: () => {
             this.sender.send("play", {
@@ -96,13 +107,13 @@ export class LCGame implements SocketTopicHandler, SocketInit {
                 break;
             case "play":
                 let card = new LCCard(data.card);
-                this.board.hand.update(hs => {
+                let removePlayedCard = (hs: LCCards[]) => {
                     let hand = hs[data.seat];
                     let index = hand.findIndex(c => c.int === card.int);
                     if (index !== -1) {
                         hand.splice(index, 1)
                     }
-                });
+                };
                 if (data.drop) {
                     this.board.drop.update(ds => {
                         ds[card.color].push(card);
@@ -118,6 +129,7 @@ export class LCGame implements SocketTopicHandler, SocketInit {
                     if (data["deck-card"] !== -1) {
                         let deckCard = new LCCard(data["deck-card"]);
                         this.board.hand.update(hs => {
+                            removePlayedCard(hs);
                             hs[data.seat].push(deckCard)
                         });
                         this.log.log(new LCDrawMessage(data.seat, "deck", deckCard))
@@ -131,6 +143,7 @@ export class LCGame implements SocketTopicHandler, SocketInit {
                         ds[dropColor].slice(ds[dropColor].length - 1, 1);
                     });
                     this.board.hand.update(hs => {
+                        removePlayedCard(hs);
                         hs[data.seat].push(dropCard)
                     });
                     this.log.log(new LCDrawMessage(data.seat, dropColor, dropCard))
