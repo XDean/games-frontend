@@ -84,7 +84,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
             case "watch":
                 if (data.id === this.myId) {
                     this.myRole.value = "watch";
-                    this.mySeat.value = data.seat;
+                    this.mySeat.value = 0;
                 }
                 this.watchers.update(ws => {
                     ws.push(new MultiGameWatcher(data.id));

@@ -44,7 +44,7 @@ export class LCGame implements SocketTopicHandler, SocketInit {
             }
             if (playCard !== "none" && playType === "play") {
                 let playCards = this.board.board.value[this.host.mySeat.value][playCard.color];
-                if (playCard.point < playCards[playCards.length - 1].point) {
+                if (playCards.length > 0 && playCard.point < playCards[playCards.length - 1].point) {
                     return "同一系列点数必须递增";
                 }
             }

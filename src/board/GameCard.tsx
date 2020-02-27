@@ -63,7 +63,7 @@ const GameCard: React.FunctionComponent<GameCardProp> = (props) => {
                     </Tooltip>
                 </IconButton>}
             </CardActions>
-            {showHelp && <Dialog maxWidth={"lg"} fullWidth style={{zIndex: 99999}} open
+            {showHelp && <Dialog maxWidth={"md"} fullWidth style={{zIndex: 99999}} open
                                  onClose={() => setShowHelp(false)}>{props.help}</Dialog>}
         </Card>
     );

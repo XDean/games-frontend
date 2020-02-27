@@ -26,7 +26,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createSt
             padding: theme.spacing(1, 1),
         },
         [theme.breakpoints.up('lg')]: {
-            padding: theme.spacing(1, 10),
+            padding: theme.spacing(2, 5),
         },
     },
     logchat: {

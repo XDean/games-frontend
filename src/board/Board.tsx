@@ -6,7 +6,7 @@ import jgzq from "../jgzq/images/banner.png"
 import lostCities from "../lost-cities/images/banner.jpg"
 import LCCreateView from "../games/lost-cities-new/component/create";
 import {Box, Dialog} from "@material-ui/core";
-import LCHelpView from "../lost-cities/component/help";
+import LCHelpView from "../games/lost-cities-new/component/help";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

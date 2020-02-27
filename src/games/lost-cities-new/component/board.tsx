@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Box, Button, Grid} from "@material-ui/core";
+import {Box, Button, Grid, Tooltip, Zoom} from "@material-ui/core";
 import {LCGame} from "../model/board";
 import {useStateByProp} from "../../../util/property";
 import {LCCard, LCCardColors} from "../model/card";
@@ -56,28 +56,38 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = React.forwardRef((prop
 
     return (
         <Grid className={classes.root} innerRef={ref}>
-            {LCCardColors.map(color => (
-                <React.Fragment key={color}>
+            {LCCardColors.map(color => {
+                const [dropDetails, setDropDetails] = useState(false);
+                return <React.Fragment key={color}>
                     <Box className={classes.other}>
                         {board[1 - mySeat][color].slice().reverse().map((card, i) => (
                             <LCSquareView key={i} card={card}/>
                         ))}
                     </Box>
-                    <Button className={classes.drop + " " + (drawType === color ? classes.selectedDrawType : "")}
-                            onClick={() => props.game.playInfo.drawType.update(v => v === color ? "none" : color)}>
-                        {drop[color].length === 0 ?
-                            <LCSquareView card={new LCCard(color * 12)} colorOnly/> :
-                            <LCSquareView card={drop[color][drop[color].length - 1]}/>
-                        }
-
-                    </Button>
+                    <Tooltip TransitionComponent={Zoom} placement={"bottom"} arrow interactive
+                             open={dropDetails && drop[color].length > 0}
+                             onClose={() => setDropDetails(false)}
+                             title={<Grid container wrap={"nowrap"}>
+                                 {drop[color].map((c, i) => <LCSquareView card={c} key={i}/>)}
+                             </Grid>}>
+                        <Button className={classes.drop + " " + (drawType === color ? classes.selectedDrawType : "")}
+                                onClick={() => {
+                                    setDropDetails(true);
+                                    props.game.playInfo.drawType.update(v => v === color ? "none" : color);
+                                }}>
+                            {drop[color].length === 0 ?
+                                <LCSquareView card={new LCCard(color * 12)} colorOnly/> :
+                                <LCSquareView card={drop[color][drop[color].length - 1]}/>
+                            }
+                        </Button>
+                    </Tooltip>
                     <Box className={classes.my}>
                         {board[mySeat][color].map((card, i) => (
                             <LCSquareView key={i} card={card}/>
                         ))}
                     </Box>
                 </React.Fragment>
-            ))}
+            })}
         </Grid>
     );
 });

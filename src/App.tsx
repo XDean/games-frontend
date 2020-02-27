@@ -1,12 +1,5 @@
 import React, {createContext, useRef, useState} from 'react';
-import {
-    createMuiTheme,
-    createStyles,
-    makeStyles,
-    MuiThemeProvider,
-    Theme,
-    ThemeProvider
-} from '@material-ui/core/styles';
+import {createMuiTheme, createStyles, makeStyles, Theme, ThemeProvider} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -17,10 +10,9 @@ import GameBoard from "./board/Board";
 import {createHashHistory} from "history";
 import Jgzq from "./jgzq/Jgzq";
 import Chip from "@material-ui/core/Chip";
-import ShareOutlinedIcon from '@material-ui/icons/ShareOutlined';
 import Box from "@material-ui/core/Box";
 import {grey} from "@material-ui/core/colors";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField} from "@material-ui/core";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Popover, TextField} from "@material-ui/core";
 import {AppTheme} from "./theme";
 import LCMainView from "./games/lost-cities-new/lostcities";
 
@@ -52,7 +44,7 @@ export type AppContextType = {
 }
 
 let AppDefaultContext = {
-    id: "",
+    id: (window.localStorage.getItem("user_id") || ""),
 };
 
 export const AppContext = createContext<AppContextType>(AppDefaultContext);
@@ -63,13 +55,23 @@ const App: React.FunctionComponent = () => {
 
     const idRef = useRef<HTMLInputElement>();
     const [ctx, setCtx] = useState<AppContextType>(AppDefaultContext);
+    const [idAnchor, setIdAnchor] = useState<HTMLElement | null>(null);
 
-    function handleClick() {
-        history.push("/board");
+    function goHome() {
+        history.push("/");
     }
 
     function submitId() {
-        setCtx({...ctx, id: idRef.current!.value})
+        let id = idRef.current!.value;
+        window.localStorage.setItem("user_id", id);
+        setCtx({...ctx, id: id})
+    }
+
+    function exit() {
+        setIdAnchor(null);
+        window.localStorage.removeItem("user_id");
+        setCtx({...ctx, id: ""});
+        goHome();
     }
 
     return (
@@ -81,7 +83,7 @@ const App: React.FunctionComponent = () => {
                             <Toolbar>
                                 <IconButton edge={"start"} className={classes.homeButton} color="inherit"
                                             aria-label="home"
-                                            onClick={handleClick}>
+                                            onClick={goHome}>
                                     <HomeIcon/>
                                 </IconButton>
                                 <Typography variant="h5" className={classes.title}>
@@ -90,9 +92,25 @@ const App: React.FunctionComponent = () => {
                                 <Switch>
                                     <Route path="/game/:game/:id" children={<ShareRoom/>}/>
                                 </Switch>
-                                <Typography style={{marginLeft: 15}}>
-                                    {ctx.id}
-                                </Typography>
+                                {ctx.id && <Chip
+                                    label={ctx.id}
+                                    clickable
+                                    style={{marginLeft: 15, color: grey[300], borderColor: grey[300]}}
+                                    variant="outlined"
+                                    onClick={e => setIdAnchor(e.currentTarget)}
+                                />}
+                                <Popover
+                                    anchorEl={idAnchor}
+                                    keepMounted
+                                    open={Boolean(idAnchor)}
+                                    onClose={() => setIdAnchor(null)}
+                                    elevation={0}
+                                    anchorOrigin={{vertical: 'bottom', horizontal: 'center',}}
+                                    transformOrigin={{vertical: 'top', horizontal: 'center',}}
+                                >
+                                    <Button variant={"text"} onClick={exit}>退出</Button>
+                                </Popover>
+
                             </Toolbar>
                         </AppBar>
                         {ctx.id === "" ?
@@ -158,17 +176,12 @@ const theme = createMuiTheme({
 function ShareRoom() {
     const {id} = useParams();
     return (
-        <MuiThemeProvider theme={theme}>
-            <Chip
-                label={`房间号: ${id}`}
-                clickable
-                color={"primary"}
-                variant="outlined"
-                onDelete={() => {
-                }}
-                deleteIcon={<ShareOutlinedIcon/>}
-            />
-        </MuiThemeProvider>
+        <Chip
+            label={`房间号: ${id}`}
+            clickable
+            style={{color: grey[300], borderColor: grey[300]}}
+            variant="outlined"
+        />
     )
 }
 
