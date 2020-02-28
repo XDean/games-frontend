@@ -8,6 +8,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {LCCard} from "../model/card";
 import {faHandshake} from "@fortawesome/free-solid-svg-icons";
 import {LCTheme} from "../theme";
+import {Divider} from "@material-ui/core";
 
 const useStyles = makeStyles({});
 
@@ -62,7 +63,7 @@ const LCMessageView: React.FunctionComponent<LCMessageProp> = (props) => {
     } else if (msg instanceof LCScoreMessage) {
         let score = msg.score;
         return <div>
-            ---------------------------------------------<br/>
+            <Divider/>
             最终得分:<br/>
             <ul>
                 {msg.players.map((p, i) => (
@@ -70,7 +71,7 @@ const LCMessageView: React.FunctionComponent<LCMessageProp> = (props) => {
                 ))}
             </ul>
             [{msg.winner.id}] 获得了胜利<br/>
-            ---------------------------------------------<br/>
+            <Divider/>
         </div>
     }
     return (null)
