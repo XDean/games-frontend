@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Box, CircularProgress, Dialog, Grid, IconButton, ThemeProvider} from "@material-ui/core";
+import {Box, CircularProgress, Dialog, Grid, IconButton, ThemeProvider, Tooltip} from "@material-ui/core";
 import LCGameView from "./component/game";
 import {AppContext} from "../../App";
 import {autoWs} from "../../util/ws";
@@ -138,7 +138,11 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
     function selectJoinWatch() {
         let canJoin = !game!.host.isFull();
         return (
-            <SelectDialog options={["加入游戏", "观看游戏"]} onSelect={(i) => {
+            <SelectDialog options={[
+                <Tooltip title={"房间已满"} open={!canJoin} placement={"right"} arrow>
+                    <Box color={canJoin ? undefined : "grey"}>加入游戏</Box>
+                </Tooltip>,
+                "观看游戏"]} onSelect={(i) => {
                 if (i === 0) {
                     if (canJoin) {
                         game!.host.joinGame();

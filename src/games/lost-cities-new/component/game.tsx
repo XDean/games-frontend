@@ -75,9 +75,15 @@ const useStyles = makeStyles<typeof AppTheme & typeof LCTheme>(theme => createSt
     selectedPlayType: {
         boxShadow: theme.selectedShadow,
     },
+    infoContainer: {
+        marginLeft: theme.spacing(4),
+        display: "grid",
+        gridTemplateColumns: "1pr",
+        justifyItems: "center"
+    },
     info: {
         padding: theme.spacing(1, 2),
-        marginLeft: theme.spacing(5),
+        margin: theme.spacing(1),
     },
 }));
 
@@ -96,7 +102,8 @@ type LCGameProp = {
 const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
     const classes = useStyles();
     const role = useStateByProp(props.game.host.myRole);
-    const playing = useStateByProp(props.game.host.playing) && role === "play";
+    const playing = useStateByProp(props.game.host.playing);
+    const over = useStateByProp(props.game.board.over);
 
     const mySeat = useStateByProp(props.game.host.mySeat);
     const otherSeat = 1 - mySeat;
@@ -144,6 +151,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
     }, [hand, sort]);
 
     const isMyTurn = current === props.game.host.mySeat.value;
+    const isMyPlay = isMyTurn && playing && role === "play";
     const validateMsg = props.game.playInfo.validate();
     const op: Operation = function () {
         if (playCard === "none") {
@@ -197,7 +205,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                     <ChatView controller={props.game.plugins.chat}/>
                 </Grid>
                 <Grid item className={classes.board}>
-                    <Tooltip open={playing && isMyTurn && op === "selectDraw"} title={"从弃牌堆抽牌"} arrow
+                    <Tooltip open={isMyPlay && op === "selectDraw"} title={"从弃牌堆抽牌"} arrow
                              placement={"right"}>
                         <LCBoardView game={props.game}/>
                     </Tooltip>
@@ -232,31 +240,42 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                         </Grid>
                     </Grid>
                     <Grid item container alignItems={"center"}>
-                        <Tooltip open={playing && isMyTurn && op === "selectDraw"} title={"或从牌库抽牌"} arrow
+                        <Tooltip open={isMyPlay && op === "selectDraw"} title={"或从牌库抽牌"} arrow
                                  placement={"bottom"}>
                             <Grid item style={{width: "min-content"}}>
                                 <LCDeckView game={props.game}/>
                             </Grid>
                         </Tooltip>
-                        <Grid item>
+                        <Grid item className={classes.infoContainer}>
                             <Paper elevation={5} className={classes.info}>
                                 {function () {
-                                    switch (role) {
-                                        case "none":
-                                        case "not-determined":
-                                            return "准备数据";
-                                        case "play":
-                                            return isMyTurn ? "你的回合" : "对方回合";
-                                        case "watch":
-                                            return "正在观战 - " + (isMyTurn ? "己方回合" : "对方回合");
+                                    if (playing) {
+                                        switch (role) {
+                                            case "none":
+                                                return "准备数据";
+                                            case "not-determined":
+                                                return "准备数据";
+                                            case "play":
+                                                return isMyTurn ? "你的回合" : "对方回合";
+                                            case "watch":
+                                                return "正在观战 - " + (isMyTurn ? "己方回合" : "对方回合");
+                                        }
+                                    } else if (over) {
+                                        return myPlayer.ready ? "等待对手准备" : "游戏结束";
+                                    } else {
+                                        return "等待游戏开始";
                                     }
                                 }()}
                             </Paper>
+                            {over && !myPlayer.ready &&
+                            <Button onClick={() => props.game.playAgain()} variant={"outlined"}>
+                                再来一局
+                            </Button>}
                         </Grid>
                     </Grid>
                     <Grid item container wrap={"nowrap"}>
                         <Box>
-                            <Tooltip open={playing && isMyTurn && op === "selectCard"} title={"选择手牌"} arrow
+                            <Tooltip open={isMyPlay && op === "selectCard"} title={"选择手牌"} arrow
                                      placement={"top"}>
                                 <LCHandView cards={sortedMyHand.length === 0 ? createCards(8) : sortedMyHand}
                                             unknown={sortedMyHand.length === 0}
@@ -281,7 +300,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                                         onClick={() => onSelectPlayType("play")}>
                                     <Tooltip
                                         title={"选择出牌或弃牌"}
-                                        open={playing && isMyTurn && op === "selectPlayType"}
+                                        open={isMyPlay && op === "selectPlayType"}
                                         arrow placement={"right"}>
                                         <Typography>
                                             出牌
@@ -300,13 +319,13 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                             </Grid>
                             <Grid item>
                                 <Button
-                                    disabled={!playing||!isMyTurn || validateMsg !== ""}
+                                    disabled={op !== "submit" || !isMyPlay || validateMsg !== ""}
                                     className={classes.button}
                                     variant={"outlined"}
                                     onClick={() => submit()}>
                                     <Tooltip
                                         title={validateMsg !== "" ? "操作不合法" : (isMyTurn ? "点击确认操作" : "等待对手操作")}
-                                        open={op === "submit"}
+                                        open={isMyPlay && op === "submit"}
                                         arrow placement={"right"}>
                                         <Typography>
                                             确认

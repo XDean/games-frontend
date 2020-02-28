@@ -8,11 +8,11 @@ import React from "react";
 import {LogPlugin} from "../../common/model/plugins/log";
 import {SocketPlugin} from "../../common/model/plugins/plugin";
 import {MultiPlayerMessage} from "../../common/model/multi-player/message";
-import {LCDrawMessage, LCGameMessage, LCPlayMessage} from "./message";
+import {LCDrawMessage, LCGameMessage, LCPlayMessage, LCScoreMessage} from "./message";
 
 export type LCPlayType = "none" | "play" | "drop"
 export type LCDrawType = "none" | "deck" | LCCardColor
-export type LCMessage = MultiPlayerMessage | LCGameMessage
+export type LCMessage = MultiPlayerMessage | LCGameMessage | LCScoreMessage
 
 export class LCGame implements SocketTopicHandler, SocketInit {
 
@@ -72,6 +72,10 @@ export class LCGame implements SocketTopicHandler, SocketInit {
         this.host.setPlayerCount(2);
     }
 
+    playAgain = () => {
+        this.sender.send("ready", true);
+    };
+
     init = (sender: SocketTopicSender) => {
         this.sender = sender;
         this.host.init(sender);
@@ -91,9 +95,7 @@ export class LCGame implements SocketTopicHandler, SocketInit {
         });
         switch (topic) {
             case "host-info":
-                if (data.playing) {
-                    this.sender.send("game-info");
-                }
+                this.sender.send("game-info");
                 break;
             case "game-info":
             case "game-start":
@@ -150,6 +152,10 @@ export class LCGame implements SocketTopicHandler, SocketInit {
                 break;
             case "turn":
                 this.board.current.value = data;
+                break;
+            case "game-over":
+                this.board.over.value = true;
+                this.log.log(new LCScoreMessage(this.host.players.value, this.board.calcScore()));
                 break;
         }
     };

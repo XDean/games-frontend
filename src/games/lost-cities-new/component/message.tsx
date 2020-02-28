@@ -3,7 +3,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import {LCGame, LCMessage} from "../model/board";
 import {HostMessage, JoinMessage, ReadyMessage, WatchMessage} from "../../common/model/multi-player/message";
 import Typography from "@material-ui/core/Typography";
-import {LCDrawMessage, LCPlayMessage} from "../model/message";
+import {LCDrawMessage, LCPlayMessage, LCScoreMessage} from "../model/message";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {LCCard} from "../model/card";
 import {faHandshake} from "@fortawesome/free-solid-svg-icons";
@@ -28,7 +28,9 @@ const LCMessageView: React.FunctionComponent<LCMessageProp> = (props) => {
             [{msg.who}] 开始旁观
         </Typography>
     } else if (msg instanceof ReadyMessage) {
-        return null
+        return <Typography>
+            [{msg.who}] {msg.ready ? "准备就绪" : "取消准备"}
+        </Typography>
     } else if (msg === HostMessage.START) {
         return <Typography>
             游戏开始
@@ -57,6 +59,19 @@ const LCMessageView: React.FunctionComponent<LCMessageProp> = (props) => {
                 {msg.card ? <CardMessage card={msg.card}/> : "一张牌"}
             </React.Fragment>
         )
+    } else if (msg instanceof LCScoreMessage) {
+        let score = msg.score;
+        return <div>
+            ---------------------------------------------<br/>
+            最终得分:<br/>
+            <ul>
+                {msg.players.map((p, i) => (
+                    <li key={i}>[{p.id}]: {score[p.seat].sum}</li>
+                ))}
+            </ul>
+            [{msg.winner.id}] 获得了胜利<br/>
+            ---------------------------------------------<br/>
+        </div>
     }
     return (null)
 };

@@ -6,7 +6,7 @@ import Dialog from '@material-ui/core/Dialog';
 
 export interface SelectDialogProps {
     title?: string,
-    options: (string | ReactNode)[]
+    options: ReactNode[]
     onSelect: (index: number) => void
 }
 

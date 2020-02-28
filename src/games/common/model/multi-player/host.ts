@@ -116,8 +116,9 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 this.playing.value = true;
                 this.log.log(HostMessage.START);
                 break;
-            case "over":
+            case "game-over":
                 this.playing.value = false;
+                this.players.update(ps => ps.map(p => p.with({ready: false})));
                 this.log.log(HostMessage.OVER);
                 break;
         }
