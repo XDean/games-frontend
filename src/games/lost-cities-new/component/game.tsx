@@ -8,7 +8,7 @@ import ChatView from "../../common/component/chat";
 import {LCGame, LCPlayType} from "../model/board";
 import LCBoardView from "./board";
 import {AppTheme} from "../../../theme";
-import {useStateByProp} from "../../../util/property";
+import {useStateByMapProp, useStateByProp} from "../../../util/property";
 import LCDeckView from "./deck";
 import LCHelpView from "./help";
 import LCScoreBoardView from "./score";
@@ -199,7 +199,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                     <Grid item container wrap={"nowrap"}>
                         <Box>
                             <Typography>
-                                {otherPlayer.isEmpty() ? "等待玩家加入" : `${otherPlayer!.id}`}
+                                {otherPlayer.isEmpty() ? "等待玩家加入" : `${otherPlayer!.id}${otherPlayer.connected?"":" (未连接)"}`}
                             </Typography>
                             <LCHandView cards={createCards(8)} unknown/>
                         </Box>

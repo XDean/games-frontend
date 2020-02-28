@@ -1,13 +1,7 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import {LCGame, LCMessage} from "../model/board";
-import {
-    JoinMessage,
-    OverMessage,
-    ReadyMessage,
-    StartMessage,
-    WatchMessage
-} from "../../common/model/multi-player/message";
+import {HostMessage, JoinMessage, ReadyMessage, WatchMessage} from "../../common/model/multi-player/message";
 import Typography from "@material-ui/core/Typography";
 import {LCDrawMessage, LCPlayMessage} from "../model/message";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -35,13 +29,17 @@ const LCMessageView: React.FunctionComponent<LCMessageProp> = (props) => {
         </Typography>
     } else if (msg instanceof ReadyMessage) {
         return null
-    } else if (msg instanceof StartMessage) {
+    } else if (msg === HostMessage.START) {
         return <Typography>
             游戏开始
         </Typography>
-    } else if (msg instanceof OverMessage) {
+    } else if (msg === HostMessage.OVER) {
         return <Typography>
             游戏结束
+        </Typography>
+    } else if (msg === HostMessage.CONTINUE) {
+        return <Typography>
+            游戏继续
         </Typography>
     } else if (msg instanceof LCPlayMessage) {
         let id = props.game.host.players.value[msg.seat].id;

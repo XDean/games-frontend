@@ -1,8 +1,8 @@
 import {Wither} from "../util";
 import {SimpleProperty} from "xdean-util";
 import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "../socket";
-import {LogPlugin} from "../log";
-import {JoinMessage, MultiPlayerMessage, OverMessage, ReadyMessage, StartMessage, WatchMessage} from "./message";
+import {LogPlugin} from "../plugins/log";
+import {HostMessage, JoinMessage, MultiPlayerMessage, ReadyMessage, WatchMessage} from "./message";
 
 export type MultiPlayerRole = "none" | "not-determined" | "play" | "watch";
 
@@ -15,6 +15,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
     readonly watchers = new SimpleProperty<MultiGameWatcher[]>([]);
 
     private sender: SocketTopicSender = EmptyTopicSender;
+    private connected: string[] = [];
 
     constructor(
         readonly myId: string,
@@ -41,16 +42,30 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
     };
 
     init = (sender: SocketTopicSender) => {
+        sender.send("connect-info");
         sender.send("host-info");
         this.sender = sender;
     };
 
     handle = (topic: string, data: any): void => {
         switch (topic) {
+            case "connect-info":
+                this.connected = data;
+                break;
+            case "connect":
+                this.updateConnected(data, true);
+                break;
+            case "disconnect":
+                this.updateConnected(data, false);
+                break;
             case "host-info":
                 this.playing.value = data.playing;
-                this.players.value = data.players.map((p: any) => p === null ? MultiGamePlayer.EMPTY : new MultiGamePlayer(p.id, p.seat, p.ready));
-                this.watchers.value = data.watchers.map((p: any) => new MultiGameWatcher(p.id));
+                if (data.playing) {
+                    this.log.log(HostMessage.CONTINUE)
+                }
+                this.players.value = data.players.map((p: any) => p === null ? MultiGamePlayer.EMPTY :
+                    new MultiGamePlayer(p.id, p.seat, p.ready, this.connected.indexOf(p.id) !== -1));
+                this.watchers.value = data.watchers.map((p: any) => new MultiGameWatcher(p.id, this.connected.indexOf(p.id) !== -1));
                 let find = false;
                 this.players.value.forEach(p => {
                     if (p.id === this.myId) {
@@ -77,7 +92,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                     this.mySeat.value = data.seat;
                 }
                 this.players.update(ps => {
-                    ps[data.seat] = new MultiGamePlayer(data.id, data.seat, data.ready);
+                    ps[data.seat] = new MultiGamePlayer(data.id, data.seat, data.ready, true);
                 });
                 this.log.log(new JoinMessage(data.id));
                 break;
@@ -87,7 +102,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                     this.mySeat.value = 0;
                 }
                 this.watchers.update(ws => {
-                    ws.push(new MultiGameWatcher(data.id));
+                    ws.push(new MultiGameWatcher(data.id, true));
                 });
                 this.log.log(new WatchMessage(data.id));
                 break;
@@ -99,25 +114,46 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 break;
             case "game-start":
                 this.playing.value = true;
-                this.log.log(new StartMessage());
+                this.log.log(HostMessage.START);
                 break;
             case "over":
                 this.playing.value = false;
-                this.log.log(new OverMessage());
+                this.log.log(HostMessage.OVER);
                 break;
         }
     };
+
+    private updateConnected = (id: string, connect: boolean) => {
+        let player = this.players.value.find(p => p && p.id === id);
+        if (player) {
+            let index = this.players.value.indexOf(player);
+            this.players.update(ps => {
+                ps[index] = ps[index].with({connected: connect})
+            })
+        }
+        let watcher = this.watchers.value.find(p => p.id === id);
+        if (watcher) {
+            let index = this.watchers.value.indexOf(watcher);
+            this.watchers.update(ps => {
+                ps[index] = ps[index].with({connected: connect})
+            })
+        }
+    }
 }
 
 export class MultiGamePlayer extends Wither<MultiGamePlayer> {
     static EMPTY = new MultiGamePlayer("", -1, false);
 
+    readonly connected: boolean;
+
     constructor(
         readonly id: string,
         readonly seat: number,
         readonly ready: boolean,
+        connected?: boolean,
     ) {
         super();
+        this.connected = connected || false;
     }
 
     isEmpty = (): boolean => {
@@ -126,9 +162,14 @@ export class MultiGamePlayer extends Wither<MultiGamePlayer> {
 }
 
 export class MultiGameWatcher extends Wither<MultiGameWatcher> {
+
+    readonly connected: boolean;
+
     constructor(
-        readonly id: string = ""
+        readonly id: string = "",
+        connected?: boolean,
     ) {
         super();
+        this.connected = connected || false;
     }
 }

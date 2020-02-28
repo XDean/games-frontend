@@ -1,4 +1,4 @@
-export type MultiPlayerMessage = JoinMessage | WatchMessage | ReadyMessage | StartMessage | OverMessage
+export type MultiPlayerMessage = JoinMessage | WatchMessage | ReadyMessage | HostMessage
 
 export class JoinMessage {
     constructor(readonly who: string) {
@@ -15,8 +15,8 @@ export class ReadyMessage {
     }
 }
 
-export class StartMessage {
-}
-
-export class OverMessage {
+export enum HostMessage {
+    START = "MultiPlayer.START",
+    OVER = "MultiPlayer.OVER",
+    CONTINUE = "MultiPlayer.RECONNECT",
 }

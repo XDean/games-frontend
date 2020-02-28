@@ -65,12 +65,13 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = React.forwardRef((prop
                         ))}
                     </Box>
                     <Tooltip TransitionComponent={Zoom} placement={"bottom"} arrow interactive
-                             open={dropDetails && drop[color].length > 0}
+                             open={dropDetails} leaveTouchDelay={5000}
                              onClose={() => setDropDetails(false)}
-                             title={<Grid container wrap={"nowrap"}>
+                             title={drop[color].length ===0?"":<Grid container wrap={"nowrap"}>
                                  {drop[color].map((c, i) => <LCSquareView card={c} key={i}/>)}
                              </Grid>}>
                         <Button className={classes.drop + " " + (drawType === color ? classes.selectedDrawType : "")}
+                                onMouseEnter={()=>setDropDetails(true)}
                                 onClick={() => {
                                     setDropDetails(true);
                                     props.game.playInfo.drawType.update(v => v === color ? "none" : color);

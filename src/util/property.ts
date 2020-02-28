@@ -11,3 +11,21 @@ export function useStateByProp<S extends (any | any[])>(p: Property<S>): S {
     }, [p]);
     return state
 }
+
+
+export function useStateByMapProp<S, V extends (any | any[])>(
+    p: Property<S>,
+    selector: (value: S) => V
+): V {
+    let [state, setState] = useState<V>(() => selector(p.value));
+    useEffect(() => {
+        setState(selector(p.value));
+        p.addListener((ob, o, n) => {
+            let newValue = selector(n);
+            if (newValue !== state) {
+                setState(newValue.slice ? newValue.slice() : n);
+            }
+        });
+    }, [p]);
+    return state
+}

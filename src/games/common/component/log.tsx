@@ -3,7 +3,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import {Paper} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import {useStateByProp} from "../../../util/property";
-import {LogPlugin} from "../model/log";
+import {LogPlugin} from "../model/plugins/log";
 
 const useStyles = makeStyles({
     container: {

@@ -1,12 +1,12 @@
 import {LCCard, LCCardColor, LCCards} from "./card"
 import {MultiPlayerBoard} from "../../common/model/multi-player/host";
 import {LCPlayerScore} from "./score";
-import {ChatPlugin} from "../../common/model/chat";
+import {ChatPlugin} from "../../common/model/plugins/chat";
 import {SimpleProperty} from "xdean-util";
 import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "../../common/model/socket";
 import React from "react";
-import {LogPlugin} from "../../common/model/log";
-import {SocketPlugin} from "../../common/model/plugin";
+import {LogPlugin} from "../../common/model/plugins/log";
+import {SocketPlugin} from "../../common/model/plugins/plugin";
 import {MultiPlayerMessage} from "../../common/model/multi-player/message";
 import {LCDrawMessage, LCGameMessage, LCPlayMessage} from "./message";
 
@@ -26,7 +26,6 @@ export class LCGame implements SocketTopicHandler, SocketInit {
         log: this.log,
         chat: this.chat,
     };
-
 
     readonly playInfo = {
         card: new SimpleProperty<LCCard | "none">("none"),
@@ -69,7 +68,7 @@ export class LCGame implements SocketTopicHandler, SocketInit {
         readonly hostId: string,
         readonly myId: string
     ) {
-        this.host = new MultiPlayerBoard(myId, this.log);
+        this.host = new MultiPlayerBoard(myId, this.log as LogPlugin<MultiPlayerMessage>);
         this.host.setPlayerCount(2);
     }
 

@@ -1,5 +1,5 @@
 import {SimpleProperty} from "xdean-util";
-import {EmptyTopicSender, SocketTopicSender} from "./socket";
+import {EmptyTopicSender, SocketTopicSender} from "../socket";
 import React from "react";
 import {SocketPlugin} from "./plugin";
 
