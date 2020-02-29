@@ -3,8 +3,7 @@ import {createStyles, makeStyles} from '@material-ui/core/styles';
 import {IconButton, InputBase, Paper, PaperProps, Popover} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import Divider from "@material-ui/core/Divider";
-import {SocketTopicSender} from "../model/socket";
-import {ChatPlugin, ChatMessage} from "../model/plugins/chat";
+import {ChatMessage, ChatPlugin} from "../model/plugins/chat";
 import Typography from "@material-ui/core/Typography";
 import SendIcon from '@material-ui/icons/Send';
 import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied';
@@ -76,7 +75,7 @@ const ChatView: React.FunctionComponent<ChatProp> = (props) => {
     }
 
     function send() {
-        if (inputRef.current) {
+        if (inputRef.current && inputRef.current.value !== "") {
             props.controller.sendMessage(inputRef.current.value);
             inputRef.current.value = "";
         }

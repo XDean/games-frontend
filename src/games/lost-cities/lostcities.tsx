@@ -1,12 +1,22 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Box, CircularProgress, Dialog, Grid, IconButton, ThemeProvider, Tooltip} from "@material-ui/core";
+import {
+    Box,
+    CardActionArea,
+    CardMedia,
+    CircularProgress,
+    Dialog,
+    Grid,
+    IconButton,
+    ThemeProvider,
+    Tooltip
+} from "@material-ui/core";
 import LCGameView from "./component/game";
 import {AppContext} from "../../App";
 import {autoWs} from "../../util/ws";
 import {LCGame} from "./model/board";
 import Backdrop from "@material-ui/core/Backdrop/Backdrop";
-import {useHistory, useParams} from "react-router";
+import {Route, Switch, useHistory, useParams, useRouteMatch} from "react-router";
 import {AppTheme} from "../../theme";
 import RefreshIcon from '@material-ui/icons/Refresh';
 import HomeIcon from '@material-ui/icons/Home';
@@ -15,8 +25,84 @@ import {EmptyTopicSender, SocketTopicSender} from "../common/model/socket";
 import {MultiPlayerRole} from "../common/model/multi-player/host";
 import {SelectDialog} from "../../components/selectDialog";
 import {LCTheme} from "./theme";
+import lostCities from "./resources/banner.webp";
+import LCHelpView from "./component/help";
+import LCCreateView from "./component/create";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
+import CardActions from "@material-ui/core/CardActions";
+import Button from "@material-ui/core/Button";
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import {LCMeta} from "./meta";
+import {ShareRoom} from "../../components/snippts";
+import {grey} from "@material-ui/core/colors";
 
-const useStyles = makeStyles<typeof AppTheme>((theme) => createStyles({
+export const LCBoardCard = () => {
+    const [showHelp, setShowHelp] = useState(false);
+    const [showCreate, setShowCreate] = useState(false);
+    return (
+        <React.Fragment>
+            <Card>
+                <CardActionArea onClick={() => setShowCreate(true)}>
+                    <CardMedia image={lostCities} title={LCMeta.name} style={{width: 350, height: 180}}/>
+                    <CardContent>
+                        <Typography gutterBottom variant="h5" component="h2">
+                            {LCMeta.name}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" component="p">
+                            "双人桌面游戏"
+                        </Typography>
+                    </CardContent>
+                </CardActionArea>
+                <CardActions>
+                    <Button size="small" color="primary" onClick={() => setShowCreate(true)}>
+                        点击开始
+                    </Button>
+                    <IconButton onClick={() => setShowHelp(true)} size={"small"} style={{marginLeft: "auto"}}>
+                        <Tooltip title={"帮助"}>
+                            <HelpOutlineIcon/>
+                        </Tooltip>
+                    </IconButton>
+                </CardActions>
+            </Card>
+            {showHelp && <Dialog maxWidth={"md"} fullWidth open onClose={() => setShowHelp(false)}>
+                <LCHelpView onClose={() => setShowHelp(false)}/>
+            </Dialog>}
+            {showCreate && <Dialog open onClose={() => setShowCreate(false)}>
+                <LCCreateView onCancel={() => setShowCreate(false)}/>
+            </Dialog>}
+        </React.Fragment>
+    )
+};
+
+export const LCHeadView = () => {
+    const {path} = useRouteMatch();
+    return (
+        <Switch>
+            <Route path={`${path}/:id`}>
+                <ShareRoomIcon/>
+            </Route>
+        </Switch>
+    )
+};
+
+export function ShareRoomIcon() {
+    const {id} = useParams();
+    return <ShareRoom id={id!}/>
+}
+
+export const LCMainView: React.FunctionComponent<{}> = () => {
+    const {path} = useRouteMatch();
+    return (
+        <Switch>
+            <Route path={`${path}/:id`}>
+                <LCActualMainView/>
+            </Route>
+        </Switch>
+    )
+};
+
+const useMainStyles = makeStyles<typeof AppTheme>((theme) => createStyles({
     root: {
         height: "100%",
     },
@@ -28,12 +114,10 @@ const useStyles = makeStyles<typeof AppTheme>((theme) => createStyles({
     },
 }));
 
-type LCMainProp = {}
-
-const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
+const LCActualMainView: React.FunctionComponent<{}> = () => {
     const {id} = useParams();
     const ctx = useContext(AppContext);
-    const classes = useStyles();
+    const classes = useMainStyles();
     const history = useHistory();
 
     const [game, setGame] = useState<LCGame>();
@@ -164,5 +248,3 @@ const LCMainView: React.FunctionComponent<LCMainProp> = (props) => {
         </ThemeProvider>
     )
 };
-
-export default LCMainView;

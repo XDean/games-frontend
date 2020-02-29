@@ -1,20 +1,19 @@
 import React, {createContext, useRef, useState} from 'react';
-import {createMuiTheme, createStyles, makeStyles, Theme, ThemeProvider} from '@material-ui/core/styles';
+import {createStyles, makeStyles, Theme, ThemeProvider} from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import HomeIcon from '@material-ui/icons/Home'
-import {Redirect, Route, Router, Switch, useParams} from "react-router-dom";
-import GameBoard from "./board/Board";
+import {Redirect, Route, Router, Switch} from "react-router-dom";
+import GameBoard from "./board/board";
 import {createHashHistory} from "history";
-import Jgzq from "./jgzq/Jgzq";
 import Chip from "@material-ui/core/Chip";
 import Box from "@material-ui/core/Box";
 import {grey} from "@material-ui/core/colors";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Popover, TextField} from "@material-ui/core";
 import {AppTheme} from "./theme";
-import LCMainView from "./games/lost-cities/lostcities";
+import games from "./games/games";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -111,10 +110,11 @@ const App: React.FunctionComponent = () => {
                 <Route path="/board">
                     <GameBoard/>
                 </Route>
-                <Route path="/jgzq">
-                    <Jgzq/>
-                </Route>
-                <Route path="/game/lc/:id" children={<LCMainView/>}/>
+                {games.map(g => (
+                    <Route key={g.id} path={`/game/${g.id}`}>
+                        <g.mainNode/>
+                    </Route>
+                ))}
                 <Route path="*">
                     <Redirect to={"/board"}/>
                 </Route>
@@ -138,7 +138,12 @@ const App: React.FunctionComponent = () => {
                                     XDean的玩吧
                                 </Typography>
                                 <Switch>
-                                    <Route path="/game/:game/:id" children={<ShareRoom/>}/>
+                                    {games.map(g => (
+                                        g.headerNode &&
+                                        <Route key={g.id} path={`/game/${g.id}`}>
+                                            <g.headerNode/>
+                                        </Route>
+                                    ))}
                                 </Switch>
                                 {ctx.id && <Chip
                                     label={ctx.id}
@@ -171,17 +176,5 @@ const App: React.FunctionComponent = () => {
         </ThemeProvider>
     );
 };
-
-function ShareRoom() {
-    const {id} = useParams();
-    return (
-        <Chip
-            label={`房间号: ${id}`}
-            clickable
-            style={{color: grey[300], borderColor: grey[300]}}
-            variant="outlined"
-        />
-    )
-}
 
 export default App

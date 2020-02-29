@@ -4,6 +4,7 @@ import {AppBar, Box, Button, CircularProgress, Grid, Snackbar, Tab, Tabs, TextFi
 import {Alert} from "../../../components/snippts";
 import Backdrop from "@material-ui/core/Backdrop/Backdrop";
 import {useHistory} from "react-router";
+import {LCMeta} from "../meta";
 
 const useStyles = makeStyles({
     content: {
@@ -40,7 +41,7 @@ const LCCreateView: React.FunctionComponent<LCCreateProp> = (props) => {
                 setConnecting(false);
                 if (res.ok) {
                     res.json().then(body => {
-                        history.push(`/game/lc/${body["id"]}`);
+                        history.push(`/game/${LCMeta.id}/${body["id"]}`);
                     })
                 } else {
                     throw new Error(`${res.status} ${res.statusText}`);
@@ -50,7 +51,7 @@ const LCCreateView: React.FunctionComponent<LCCreateProp> = (props) => {
                 setError(`创建游戏失败：${e.toString()}`)
             })
         } else {
-            history.push(`/game/lc/${id}`);
+            history.push(`/game/${LCMeta.id}/${id}`);
         }
     }
 
