@@ -217,8 +217,9 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                             <Typography>
                                 {otherPlayer.isEmpty() ? "等待玩家加入" : `${otherPlayer!.id}${otherPlayer.connected ? "" : " (未连接)"}`}
                             </Typography>
-                            <LCHandView cards={sortedOtherHand.length === 0 ? createCards(8) : sortedOtherHand}
-                                        unknown={sortedOtherHand.length === 0}/>
+                            <LCHandView
+                                cards={sortedOtherHand.length === 0 || role === "play" ? createCards(8) : sortedOtherHand}
+                                unknown={sortedOtherHand.length === 0 || role === "play"}/>
                         </Box>
                         <Grid container direction={"column"} className={classes.otherButtonBar}>
                             <Grid item>

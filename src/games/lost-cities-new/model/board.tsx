@@ -141,7 +141,7 @@ export class LCGame implements SocketTopicHandler, SocketInit {
                     let dropColor = data["draw-color"] as LCCardColor;
                     let dropCard = new LCCard(data["draw-drop-card"]);
                     this.board.drop.update(ds => {
-                        ds[dropColor].slice(ds[dropColor].length - 1, 1);
+                        ds[dropColor].splice(ds[dropColor].length - 1, 1);
                     });
                     this.board.hand.update(hs => {
                         removePlayedCard(hs);
@@ -163,17 +163,13 @@ export class LCGame implements SocketTopicHandler, SocketInit {
 
 export type LCCardBoard = LCCards[]
 
-export const EmptyDrop = [[], [], [], [], []];
-export const EmptyBoard = [EmptyDrop, EmptyDrop];
-export const EmptyHand = [[], []];
-
 export class LCBoard {
     readonly over = new SimpleProperty<boolean>(false);
     readonly current = new SimpleProperty<number>(0);
     readonly deck = new SimpleProperty<number>(44);
-    readonly drop = new SimpleProperty<LCCardBoard>(EmptyDrop);
-    readonly board = new SimpleProperty<LCCardBoard[]>(EmptyBoard);
-    readonly hand = new SimpleProperty<LCCards[]>(EmptyHand);
+    readonly drop = new SimpleProperty<LCCardBoard>(new Array(5).fill([]));
+    readonly board = new SimpleProperty<LCCardBoard[]>(new Array(2).fill(new Array(5).fill([])));
+    readonly hand = new SimpleProperty<LCCards[]>(new Array(2).fill([]));
 
     calcScore = (): LCPlayerScore[] => {
         return this.board.value.map(b => new LCPlayerScore(b))

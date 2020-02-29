@@ -31,7 +31,7 @@ const GameCard: React.FunctionComponent<GameCardProp> = (props) => {
 
     return (
         <Card className={classes.card}>
-            <CardActionArea>
+            <CardActionArea onClick={props.onPlay}>
                 <CardMedia
                     className={classes.media}
                     image={props.image}

@@ -19,7 +19,6 @@ type LCMessageProp = {
 
 const LCMessageView: React.FunctionComponent<LCMessageProp> = (props) => {
     let msg = props.message;
-    console.log("message", msg);
     if (msg instanceof JoinMessage) {
         return <Typography>
             [{msg.who}] 加入了游戏
