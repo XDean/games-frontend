@@ -3,10 +3,10 @@ import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import GameCard from "./GameCard";
 import jgzq from "../jgzq/images/banner.png"
-import lostCities from "../lost-cities/images/banner.jpg"
-import LCCreateView from "../games/lost-cities-new/component/create";
+import lostCities from "../games/lost-cities/resources/banner.jpg"
+import LCCreateView from "../games/lost-cities/component/create";
 import {Box, Dialog} from "@material-ui/core";
-import LCHelpView from "../games/lost-cities-new/component/help";
+import LCHelpView from "../games/lost-cities/component/help";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

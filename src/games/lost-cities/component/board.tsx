@@ -77,7 +77,7 @@ const LCBoardView: React.FunctionComponent<LCBoardProp> = React.forwardRef((prop
                                     props.game.playInfo.drawType.update(v => v === color ? "none" : color);
                                 }}>
                             {drop[color].length === 0 ?
-                                <LCSquareView card={new LCCard(color * 12)} colorOnly/> :
+                                <LCSquareView card={LCCard.colorOnly(color)} colorOnly/> :
                                 <LCSquareView card={drop[color][drop[color].length - 1]}/>
                             }
                         </Button>

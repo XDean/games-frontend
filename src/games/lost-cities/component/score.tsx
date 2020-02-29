@@ -11,10 +11,11 @@ import {
     TableRow,
     Typography
 } from "@material-ui/core";
-import {LCCard} from "../../../lost-cities/model/model";
-import LCCardView from "../../../lost-cities/component/card";
 import {LCBoard} from "../model/board";
 import {LCSingleScore} from "../model/score";
+import {LCCard, LCCardColors} from "../model/card";
+import LCCardView from "./card";
+import LCSquareView from "./square";
 
 const useStyles = makeStyles({});
 
@@ -42,10 +43,10 @@ const LCScoreBoardView: React.FunctionComponent<LCScoreBoardProp> = (props) => {
                 </TableHead>
                 <TableBody>
                     {
-                        LCCard.Colors.map(color => (
+                        LCCardColors.map(color => (
                             <TableRow key={color}>
                                 <TableCell>
-                                    <LCCardView card={new LCCard(0, color)} mini/>
+                                    <LCSquareView card={LCCard.colorOnly(color)} colorOnly/>
                                 </TableCell>
                                 {[0, 1].map(player =>
                                     <TableCell align={"center"} key={player}>

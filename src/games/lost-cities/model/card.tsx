@@ -13,6 +13,10 @@ export class LCCard {
         this.point = int % 12 < 3 ? 0 : int % 12 - 1 as LCCardPoint;
     }
 
+    static colorOnly(color: LCCardColor): LCCard {
+        return new LCCard(color * 12);
+    }
+
     isDouble = () => {
         return this.point === 0;
     }

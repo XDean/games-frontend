@@ -14,7 +14,7 @@ import Box from "@material-ui/core/Box";
 import {grey} from "@material-ui/core/colors";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Popover, TextField} from "@material-ui/core";
 import {AppTheme} from "./theme";
-import LCMainView from "./games/lost-cities-new/lostcities";
+import LCMainView from "./games/lost-cities/lostcities";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -74,6 +74,54 @@ const App: React.FunctionComponent = () => {
         goHome();
     }
 
+    function inputName() {
+        return <Dialog open>
+            <DialogTitle>
+                欢迎来到XDean的玩吧
+            </DialogTitle>
+            <DialogContent>
+                <TextField
+                    autoFocus
+                    inputRef={idRef}
+                    margin="dense"
+                    label="请输入你的名字"
+                    fullWidth
+                    onKeyPress={e => {
+                        if (e.key === "Enter") {
+                            submitId();
+                            e.preventDefault();
+                        }
+                    }}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button color="primary" onClick={submitId}>
+                    确定
+                </Button>
+            </DialogActions>
+        </Dialog>;
+    }
+
+    function board() {
+        return <Box className={classes.contentRoot}>
+            <Switch>
+                <Route exact path="/">
+                    <Redirect to={"/board"}/>
+                </Route>
+                <Route path="/board">
+                    <GameBoard/>
+                </Route>
+                <Route path="/jgzq">
+                    <Jgzq/>
+                </Route>
+                <Route path="/game/lc/:id" children={<LCMainView/>}/>
+                <Route path="*">
+                    <Redirect to={"/board"}/>
+                </Route>
+            </Switch>
+        </Box>;
+    }
+
     return (
         <ThemeProvider theme={AppTheme}>
             <AppContext.Provider value={ctx}>
@@ -114,48 +162,8 @@ const App: React.FunctionComponent = () => {
                             </Toolbar>
                         </AppBar>
                         {ctx.id === "" ?
-                            <Dialog open>
-                                <DialogTitle>
-                                    欢迎来到XDean的玩吧
-                                </DialogTitle>
-                                <DialogContent>
-                                    <TextField
-                                        autoFocus
-                                        inputRef={idRef}
-                                        margin="dense"
-                                        label="请输入你的名字"
-                                        fullWidth
-                                        onKeyPress={e => {
-                                            if (e.key === "Enter") {
-                                                submitId();
-                                                e.preventDefault();
-                                            }
-                                        }}
-                                    />
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button color="primary" onClick={submitId}>
-                                        确定
-                                    </Button>
-                                </DialogActions>
-                            </Dialog> :
-                            <Box className={classes.contentRoot}>
-                                <Switch>
-                                    <Route exact path="/">
-                                        <Redirect to={"/board"}/>
-                                    </Route>
-                                    <Route path="/board">
-                                        <GameBoard/>
-                                    </Route>
-                                    <Route path="/jgzq">
-                                        <Jgzq/>
-                                    </Route>
-                                    <Route path="/game/lc/:id" children={<LCMainView/>}/>
-                                    <Route path="*">
-                                        <Redirect to={"/board"}/>
-                                    </Route>
-                                </Switch>
-                            </Box>
+                            inputName() :
+                            board()
                         }
                     </Box>
                 </Router>
@@ -163,15 +171,6 @@ const App: React.FunctionComponent = () => {
         </ThemeProvider>
     );
 };
-
-const theme = createMuiTheme({
-        palette: {
-            primary: {
-                main: grey[300],
-            }
-        }
-    },
-);
 
 function ShareRoom() {
     const {id} = useParams();
