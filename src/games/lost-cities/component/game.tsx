@@ -261,8 +261,10 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                                             case "watch":
                                                 return "正在观战 - " + (isMyTurn ? "己方回合" : "对方回合");
                                         }
-                                    } else if (over) {
-                                        return myPlayer.ready ? "等待对手准备" : "游戏结束";
+                                    } else if (over && !myPlayer.ready) {
+                                        return "游戏结束";
+                                    } else if (myPlayer.host) {
+                                        return myPlayer.ready && otherPlayer.ready ? "所有玩家已就绪" : "等待其他玩家准备";
                                     } else {
                                         return "等待游戏开始";
                                     }
@@ -271,6 +273,10 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                             {over && !myPlayer.ready &&
                             <Button onClick={() => props.game.playAgain()} variant={"outlined"}>
                                 再来一局
+                            </Button>}
+                            {!playing && myPlayer.host && myPlayer.ready && otherPlayer.ready &&
+                            <Button onClick={() => props.game.startGame()} variant={"outlined"}>
+                                点击开始游戏
                             </Button>}
                         </Grid>
                     </Grid>

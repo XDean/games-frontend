@@ -43,7 +43,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
 
     init = (sender: SocketTopicSender) => {
         sender.send("connect-info");
-        sender.send("host-info");
+        sender.send("room-info");
         this.sender = sender;
     };
 
@@ -58,13 +58,13 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
             case "disconnect":
                 this.updateConnected(data, false);
                 break;
-            case "host-info":
+            case "room-info":
                 this.playing.value = data.playing;
                 if (data.playing) {
                     this.log.log(HostMessage.CONTINUE)
                 }
                 this.players.value = data.players.map((p: any) => p === null ? MultiGamePlayer.EMPTY :
-                    new MultiGamePlayer(p.id, p.seat, p.ready, this.connected.indexOf(p.id) !== -1));
+                    new MultiGamePlayer(p.id, p.seat, p.ready, this.connected.indexOf(p.id) !== -1, p.host));
                 this.watchers.value = data.watchers.map((p: any) => new MultiGameWatcher(p.id, this.connected.indexOf(p.id) !== -1));
                 let find = false;
                 this.players.value.forEach(p => {
@@ -92,7 +92,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                     this.mySeat.value = data.seat;
                 }
                 this.players.update(ps => {
-                    ps[data.seat] = new MultiGamePlayer(data.id, data.seat, data.ready, true);
+                    ps[data.seat] = new MultiGamePlayer(data.id, data.seat, data.ready, true, data.host);
                 });
                 this.log.log(new JoinMessage(data.id));
                 break;
@@ -146,14 +146,17 @@ export class MultiGamePlayer extends Wither<MultiGamePlayer> {
     static EMPTY = new MultiGamePlayer("", -1, false);
 
     readonly connected: boolean;
+    readonly host: boolean;
 
     constructor(
         readonly id: string,
         readonly seat: number,
         readonly ready: boolean,
         connected?: boolean,
+        host?: boolean,
     ) {
         super();
+        this.host = host || false;
         this.connected = connected || false;
     }
 

@@ -76,6 +76,10 @@ export class LCGame implements SocketTopicHandler, SocketInit {
         this.sender.send("ready", true);
     };
 
+    startGame = () => {
+        this.sender.send("game-start", true);
+    };
+
     init = (sender: SocketTopicSender) => {
         this.sender = sender;
         this.host.init(sender);
@@ -94,7 +98,7 @@ export class LCGame implements SocketTopicHandler, SocketInit {
             }
         });
         switch (topic) {
-            case "host-info":
+            case "room-info":
                 this.sender.send("game-info");
                 break;
             case "game-info":
