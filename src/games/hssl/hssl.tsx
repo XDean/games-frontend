@@ -1,20 +1,8 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {
-    Box,
-    CardActionArea,
-    CardMedia,
-    CircularProgress,
-    Dialog,
-    Grid,
-    IconButton,
-    ThemeProvider,
-    Tooltip
-} from "@material-ui/core";
-import LCGameView from "./component/game";
+import {Box, CircularProgress, Dialog, Grid, IconButton, ThemeProvider, Tooltip} from "@material-ui/core";
 import {AppContext} from "../../App";
 import {autoWs} from "../../util/ws";
-import {LCGame} from "./model/board";
 import Backdrop from "@material-ui/core/Backdrop/Backdrop";
 import {Route, Switch, useHistory, useParams, useRouteMatch} from "react-router";
 import {AppTheme} from "../../theme";
@@ -24,40 +12,37 @@ import Typography from "@material-ui/core/Typography";
 import {EmptyTopicSender, SocketTopicSender} from "../common/model/socket";
 import {MultiPlayerRole} from "../common/model/multi-player/host";
 import {SelectDialog} from "../../components/selectDialog";
-import {LCTheme} from "./theme";
+import {HSSLTheme} from "./theme";
 import banner from "./resources/banner.webp";
-import LCHelpView from "./component/help";
-import LCCreateView from "./component/create";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import CardActions from "@material-ui/core/CardActions";
-import Button from "@material-ui/core/Button";
-import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
-import {LCMeta} from "./meta";
+import {HSSLMeta} from "./meta";
 import {ShareRoom} from "../../components/snippts";
 import {grey} from "@material-ui/core/colors";
+import HSSLHelpView from "./components/help";
+import HSSLCreateView from "./components/create";
+import {HSSLGame} from "./model/game";
+import HSSLGameView from "./components/game";
 import GameCard from "../../board/gameCard";
 
-export const LCBoardCard = () => {
+export const HSSLBoardCard = () => {
     const [showHelp, setShowHelp] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
     return (
         <React.Fragment>
-            <GameCard name={LCMeta.name} image={banner}
-                      desc={"玩家扮演冒险者探索世界五大遗迹，等待你的会是无尽的财宝，还是血本无归呢？"}
+            <GameCard name={HSSLMeta.name} image={banner}
+                      desc={"玩家扮演16世纪时往来于欧亚间的精明商人，通过缜密观察六种不同货物的流行趋势，装运和出售合适的货物来获取最大利益"}
                       onPlay={() => setShowCreate(true)} onHelp={() => setShowHelp(true)}
             />
             {showHelp && <Dialog maxWidth={"md"} fullWidth open onClose={() => setShowHelp(false)}>
-                <LCHelpView onClose={() => setShowHelp(false)}/>
+                <HSSLHelpView onClose={() => setShowHelp(false)}/>
             </Dialog>}
             {showCreate && <Dialog open onClose={() => setShowCreate(false)}>
-                <LCCreateView onCancel={() => setShowCreate(false)}/>
+                <HSSLCreateView onClose={() => setShowCreate(false)}/>
             </Dialog>}
         </React.Fragment>
     )
 };
 
-export const LCHeadView = () => {
+export const HSSLHeadView = () => {
     const {path} = useRouteMatch();
     return (
         <Switch>
@@ -73,12 +58,12 @@ export function ShareRoomIcon() {
     return <ShareRoom id={id!}/>
 }
 
-export const LCMainView: React.FunctionComponent<{}> = () => {
+export const HSSLMainView: React.FunctionComponent<{}> = () => {
     const {path} = useRouteMatch();
     return (
         <Switch>
             <Route path={`${path}/:id`}>
-                <LCActualMainView/>
+                <HSSLActualMainView/>
             </Route>
         </Switch>
     )
@@ -96,20 +81,20 @@ const useMainStyles = makeStyles<typeof AppTheme>((theme) => createStyles({
     },
 }));
 
-const LCActualMainView: React.FunctionComponent<{}> = () => {
+const HSSLActualMainView: React.FunctionComponent<{}> = () => {
     const {id} = useParams();
     const ctx = useContext(AppContext);
     const classes = useMainStyles();
     const history = useHistory();
 
-    const [game, setGame] = useState<LCGame>();
+    const [game, setGame] = useState<HSSLGame>();
 
     const [connectState, setConnectState] = useState<"open" | "connecting" | "retry" | "error">("connecting");
     const [connectError, setConnectError] = useState<string>();
     const [gameState, setGameState] = useState<MultiPlayerRole>("none");
 
     useEffect(() => {
-        let newGame = new LCGame(id!, ctx.id);
+        let newGame = new HSSLGame(id!, ctx.id);
         setGameState(newGame.host.myRole.value);
         newGame.host.myRole.addListener((ob, o, n) => {
             setGameState(n);
@@ -221,9 +206,9 @@ const LCActualMainView: React.FunctionComponent<{}> = () => {
     }
 
     return (
-        <ThemeProvider theme={outer => ({...outer, ...LCTheme})}>
+        <ThemeProvider theme={outer => ({...outer, ...HSSLTheme})}>
             <Box className={classes.root}>
-                {game && <LCGameView game={game}/>}
+                {game && <HSSLGameView game={game}/>}
                 {!(connectState in ["open"]) && connectStateView()}
                 {connectState === "open" && gameState === "not-determined" && selectJoinWatch()}
             </Box>
