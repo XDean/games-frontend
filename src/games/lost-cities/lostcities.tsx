@@ -51,7 +51,7 @@ export const LCBoardCard = () => {
                 <LCHelpView onClose={() => setShowHelp(false)}/>
             </Dialog>}
             {showCreate && <Dialog open onClose={() => setShowCreate(false)}>
-                <LCCreateView onCancel={() => setShowCreate(false)}/>
+                <LCCreateView onClose={() => setShowCreate(false)}/>
             </Dialog>}
         </React.Fragment>
     )

@@ -101,7 +101,7 @@ const HSSLActualMainView: React.FunctionComponent<{}> = () => {
         });
         let sender: SocketTopicSender = EmptyTopicSender;
         let ws = autoWs({
-            rel: `socket/game/lostcities/${id}?user=${ctx.id}`,
+            rel: `socket/game/hssl/${id}?user=${ctx.id}`,
             oninit: () => {
                 sender = {
                     send(topic: string, data: any): void {
