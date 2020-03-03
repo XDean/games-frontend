@@ -4,6 +4,7 @@ import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} fro
 import {LogPlugin} from "../../common/model/plugins/log";
 import {SocketPlugin} from "../../common/model/plugins/plugin";
 import {MultiPlayerMessage} from "../../common/model/multi-player/message";
+import {SimpleProperty} from "xdean-util";
 
 export class HSSLGame implements SocketTopicHandler, SocketInit {
 
@@ -48,4 +49,52 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
         switch (topic) {
         }
     };
+}
+
+export type HSSLCard = "empty" | 0 | 1 | 2 | 3 | 4 | 5
+
+export enum HSSLItem {
+    Boat = 0,
+    GuanShui = 1,
+    BanYun = 2,
+    BiYue = 3
+}
+
+export function ItemCost(item: HSSLItem): number {
+    switch (item) {
+        case HSSLItem.Boat:
+            return 10;
+        case HSSLItem.GuanShui:
+            return 11;
+        case HSSLItem.BanYun:
+            return 12;
+        case HSSLItem.BiYue:
+            return 8;
+    }
+}
+
+export enum HSSLStatus {
+    Set1 = 0,
+    Set2,
+    BuySwap,
+    BanYun,
+    DrawPlay,
+    Over,
+}
+
+export class HSSLBoard {
+    readonly status = new SimpleProperty<HSSLStatus>(HSSLStatus.Set1);
+    readonly current = new SimpleProperty<number>(-1);
+    readonly deck = new SimpleProperty<number>(0);
+    readonly items = new SimpleProperty<number[]>(new Array(3).fill(2));
+    readonly goods = new SimpleProperty<number[]>(new Array(6).fill(5));
+    readonly board = new SimpleProperty<HSSLCard[]>(new Array(6).fill("empty"));
+    readonly players = new Array(4).fill(new HSSLPlayer());
+}
+
+export class HSSLPlayer {
+    readonly boats = new SimpleProperty<number[]>([-1, -1]);
+    readonly hand = new SimpleProperty<number[]>([]);
+    readonly items = new SimpleProperty<number[]>(new Array(3).fill(0));
+    readonly points = new SimpleProperty<number>(0)
 }
