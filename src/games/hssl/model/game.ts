@@ -12,6 +12,7 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
     private chat = new ChatPlugin();
 
     readonly host: MultiPlayerBoard;
+    readonly board = new HSSLBoard();
 
     readonly plugins = {
         log: this.log,
