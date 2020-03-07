@@ -18,11 +18,10 @@ import games from "./games/games";
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            flexGrow: 1,
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "#eee",
             height: "100%",
+            display: "grid",
+            gridTemplateColumns: "100%",
+            gridTemplateRows: "auto 1fr",
         },
         homeButton: {
             marginRight: theme.spacing(2),
@@ -31,8 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
             flexGrow: 1,
         },
         contentRoot: {
-            flexGrow: 1,
-            height: 0,
+            backgroundColor: "#eee",
             overflow: "auto",
         }
     }),
@@ -73,7 +71,7 @@ const App: React.FunctionComponent = () => {
         goHome();
     }
 
-    function inputName() {
+    function inputNameDialog() {
         return <Dialog open>
             <DialogTitle>
                 欢迎来到XDean的玩吧
@@ -166,11 +164,9 @@ const App: React.FunctionComponent = () => {
 
                             </Toolbar>
                         </AppBar>
-                        {ctx.id === "" ?
-                            inputName() :
-                            board()
-                        }
+                        {board()}
                     </Box>
+                    {ctx.id === "" && inputNameDialog()}
                 </Router>
             </AppContext.Provider>
         </ThemeProvider>

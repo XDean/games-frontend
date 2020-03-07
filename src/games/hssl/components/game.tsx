@@ -9,105 +9,50 @@ import LogView from "../../common/component/log";
 import {HSSLGame} from "../model/game";
 import HSSLMessageView from "./message";
 import HSSLPlayerView from "./player";
+import HSSLBoardView from "./board";
 
 const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => createStyles({
     root: {
-        height: "90%",
-        margin: "auto",
+        height: "100%",
+        boxSizing: "border-box",
         position: "relative",
         display: "grid",
-        gridTemplateColumns: "30% 70%",
-        gridTemplateRows: "100%",
+        gridTemplateColumns: "minmax(250px, 2fr) minmax(auto, 5fr) minmax(0, 1fr)",
         gridRowGap: theme.spacing(1),
         [theme.breakpoints.down('sm')]: {
             padding: theme.spacing(1, 1),
         },
         [theme.breakpoints.up('lg')]: {
-            padding: theme.spacing(2, 5),
+            padding: theme.spacing(1, 5),
         },
     },
     logchat: {
         padding: theme.spacing(1),
         display: "grid",
-        gridTemplateColumns: "100%",
-        gridTemplateRows: "50% 50%",
+        gridTemplateRows: "1fr 1fr",
         gridRowGap: theme.spacing(1),
     },
-    board: {
-        position: "relative",
+    game: {
         margin: theme.spacing(1),
-        [theme.breakpoints.down('sm')]: {
-            padding: theme.spacing(1, 1),
-        },
-        [theme.breakpoints.up('lg')]: {
-            padding: theme.spacing(1, 1),
-        },
-    },
-    player0: {
-        position: "absolute",
-        right: 100,
-        bottom: 0,
-    },
-    player1: {
-        position: "absolute",
-        left: 0,
-        bottom: 0,
-    },
-    player2: {
-        position: "absolute",
-        left: 0,
-        top: 0,
-    },
-    player3: {
-        position: "absolute",
-        right: 100,
-        top: 0,
-    },
-    //
-    rightContainer: {
-        height: "100%",
-        overflow: "auto",
-        padding: theme.spacing(0, 1),
-        [theme.breakpoints.down('sm')]: {
-            marginLeft: theme.spacing(0),
-        },
-        [theme.breakpoints.up('lg')]: {
-            marginLeft: theme.spacing(4),
-        },
-    },
-    button: {
-        minWidth: 0,
-        margin: 3,
-        padding: "3px 5px"
-    },
-    myButtonBar: {
-        minWidth: "fit-content",
-        marginLeft: theme.spacing(1),
-    },
-    otherButtonBar: {
-        minWidth: "fit-content",
-        marginLeft: theme.spacing(1),
-        marginTop: 20,
-    },
-    infoContainer: {
-        marginLeft: theme.spacing(4),
+        padding: theme.spacing(1),
         display: "grid",
-        gridTemplateColumns: "1pr",
-        justifyItems: "center"
+        gridTemplateColumns: "1fr 1fr",
+        gridTemplateRows: "auto 1fr auto",
+        gridRowGap: theme.spacing(1),
+        gridColumnGap: theme.spacing(1),
+        justifyItems: "center",
+        alignItems: "center",
     },
-    info: {
-        padding: theme.spacing(1, 2),
-        margin: theme.spacing(1),
+    player0: {},
+    player1: {},
+    board: {
+        gridColumnStart: "span 2",
     },
+    player2: {},
+    player3: {},
 }));
 
 type Operation = "selectCard" | "selectPlayType" | "selectDraw" | "submit" | "idle";
-
-enum HandSort {
-    NULL = 0,
-    COLOR,
-    POINT
-}
 
 type HSSLGameProp = {
     game: HSSLGame
@@ -134,18 +79,21 @@ const HSSLGameView: React.FunctionComponent<HSSLGameProp> = (props) => {
                              handle={msg => <HSSLMessageView message={msg} game={props.game}/>}/>
                     <ChatView controller={props.game.plugins.chat}/>
                 </Box>
-                <Box className={classes.board}>
+                <Box className={classes.game}>
                     <Box className={classes.player0}>
                         <HSSLPlayerView game={props.game} seat={mySeat}/>
                     </Box>
                     <Box className={classes.player1}>
-                        <HSSLPlayerView game={props.game} seat={(mySeat+1)%4} swap/>
+                        <HSSLPlayerView game={props.game} seat={(mySeat + 1) % 4} swap/>
+                    </Box>
+                    <Box className={classes.board}>
+                        <HSSLBoardView/>
                     </Box>
                     <Box className={classes.player2}>
-                        <HSSLPlayerView game={props.game} seat={(mySeat+2)%4} swap/>
+                        <HSSLPlayerView game={props.game} seat={(mySeat + 2) % 4} swap/>
                     </Box>
                     <Box className={classes.player3}>
-                        <HSSLPlayerView game={props.game} seat={(mySeat+3)%4} swap/>
+                        <HSSLPlayerView game={props.game} seat={(mySeat + 3) % 4} swap/>
                     </Box>
                 </Box>
             </Box>

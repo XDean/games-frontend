@@ -8,8 +8,13 @@ import Typography from "@material-ui/core/Typography";
 const useStyles = makeStyles(theme => createStyles({
     root: {
         width: 300,
-        height: 200,
+        height: 150,
         padding: theme.spacing(1),
+    },
+    name: {
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+        overflow: "hidden",
     },
     header: {
         display: "flex",
@@ -72,7 +77,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
     return (
         <Paper elevation={3} className={classes.root}>
             <Box className={classes.header}>
-                <Typography component={"span"}>
+                <Typography component={"span"} className={classes.name}>
                     {hostPlayer.id}
                 </Typography>
                 {tag && <Chip label={tag} variant={"outlined"} size={"small"} className={classes.tag}/>}
