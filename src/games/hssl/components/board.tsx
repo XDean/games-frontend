@@ -8,6 +8,7 @@ import HSSLCardView from "./card";
 import Typography from "@material-ui/core/Typography";
 import HSSLItemView from "./item";
 import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
+import HSSLDeckView from "./deck";
 
 const useStyles = makeStyles(theme => createStyles({
     root: {
@@ -15,15 +16,16 @@ const useStyles = makeStyles(theme => createStyles({
         height: "100%",
         padding: theme.spacing(1),
         display: "grid",
-        gridTemplateColumns: "minmax(auto, 2fr) minmax(auto, 4fr) minmax(auto, 2fr) minmax(auto, 1fr)",
+        gridTemplateColumns: "repeat(4, auto)",
         gridTemplateRows: "1fr",
         gridColumnGap: theme.spacing(3),
         justifyItems: "center",
         alignItems: "center",
     },
     goods: {
+        height:"100%",
         display: "grid",
-        gridTemplateRows: "repeat(7, auto)",
+        gridTemplateRows: "32px repeat(6, auto)",
         gridRowGap: theme.spacing(1),
         justifyItems: "center",
         alignItems: "center",
@@ -33,11 +35,10 @@ const useStyles = makeStyles(theme => createStyles({
     },
     goodCard: {},
     board: {
+        height:"100%",
         display: "grid",
+        gridTemplateRows: "32px repeat(2, auto)",
         gridTemplateColumns: "repeat(3, auto)",
-        gridTemplateRows: "repeat(3, auto)",
-        gridRowGap: theme.spacing(2),
-        gridColumnGap: theme.spacing(2),
         justifyItems: "center",
         alignItems: "center",
         border: "black solid 1px",
@@ -48,10 +49,20 @@ const useStyles = makeStyles(theme => createStyles({
         gridColumnStart: "span 3",
     },
     boardCard: {},
-    deck: {},
     items: {
+        height:"100%",
         display: "grid",
-        gridTemplateRows: "repeat(5, auto)",
+        gridTemplateRows: "32px repeat(4, auto)",
+        gridRowGap: theme.spacing(1),
+        justifyItems: "center",
+        alignItems: "center",
+        border: "black solid 1px",
+        borderRadius: 10,
+        padding: theme.spacing(1),
+    },
+    deck: {
+        display: "grid",
+        gridTemplateRows: "32px auto",
         gridRowGap: theme.spacing(1),
         justifyItems: "center",
         alignItems: "center",
@@ -115,7 +126,10 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 ))}
             </Box>
             <Box className={classes.deck}>
-                Deck
+                <Typography variant="h5">
+                    牌堆
+                </Typography>
+                <HSSLDeckView game={props.game}/>
             </Box>
         </Box>
     )

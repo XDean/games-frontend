@@ -89,7 +89,7 @@ export enum HSSLStatus {
 export class HSSLBoard {
     readonly status = new SimpleProperty<HSSLStatus>(HSSLStatus.Set1);
     readonly current = new SimpleProperty<number>(-1);
-    readonly deck = new SimpleProperty<number>(0);
+    readonly deck = new SimpleProperty<number>(66);
     readonly items = new SimpleProperty<number[]>(new Array(3).fill(2));
     readonly goods = new SimpleProperty<number[]>(new Array(6).fill(5));
     readonly board = new SimpleProperty<HSSLCard[]>(new Array(6).fill("empty"));

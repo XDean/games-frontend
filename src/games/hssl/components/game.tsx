@@ -27,6 +27,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => create
         },
     },
     logchat: {
+        minHeight: 0,
         padding: theme.spacing(1),
         display: "grid",
         gridTemplateRows: "1fr 1fr",
@@ -43,13 +44,9 @@ const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => create
         justifyItems: "center",
         alignItems: "center",
     },
-    player0: {},
-    player1: {},
     board: {
         gridColumnStart: "span 2",
     },
-    player2: {},
-    player3: {},
 }));
 
 type Operation = "selectCard" | "selectPlayType" | "selectDraw" | "submit" | "idle";
@@ -80,20 +77,20 @@ const HSSLGameView: React.FunctionComponent<HSSLGameProp> = (props) => {
                     <ChatView controller={props.game.plugins.chat}/>
                 </Box>
                 <Box className={classes.game}>
-                    <Box className={classes.player0}>
-                        <HSSLPlayerView game={props.game} seat={mySeat}/>
+                    <Box>
+                        <HSSLPlayerView game={props.game} seat={(mySeat + 2) % 4}/>
                     </Box>
-                    <Box className={classes.player1}>
-                        <HSSLPlayerView game={props.game} seat={(mySeat + 1) % 4} swap/>
+                    <Box>
+                        <HSSLPlayerView game={props.game} seat={(mySeat + 3) % 4}/>
                     </Box>
                     <Box className={classes.board}>
                         <HSSLBoardView game={props.game}/>
                     </Box>
-                    <Box className={classes.player2}>
-                        <HSSLPlayerView game={props.game} seat={(mySeat + 2) % 4} swap/>
+                    <Box>
+                        <HSSLPlayerView game={props.game} seat={(mySeat + 1) % 4}/>
                     </Box>
-                    <Box className={classes.player3}>
-                        <HSSLPlayerView game={props.game} seat={(mySeat + 3) % 4} swap/>
+                    <Box>
+                        <HSSLPlayerView game={props.game} seat={mySeat}/>
                     </Box>
                 </Box>
             </Box>

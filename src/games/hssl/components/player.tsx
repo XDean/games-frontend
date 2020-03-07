@@ -25,26 +25,39 @@ const useStyles = makeStyles(theme => createStyles({
     },
     swap: {
         marginLeft: theme.spacing(1),
-    }
+    },
+    ready: {
+        marginLeft: theme.spacing(1),
+    },
 }));
 
 type HSSLPlayerProp = {
     game: HSSLGame
     seat: number
-    swap?: boolean
 }
 
 const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
     const classes = useStyles();
-    const hostPlayer = useStateByProp(props.game.host.players)[props.seat];
+
+    const players = useStateByProp(props.game.host.players);
+    const mySeat = useStateByProp(props.game.host.mySeat);
+    const myRole = useStateByProp(props.game.host.myRole);
+
+    const hostPlayer = players[props.seat];
+    const myPlayer = players[mySeat];
     const gamePlayer = props.game.board.players[props.seat];
 
     const playing = useStateByProp(props.game.host.playing);
     const current = useStateByProp(props.game.board.current);
 
-    const swap = props.swap && !playing && !hostPlayer.ready &&
+    const swap = myRole === "play" && props.seat !== mySeat && !playing && !hostPlayer.ready && !myPlayer.ready &&
         <Chip label={"交换位置"} variant={"outlined"} size={"small"} className={classes.swap} clickable onClick={() => {
             props.game.host.swapSeat(props.seat)
+        }}/>;
+    const ready = myRole === "play" && props.seat === mySeat && !playing &&
+        <Chip label={hostPlayer.ready ? "取消准备" : "点击准备"} variant={"outlined"} size={"small"} className={classes.ready}
+              clickable onClick={() => {
+            props.game.host.ready(!hostPlayer.ready)
         }}/>;
 
     if (hostPlayer.isEmpty()) {
@@ -82,6 +95,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
                 </Typography>
                 {tag && <Chip label={tag} variant={"outlined"} size={"small"} className={classes.tag}/>}
                 {swap}
+                {ready}
             </Box>
         </Paper>
     )

@@ -44,8 +44,8 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
         this.sender.send("swap-seat", {target: targetSeat});
     };
 
-    ready = () => {
-        this.sender.send("ready", true);
+    ready = (ready: boolean = true) => {
+        this.sender.send("ready", ready);
     };
 
     startGame = () => {
@@ -121,7 +121,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 this.players.update(ps => {
                     ps[data.seat] = ps[data.seat].with({ready: data.ready})
                 });
-                this.log.log(new ReadyMessage(data.id, true));
+                this.log.log(new ReadyMessage(data.id, data.ready));
                 break;
             case "game-start":
                 this.playing.value = true;
