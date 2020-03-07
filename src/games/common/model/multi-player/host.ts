@@ -25,7 +25,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
 
     setPlayerCount = (count: number) => {
         this.playerCount.value = count;
-        this.players.value = new Array(count).map(e => MultiGamePlayer.EMPTY);
+        this.players.value = new Array(count).fill(0).map(e => MultiGamePlayer.EMPTY);
     };
 
     isFull = () => {
@@ -34,11 +34,22 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
 
     joinGame = () => {
         this.sender.send("join");
-        this.sender.send("ready", true);
     };
 
     watchGame = () => {
         this.sender.send("watch")
+    };
+
+    swapSeat = (targetSeat: number) => {
+        this.sender.send("swap-seat", {target: targetSeat});
+    };
+
+    ready = () => {
+        this.sender.send("ready", true);
+    };
+
+    startGame = () => {
+        this.sender.send("game-start", true);
     };
 
     init = (sender: SocketTopicSender) => {
@@ -121,6 +132,17 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 this.players.update(ps => ps.map(p => p.with({ready: false})));
                 this.log.log(HostMessage.OVER);
                 break;
+            case "swap-seat":
+                this.players.update(ps => {
+                    let p = ps[data.from];
+                    ps[data.from] = ps[data.target];
+                    ps[data.target] = p;
+                });
+                if (data.from === this.mySeat.value) {
+                    this.mySeat.value = data.target;
+                } else if (data.target === this.mySeat.value) {
+                    this.mySeat.value = data.from;
+                }
         }
     };
 

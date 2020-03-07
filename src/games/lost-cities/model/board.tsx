@@ -72,14 +72,6 @@ export class LCGame implements SocketTopicHandler, SocketInit {
         this.host.setPlayerCount(2);
     }
 
-    playAgain = () => {
-        this.sender.send("ready", true);
-    };
-
-    startGame = () => {
-        this.sender.send("game-start", true);
-    };
-
     init = (sender: SocketTopicSender) => {
         this.sender = sender;
         this.host.init(sender);

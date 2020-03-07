@@ -263,6 +263,8 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                                         }
                                     } else if (over && !myPlayer.ready) {
                                         return "游戏结束";
+                                    } else if(!myPlayer.ready){
+                                        return "等待所有玩家准备"
                                     } else if (myPlayer.host) {
                                         return myPlayer.ready && otherPlayer.ready ? "所有玩家已就绪" : "等待其他玩家准备";
                                     } else {
@@ -270,12 +272,12 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                                     }
                                 }()}
                             </Paper>
-                            {over && !myPlayer.ready &&
-                            <Button onClick={() => props.game.playAgain()} variant={"outlined"}>
-                                再来一局
+                            {!playing && !myPlayer.ready &&
+                            <Button onClick={() => props.game.host.ready()} variant={"outlined"}>
+                                {over?"再来一局":"点击准备"}
                             </Button>}
                             {!playing && myPlayer.host && myPlayer.ready && otherPlayer.ready &&
-                            <Button onClick={() => props.game.startGame()} variant={"outlined"}>
+                            <Button onClick={() => props.game.host.startGame()} variant={"outlined"}>
                                 点击开始游戏
                             </Button>}
                         </Grid>

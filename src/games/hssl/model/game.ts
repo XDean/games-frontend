@@ -27,7 +27,7 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
         readonly myId: string
     ) {
         this.host = new MultiPlayerBoard(myId, this.log as LogPlugin<MultiPlayerMessage>);
-        this.host.setPlayerCount(2);
+        this.host.setPlayerCount(4);
     }
 
     init = (sender: SocketTopicSender) => {

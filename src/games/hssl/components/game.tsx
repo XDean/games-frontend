@@ -1,6 +1,6 @@
 import React from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Grid} from "@material-ui/core";
+import {Box} from "@material-ui/core";
 import {HSSLTheme} from "../theme";
 import ChatView from "../../common/component/chat";
 import {AppTheme} from "../../../theme";
@@ -8,13 +8,17 @@ import {useStateByProp} from "../../../util/property";
 import LogView from "../../common/component/log";
 import {HSSLGame} from "../model/game";
 import HSSLMessageView from "./message";
-import CubeView from "../../common/component/cube";
+import HSSLPlayerView from "./player";
 
 const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => createStyles({
     root: {
-        height: "100%",
+        height: "90%",
         margin: "auto",
         position: "relative",
+        display: "grid",
+        gridTemplateColumns: "30% 70%",
+        gridTemplateRows: "100%",
+        gridRowGap: theme.spacing(1),
         [theme.breakpoints.down('sm')]: {
             padding: theme.spacing(1, 1),
         },
@@ -23,8 +27,6 @@ const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => create
         },
     },
     logchat: {
-        height: "100%",
-        width: "70%",
         padding: theme.spacing(1),
         display: "grid",
         gridTemplateColumns: "100%",
@@ -32,14 +34,36 @@ const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => create
         gridRowGap: theme.spacing(1),
     },
     board: {
-        height: "100%",
+        position: "relative",
+        margin: theme.spacing(1),
         [theme.breakpoints.down('sm')]: {
             padding: theme.spacing(1, 1),
         },
         [theme.breakpoints.up('lg')]: {
-            padding: theme.spacing(1, 4),
+            padding: theme.spacing(1, 1),
         },
     },
+    player0: {
+        position: "absolute",
+        right: 100,
+        bottom: 0,
+    },
+    player1: {
+        position: "absolute",
+        left: 0,
+        bottom: 0,
+    },
+    player2: {
+        position: "absolute",
+        left: 0,
+        top: 0,
+    },
+    player3: {
+        position: "absolute",
+        right: 100,
+        top: 0,
+    },
+    //
     rightContainer: {
         height: "100%",
         overflow: "auto",
@@ -104,25 +128,27 @@ const HSSLGameView: React.FunctionComponent<HSSLGameProp> = (props) => {
 
     return (
         <React.Fragment>
-            <Grid container wrap={"nowrap"} alignItems={"center"} className={classes.root}>
-                <Grid item className={classes.logchat}>
+            <Box className={classes.root}>
+                <Box className={classes.logchat}>
                     <LogView model={props.game.plugins.log}
                              handle={msg => <HSSLMessageView message={msg} game={props.game}/>}/>
                     <ChatView controller={props.game.plugins.chat}/>
-                </Grid>
-                <Grid item>
-                    <CubeView color={"#ff0000"} borderColor={"#aa0000"} size={20}/>
-                </Grid>
-                <Grid item>
-                    <CubeView color={"#00ff00"} borderColor={"#00aa00"} size={20}/>
-                </Grid>
-                <Grid item>
-                    <CubeView color={"#0000ff"} borderColor={"#0000aa"} size={20}/>
-                </Grid>
-                <Grid item>
-                    <CubeView color={"#ffff00"} borderColor={"#aaaa00"} size={20}/>
-                </Grid>
-            </Grid>
+                </Box>
+                <Box className={classes.board}>
+                    <Box className={classes.player0}>
+                        <HSSLPlayerView game={props.game} seat={mySeat}/>
+                    </Box>
+                    <Box className={classes.player1}>
+                        <HSSLPlayerView game={props.game} seat={(mySeat+1)%4}/>
+                    </Box>
+                    <Box className={classes.player2}>
+                        <HSSLPlayerView game={props.game} seat={(mySeat+2)%4}/>
+                    </Box>
+                    <Box className={classes.player3}>
+                        <HSSLPlayerView game={props.game} seat={(mySeat+3)%4}/>
+                    </Box>
+                </Box>
+            </Box>
         </React.Fragment>
     )
 };
