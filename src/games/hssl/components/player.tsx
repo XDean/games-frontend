@@ -1,6 +1,6 @@
 import React from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Box, Chip, Paper} from "@material-ui/core";
+import {Box, Chip, Paper, Tooltip} from "@material-ui/core";
 import {HSSLGame} from "../model/game";
 import {useStateByProp} from "../../../util/property";
 import Typography from "@material-ui/core/Typography";
@@ -29,6 +29,9 @@ const useStyles = makeStyles(theme => createStyles({
     ready: {
         marginLeft: theme.spacing(1),
     },
+    start: {
+        marginLeft: theme.spacing(1),
+    },
 }));
 
 type HSSLPlayerProp = {
@@ -50,6 +53,15 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
     const playing = useStateByProp(props.game.host.playing);
     const current = useStateByProp(props.game.board.current);
 
+    function tag(text: string) {
+        return <Chip label={text} variant={"outlined"} size={"small"} className={classes.tag}/>;
+    }
+
+    // tag
+    const hostTag = !playing && hostPlayer.host && tag("房主");
+    const readyTag = !playing && props.seat !== mySeat && tag(hostPlayer.ready ? "已准备" : "未准备");
+
+    //action
     const swap = myRole === "play" && props.seat !== mySeat && !playing && !hostPlayer.ready && !myPlayer.ready &&
         <Chip label={"交换位置"} variant={"outlined"} size={"small"} className={classes.swap} clickable onClick={() => {
             props.game.host.swapSeat(props.seat)
@@ -59,6 +71,12 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
               clickable onClick={() => {
             props.game.host.ready(!hostPlayer.ready)
         }}/>;
+    const allReady = props.game.host.isAllReady();
+    const start = myRole === "play" && props.seat === mySeat && !playing && myPlayer.host && myPlayer.ready &&
+        <Tooltip title={"等待所有玩家准备"} open={!allReady} arrow placement={"top"}>
+            <Chip label={"开始游戏"} variant={"outlined"} size={"small"} className={classes.start}
+                  disabled={!allReady} clickable onClick={() => props.game.host.startGame()}/>
+        </Tooltip>;
 
     if (hostPlayer.isEmpty()) {
         return <Paper elevation={3} className={classes.root}>
@@ -69,33 +87,17 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
         </Paper>
     }
 
-    const tag = function (): string {
-        if (playing) {
-            if (current === props.seat) {
-                return "进行回合"
-            } else {
-                return ""
-            }
-        } else {
-            if (hostPlayer.host) {
-                return "房主"
-            } else if (hostPlayer.ready) {
-                return "已准备"
-            } else {
-                return "未准备"
-            }
-        }
-    }();
-
     return (
         <Paper elevation={3} className={classes.root}>
             <Box className={classes.header}>
                 <Typography component={"span"} className={classes.name}>
                     {hostPlayer.id}
                 </Typography>
-                {tag && <Chip label={tag} variant={"outlined"} size={"small"} className={classes.tag}/>}
+                {hostTag}
+                {readyTag}
                 {swap}
                 {ready}
+                {start}
             </Box>
         </Paper>
     )

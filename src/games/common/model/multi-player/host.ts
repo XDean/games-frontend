@@ -32,6 +32,10 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
         return this.players.value.every(p => !p.isEmpty());
     };
 
+    isAllReady = () => {
+        return this.players.value.every(p => p.isEmpty() || p.ready);
+    };
+
     joinGame = () => {
         this.sender.send("join");
     };
