@@ -1,6 +1,6 @@
 import React from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Box, Button, Chip, Paper} from "@material-ui/core";
+import {Box, Chip, Paper} from "@material-ui/core";
 import {HSSLGame} from "../model/game";
 import {useStateByProp} from "../../../util/property";
 import Typography from "@material-ui/core/Typography";
@@ -16,6 +16,9 @@ const useStyles = makeStyles(theme => createStyles({
         alignItems: "center",
     },
     tag: {
+        marginLeft: theme.spacing(1),
+    },
+    swap: {
         marginLeft: theme.spacing(1),
     }
 }));
@@ -34,11 +37,17 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
     const playing = useStateByProp(props.game.host.playing);
     const current = useStateByProp(props.game.board.current);
 
-    const canSwap = props.swap && !playing && !hostPlayer.ready;
+    const swap = props.swap && !playing && !hostPlayer.ready &&
+        <Chip label={"交换位置"} variant={"outlined"} size={"small"} className={classes.swap} clickable onClick={() => {
+            props.game.host.swapSeat(props.seat)
+        }}/>;
 
     if (hostPlayer.isEmpty()) {
         return <Paper elevation={3} className={classes.root}>
-            等待加入
+            <Typography component={"span"}>
+                等待玩家加入
+            </Typography>
+            {swap}
         </Paper>
     }
 
@@ -67,7 +76,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
                     {hostPlayer.id}
                 </Typography>
                 {tag && <Chip label={tag} variant={"outlined"} size={"small"} className={classes.tag}/>}
-                {canSwap && <Button variant={"outlined"}>交換位置</Button>}
+                {swap}
             </Box>
         </Paper>
     )

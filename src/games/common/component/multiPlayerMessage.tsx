@@ -1,6 +1,13 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
-import {HostMessage, JoinMessage, MultiPlayerMessage, ReadyMessage, WatchMessage} from "../model/multi-player/message";
+import {
+    HostMessage,
+    JoinMessage,
+    MultiPlayerMessage,
+    ReadyMessage,
+    SwapSeatMessage,
+    WatchMessage
+} from "../model/multi-player/message";
 import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles({});
@@ -22,6 +29,10 @@ const MultiPlayerMessageView: React.FunctionComponent<MultiPlayerMessageProp> = 
     } else if (msg instanceof ReadyMessage) {
         return <Typography>
             [{msg.who}] {msg.ready ? "准备就绪" : "取消准备"}
+        </Typography>
+    } else if (msg instanceof SwapSeatMessage) {
+        return <Typography>
+            [{msg.from.id}] 与 {msg.to.isEmpty()?"空座位":`[${msg.to.id}]`} 交换了座位
         </Typography>
     } else if (msg === HostMessage.START) {
         return <Typography>

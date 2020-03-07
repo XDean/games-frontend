@@ -1,4 +1,6 @@
-export type MultiPlayerMessage = JoinMessage | WatchMessage | ReadyMessage | HostMessage
+import {MultiGamePlayer} from "./host";
+
+export type MultiPlayerMessage = JoinMessage | WatchMessage | ReadyMessage | HostMessage | SwapSeatMessage
 
 export class JoinMessage {
     constructor(readonly who: string) {
@@ -12,6 +14,13 @@ export class WatchMessage {
 
 export class ReadyMessage {
     constructor(readonly who: string, readonly ready: boolean) {
+    }
+}
+
+export class SwapSeatMessage {
+    constructor(
+        readonly from: MultiGamePlayer, readonly to: MultiGamePlayer
+    ) {
     }
 }
 

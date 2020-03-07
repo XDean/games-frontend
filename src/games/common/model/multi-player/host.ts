@@ -2,7 +2,7 @@ import {Wither} from "../util";
 import {SimpleProperty} from "xdean-util";
 import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "../socket";
 import {LogPlugin} from "../plugins/log";
-import {HostMessage, JoinMessage, MultiPlayerMessage, ReadyMessage, WatchMessage} from "./message";
+import {HostMessage, JoinMessage, MultiPlayerMessage, ReadyMessage, SwapSeatMessage, WatchMessage} from "./message";
 
 export type MultiPlayerRole = "none" | "not-determined" | "play" | "watch";
 
@@ -134,6 +134,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 break;
             case "swap-seat":
                 this.players.update(ps => {
+                    this.log.log(new SwapSeatMessage(ps[data.from], ps[data.target]));
                     let p = ps[data.from];
                     ps[data.from] = ps[data.target];
                     ps[data.target] = p;
