@@ -56,11 +56,13 @@ export type HSSLCard = "empty" | 0 | 1 | 2 | 3 | 4 | 5;
 export const HSSLCards: HSSLCard[] = [0, 1, 2, 3, 4, 5];
 
 export enum HSSLItem {
-    Boat = 0,
-    GuanShui = 1,
-    BanYun = 2,
-    BiYue = 3
+    Boat = -1,
+    GuanShui = 0,
+    BanYun = 1,
+    BiYue = 2,
 }
+
+export const HSSLItems: HSSLItem[] = [-1, 0, 1, 2];
 
 export function ItemCost(item: HSSLItem): number {
     switch (item) {
