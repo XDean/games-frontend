@@ -52,7 +52,8 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
     };
 }
 
-export type HSSLCard = "empty" | 0 | 1 | 2 | 3 | 4 | 5
+export type HSSLCard = "empty" | 0 | 1 | 2 | 3 | 4 | 5;
+export const HSSLCards: HSSLCard[] = [0, 1, 2, 3, 4, 5];
 
 export enum HSSLItem {
     Boat = 0,

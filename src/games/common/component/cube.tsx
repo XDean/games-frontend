@@ -14,7 +14,7 @@ const useStyles = makeStyles<typeof AppTheme, CubeProp>(theme => createStyles({
         height: props.size,
         position: "relative",
         transformStyle: "preserve-3d",
-        transform: "rotateX(-35deg) rotateY(35deg)",
+        transform: `rotateX(-35deg) rotateY(35deg) translateX(${props.size * 0.3}px) translateY(${props.size * 0.37}px)`,
         "& div": {
             position: "absolute",
             width: props.size,

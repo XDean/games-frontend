@@ -87,7 +87,7 @@ const HSSLGameView: React.FunctionComponent<HSSLGameProp> = (props) => {
                         <HSSLPlayerView game={props.game} seat={(mySeat + 1) % 4} swap/>
                     </Box>
                     <Box className={classes.board}>
-                        <HSSLBoardView/>
+                        <HSSLBoardView game={props.game}/>
                     </Box>
                     <Box className={classes.player2}>
                         <HSSLPlayerView game={props.game} seat={(mySeat + 2) % 4} swap/>
