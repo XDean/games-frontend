@@ -4,6 +4,7 @@ import {Box, Button} from "@material-ui/core";
 import {HSSLCards, HSSLGame} from "../model/game";
 import HSSLCubeView from "./cube";
 import {useStateByProp} from "../../../util/property";
+import HSSLCardView from "./card";
 
 const useStyles = makeStyles(theme => createStyles({
     root: {
@@ -11,24 +12,35 @@ const useStyles = makeStyles(theme => createStyles({
         height: "100%",
         padding: theme.spacing(1),
         display: "grid",
-        gridTemplateColumns: "minmax(auto, 1fr) minmax(auto, 2fr) minmax(auto, 3fr)",
+        gridTemplateColumns: "minmax(auto, 1fr) minmax(auto, 2fr) minmax(auto, 1fr)",
         gridTemplateRows: "auto 1fr",
         gridRowGap: theme.spacing(1),
-        gridColumnGap: theme.spacing(1),
+        gridColumnGap: theme.spacing(3),
         justifyItems: "center",
         alignItems: "center",
     },
     goods: {
         gridRowStart: "span 2",
+        display: "grid",
+        gridTemplateRows: "repeat(6, auto)",
+        gridRowGap: theme.spacing(1),
+        justifyItems: "center",
+        alignItems: "center",
     },
     board: {
         gridRowStart: "span 2",
+        display: "grid",
+        gridTemplateColumns: "repeat(3, auto)",
+        gridTemplateRows: "repeat(2, auto)",
+        gridRowGap: theme.spacing(2),
+        gridColumnGap: theme.spacing(2),
+        justifyItems: "center",
+        alignItems: "center",
     },
     deck: {},
     items: {},
-    good: {
-        padding: theme.spacing(1),
-    }
+    goodCard: {},
+    boardCard: {},
 }));
 
 type HSSLBoardProp = {
@@ -38,23 +50,27 @@ type HSSLBoardProp = {
 const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
     const classes = useStyles();
     const goods = useStateByProp(props.game.board.goods);
+    const board = useStateByProp(props.game.board.board);
+
     return (
         <Box className={classes.root}>
             <Box className={classes.goods}>
                 {HSSLCards.map((c, i) => (
-                    <Box key={i} className={classes.good}>
-                        <Button variant={"text"}>
-                            <HSSLCubeView card={c}/>
-                            <span style={{margin: "0 5px"}}>
+                    <Button key={i} className={classes.goodCard}>
+                        <HSSLCubeView card={c}/>
+                        <span style={{margin: "0 5px"}}>
                             ✖
                             </span>
-                            {goods[c as number]}
-                        </Button>
-                    </Box>
+                        {goods[c as number]}
+                    </Button>
                 ))}
             </Box>
             <Box className={classes.board}>
-                Board
+                {board.map((c, i) => (
+                    <Button key={i} className={classes.boardCard}>
+                        <HSSLCardView card={c}/>
+                    </Button>
+                ))}
             </Box>
             <Box className={classes.deck}>
                 Deck
