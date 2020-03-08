@@ -12,7 +12,7 @@ export const HSSLTheme = {
     cardStyle: cardStyle,
     itemStyle: itemStyle,
     selectedBox: {
-        boxShadow: "0 0px 5px 3px #7af",
+        boxShadow: "0 0px 3px 4px #7af",
     },
     ...createMuiTheme({})
 };
@@ -37,7 +37,7 @@ function cardStyle(card: HSSLCard): HSSLCardStyle {
                 },
                 color: {
                     primary: "#222",
-                    secondary: "#000",
+                    secondary: "#777",
                     font: "#fff",
                 },
             };

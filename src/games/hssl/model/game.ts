@@ -19,6 +19,15 @@ const HSSLTopic = {
     status: "hssl-status",
 };
 
+export enum HSSLStatus {
+    Set1 = 0,
+    Set2,
+    BuySwap,
+    BanYun,
+    DrawPlay,
+    Over,
+}
+
 export class HSSLGame implements SocketTopicHandler, SocketInit {
 
     private log = new LogPlugin<any>();
@@ -47,12 +56,24 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
             switch (this.board.status.value) {
                 case HSSLStatus.Set1:
                 case HSSLStatus.Set2:
-                    if (this.board.selected.good.value !== "empty") {
-                        this.sender.send(HSSLTopic.set, {card: this.board.selected.good.value});
-                        this.board.selected.good.value = "empty";
-                    }
+                    this.sender.send(HSSLTopic.set, {card: this.board.selected.good1.value});
+                    this.board.selected.good1.value = "empty";
                     break;
                 case HSSLStatus.BuySwap:
+                    this.sender.send(HSSLTopic.swap, {
+                        index1: this.board.selected.boat1.value,
+                        card1: this.board.selected.good1.value,
+                        ...this.board.selected.boat2.value === -1 ? {
+                            index2: -1,
+                        } : {
+                            index2: this.board.selected.boat2.value,
+                            card2: this.board.selected.good2.value,
+                        }
+                    });
+                    this.board.selected.boat1.value = -1;
+                    this.board.selected.good1.value = "empty";
+                    this.board.selected.boat2.value = -1;
+                    this.board.selected.good2.value = "empty";
                     break;
                 case HSSLStatus.BanYun:
                     break;
@@ -113,12 +134,28 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 this.board.status.value = data.status;
                 this.board.current.value = data.current;
                 break;
-            case HSSLTopic.set            :
+            case HSSLTopic.set:
                 this.board.goods.update(goods => {
                     goods[data.card]--;
                 });
                 this.board.players.update(players => {
                     players[data.seat].boats[data.round] = data.card;
+                });
+                break;
+            case HSSLTopic.swap:
+                this.board.players.update(players => {
+                    this.board.goods.update(goods => {
+                        goods[players[data.seat].boats[data.index1] as number]++;
+                        goods[data.card1] --;
+                        if (data.index2 !== -1) {
+                            goods[players[data.seat].boats[data.index2] as number]++;
+                            goods[data.card2] --;
+                        }
+                    });
+                    players[data.seat].boats[data.index1] = data.card1;
+                    if (data.index2 !== -1) {
+                        players[data.seat].boats[data.index2] = data.card2;
+                    }
                 });
                 break;
         }
@@ -151,15 +188,6 @@ export function ItemCost(item: HSSLItem): number {
     }
 }
 
-export enum HSSLStatus {
-    Set1 = 0,
-    Set2,
-    BuySwap,
-    BanYun,
-    DrawPlay,
-    Over,
-}
-
 export class HSSLBoard {
     readonly status = new SimpleProperty<HSSLStatus>(HSSLStatus.Set1);
     readonly current = new SimpleProperty<number>(-1);
@@ -170,7 +198,10 @@ export class HSSLBoard {
     readonly players = new SimpleProperty<HSSLPlayer[]>(new Array(4).fill(new HSSLPlayer()));
 
     readonly selected = {
-        good: new SimpleProperty<HSSLCard>("empty"),
+        good1: new SimpleProperty<HSSLCard>("empty"),
+        good2: new SimpleProperty<HSSLCard>("empty"),
+        boat1: new SimpleProperty<number>(-1),
+        boat2: new SimpleProperty<number>(-1),
     };
 }
 

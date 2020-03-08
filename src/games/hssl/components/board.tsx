@@ -1,7 +1,7 @@
 import React from 'react';
 import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import {Box, Button, Paper, Tooltip} from "@material-ui/core";
-import {HSSLCards, HSSLGame, HSSLItem, HSSLItems, HSSLStatus} from "../model/game";
+import {HSSLCard, HSSLCards, HSSLGame, HSSLItem, HSSLItems, HSSLStatus} from "../model/game";
 import HSSLCubeView from "./cube";
 import {useStateByProp} from "../../../util/property";
 import HSSLCardView from "./card";
@@ -10,6 +10,7 @@ import HSSLItemView from "./item";
 import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
 import HSSLDeckView from "./deck";
 import {HSSLTheme} from "../theme";
+import {windowMove} from "../../../util/util";
 
 const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     root: {
@@ -20,7 +21,7 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
         gridTemplateColumns: "repeat(4, auto)",
         gridTemplateRows: "repeat(3, auto)",
         gridColumnGap: theme.spacing(3),
-        gridRowGap: theme.spacing(1),
+        gridRowGap: theme.spacing(0.5),
         justifyItems: "center",
         alignItems: "center",
     },
@@ -87,7 +88,7 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
         borderRadius: 10,
     },
     status: {
-        padding: theme.spacing(1, 2),
+        padding: theme.spacing(0.5, 1),
     },
 
 
@@ -111,24 +112,69 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
     const current = useStateByProp(props.game.board.current);
     const mySeat = useStateByProp(props.game.host.mySeat);
     const myRole = useStateByProp(props.game.host.myRole);
+    const players = useStateByProp(props.game.board.players);
+    const myPlayer = players[mySeat];
 
-    const selectedGood = useStateByProp(props.game.board.selected.good);
+    const selected = {
+        good1: useStateByProp(props.game.board.selected.good1),
+        boat1: useStateByProp(props.game.board.selected.boat1),
+        good2: useStateByProp(props.game.board.selected.good2),
+        boat2: useStateByProp(props.game.board.selected.boat2),
+    };
 
+    // Goods
     const goodsTooltip = function () {
-        if (current === mySeat && playing && selectedGood === "empty") {
-            if (status === HSSLStatus.Set1 || status === HSSLStatus.Set2) {
-                return "选择货物装船";
+        if (myRole === "play" &&current === mySeat && playing) {
+            switch (status) {
+                case HSSLStatus.Set1:
+                case HSSLStatus.Set2:
+                case HSSLStatus.BanYun:
+                    if (selected.good1 === "empty") {
+                        return "选择货物装船";
+                    }
+                    break;
+                case HSSLStatus.BuySwap:
+                    if (selected.good1 === "empty") {
+                        return "选择货物装船";
+                    } else if (myPlayer.items[HSSLItem.BanYun] && selected.good2 === "empty") {
+                        return "你可以选择两个货物";
+                    }
             }
         }
         return "";
     }();
 
+    const onGoodClick = (c: HSSLCard) => {
+        if (myRole === "play" &&current === mySeat && playing) {
+            switch (status) {
+                case HSSLStatus.Set1:
+                case HSSLStatus.Set2:
+                case HSSLStatus.BanYun:
+                    props.game.board.selected.good1.update(g => g === c ? "empty" : c);
+                    break;
+                case HSSLStatus.BuySwap:
+                    if (myPlayer.items[HSSLItem.BanYun]) {
+                        let res = windowMove(c, [
+                            props.game.board.selected.good1.value,
+                            props.game.board.selected.good2.value
+                        ], "empty");
+                        props.game.board.selected.good1.value = res[0];
+                        props.game.board.selected.good2.value = res[1];
+                    } else {
+                        props.game.board.selected.good1.update(g => g === c ? "empty" : c);
+                    }
+                    break;
+            }
+        }
+    };
+
+    // submit
     const selectDone = function () {
         if (current === mySeat && playing) {
             switch (status) {
                 case HSSLStatus.Set1:
                 case HSSLStatus.Set2:
-                    return selectedGood !== "empty";
+                    return selected.good1 !== "empty";
                 case HSSLStatus.BuySwap:
                     break;
                 case HSSLStatus.BanYun:
@@ -151,8 +197,9 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                     </Typography>
                 </Tooltip>
                 {HSSLCards.map((c, i) => (
-                    <Button key={i} className={classes.goodCard + (selectedGood === c ? " " + classes.selected : "")}
-                            onClick={() => props.game.board.selected.good.update(g => g === c ? "empty" : c)}>
+                    <Button key={i}
+                            className={classes.goodCard + (selected.good1 === c || selected.good2 === c ? " " + classes.selected : "")}
+                            onClick={() => onGoodClick(c)}>
                         <HSSLCubeView card={c}/>
                         <span style={{margin: "0 5px"}}>
                             ✖
