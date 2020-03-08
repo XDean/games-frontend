@@ -124,7 +124,7 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
 
     // Goods
     const goodsTooltip = function () {
-        if (myRole === "play" &&current === mySeat && playing) {
+        if (myRole === "play" && current === mySeat && playing) {
             switch (status) {
                 case HSSLStatus.Set1:
                 case HSSLStatus.Set2:
@@ -145,7 +145,7 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
     }();
 
     const onGoodClick = (c: HSSLCard) => {
-        if (myRole === "play" &&current === mySeat && playing) {
+        if (myRole === "play" && current === mySeat && playing) {
             switch (status) {
                 case HSSLStatus.Set1:
                 case HSSLStatus.Set2:
@@ -176,7 +176,11 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 case HSSLStatus.Set2:
                     return selected.good1 !== "empty";
                 case HSSLStatus.BuySwap:
-                    break;
+                    if (selected.good1 !== "empty" || selected.boat1 !== -1) {
+                        return selected.good1 !== "empty" && selected.boat1 !== -1 &&
+                            ((selected.good2 === "empty") === (selected.boat2 === -1))
+                    }
+                    return true;
                 case HSSLStatus.BanYun:
                     break;
                 case HSSLStatus.DrawPlay:
@@ -186,6 +190,31 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
             }
         }
         return false;
+    }();
+
+    const submitText = function () {
+        if (current === mySeat) {
+            switch (status) {
+                case HSSLStatus.Set1:
+                case HSSLStatus.Set2:
+                    return "确认装货";
+                case HSSLStatus.BuySwap:
+                    if (selected.good1 !== "empty" || selected.boat1 !== -1) {
+                        return "确认换货"
+                    }
+                    return "跳过该阶段";
+                case HSSLStatus.BanYun:
+                    break;
+                case HSSLStatus.DrawPlay:
+                    break;
+                case HSSLStatus.Over:
+                    break;
+
+            }
+            return "确认操作";
+        } else {
+            return "等待其他玩家操作";
+        }
     }();
 
     return (
@@ -270,10 +299,10 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 }()}
             </Paper>
             {playing &&
-            <Tooltip title={"点击结束回合"} open={selectDone} arrow placement={"bottom"}>
+            <Tooltip title={"点击确认操作"} open={selectDone} arrow placement={"bottom"}>
                 <Button variant={"outlined"} onClick={() => props.game.submit()}
                         disabled={current === mySeat && playing && myRole === "play" && !selectDone}>
-                    {current === mySeat ? "确认操作" : "等待其他玩家操作"}
+                    {submitText}
                 </Button>
             </Tooltip>}
         </Box>

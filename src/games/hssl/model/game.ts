@@ -65,6 +65,7 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                         card1: this.board.selected.good1.value,
                         ...this.board.selected.boat2.value === -1 ? {
                             index2: -1,
+                            card2: -1,
                         } : {
                             index2: this.board.selected.boat2.value,
                             card2: this.board.selected.good2.value,
@@ -146,10 +147,10 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 this.board.players.update(players => {
                     this.board.goods.update(goods => {
                         goods[players[data.seat].boats[data.index1] as number]++;
-                        goods[data.card1] --;
+                        goods[data.card1]--;
                         if (data.index2 !== -1) {
                             goods[players[data.seat].boats[data.index2] as number]++;
-                            goods[data.card2] --;
+                            goods[data.card2]--;
                         }
                     });
                     players[data.seat].boats[data.index1] = data.card1;

@@ -152,7 +152,6 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
     // tag
     const hostTag = !playing && hostPlayer.host && tag("房主");
     const readyTag = !playing && props.seat !== mySeat && tag(hostPlayer.ready ? "已准备" : "未准备");
-    const currentTag = playing && props.seat === current && tag("进行回合");
 
     //action
     const swapAction = myRole === "play" && props.seat !== mySeat && !playing && !hostPlayer.ready && !myHostPlayer.ready &&
@@ -252,7 +251,8 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
     }
 
     return (
-        <Paper elevation={3} className={classes.root}>
+        <Paper elevation={3}
+               className={classes.root + (playing && props.seat === current ? " " + classes.selected : "")}>
             <Box className={classes.name}>
                 {hostPlayer.id}
             </Box>
