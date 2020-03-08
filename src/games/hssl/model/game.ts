@@ -7,6 +7,18 @@ import {MultiPlayerMessage} from "../../common/model/multi-player/message";
 import {SimpleProperty} from "xdean-util";
 import {Wither} from "../../common/model/util";
 
+const HSSLTopic = {
+    info: "hssl-info",
+    set: "hssl-set",
+    buy: "hssl-buy",
+    swap: "hssl-swap",
+    banyun: "hssl-banyun",
+    skip: "hssl-skip-swap",
+    play: "hssl-play",
+    draw: "hssl-draw",
+    status: "hssl-status",
+};
+
 export class HSSLGame implements SocketTopicHandler, SocketInit {
 
     private log = new LogPlugin<any>();
@@ -20,7 +32,6 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
         chat: this.chat,
     };
 
-
     private sender = EmptyTopicSender;
 
     constructor(
@@ -30,6 +41,28 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
         this.host = new MultiPlayerBoard(myId, this.log as LogPlugin<MultiPlayerMessage>);
         this.host.setPlayerCount(4);
     }
+
+    submit = () => {
+        if (this.board.current.value === this.host.mySeat.value && this.host.playing.value && this.host.myRole.value === "play") {
+            switch (this.board.status.value) {
+                case HSSLStatus.Set1:
+                case HSSLStatus.Set2:
+                    if (this.board.selected.good.value !== "empty") {
+                        this.sender.send(HSSLTopic.set, {card: this.board.selected.good.value});
+                        this.board.selected.good.value = "empty";
+                    }
+                    break;
+                case HSSLStatus.BuySwap:
+                    break;
+                case HSSLStatus.BanYun:
+                    break;
+                case HSSLStatus.DrawPlay:
+                    break;
+                case HSSLStatus.Over:
+                    break;
+            }
+        }
+    };
 
     init = (sender: SocketTopicSender) => {
         this.sender = sender;
@@ -50,9 +83,9 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
         });
         switch (topic) {
             case "room-info":
-                this.sender.send("hssl-info");
+                this.sender.send(HSSLTopic.info);
                 break;
-            case "hssl-info":
+            case HSSLTopic.info:
                 this.board.status.value = data.status;
                 this.board.current.value = data.current;
                 this.board.deck.value = data.deck;
@@ -74,6 +107,18 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                             points: p.points,
                         });
                     });
+                });
+                break;
+            case HSSLTopic.status:
+                this.board.status.value = data.status;
+                this.board.current.value = data.current;
+                break;
+            case HSSLTopic.set            :
+                this.board.goods.update(goods => {
+                    goods[data.card]--;
+                });
+                this.board.players.update(players => {
+                    players[data.seat].boats[data.round] = data.card;
                 });
                 break;
         }
@@ -123,11 +168,15 @@ export class HSSLBoard {
     readonly goods = new SimpleProperty<number[]>(new Array(6).fill(5));
     readonly board = new SimpleProperty<HSSLCard[]>(new Array(6).fill("empty"));
     readonly players = new SimpleProperty<HSSLPlayer[]>(new Array(4).fill(new HSSLPlayer()));
+
+    readonly selected = {
+        good: new SimpleProperty<HSSLCard>("empty"),
+    };
 }
 
 export class HSSLPlayer extends Wither<HSSLPlayer> {
     readonly boats: HSSLCard[] = ["empty", "empty"];
-    readonly handCount: number = -1;
+    readonly handCount: number = 0;
     readonly hand: number[] = new Array(6).fill(0);
     readonly items: boolean[] = new Array(3).fill(false);
     readonly points: number = -1

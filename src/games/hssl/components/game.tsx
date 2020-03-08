@@ -23,7 +23,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => create
             padding: theme.spacing(1, 1),
         },
         [theme.breakpoints.up('lg')]: {
-            gridTemplateColumns: "minmax(250px, 2fr) minmax(auto, 5fr) minmax(0, 1fr)",
+            gridTemplateColumns: "minmax(250px, 3fr) minmax(auto, 8fr) minmax(0, 1fr)",
             padding: theme.spacing(1, 5),
         },
     },
@@ -36,7 +36,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => create
     game: {
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
-        gridTemplateRows: "auto 1fr auto",
+        gridTemplateRows: "1fr auto 1fr",
         gridRowGap: theme.spacing(1),
         gridColumnGap: theme.spacing(1),
         justifyItems: "center",

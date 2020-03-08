@@ -6,10 +6,15 @@ import guanshui from "./resources/items/guanshui.jpg";
 import boat from "./resources/items/boat.jpg";
 import banyun from "./resources/items/banyun.jpg";
 import biyue from "./resources/items/biyue.jpg";
+import {createMuiTheme} from "@material-ui/core";
 
 export const HSSLTheme = {
     cardStyle: cardStyle,
     itemStyle: itemStyle,
+    selectedBox: {
+        boxShadow: "0 0px 5px 3px #7af",
+    },
+    ...createMuiTheme({})
 };
 
 export type HSSLCardStyle = {

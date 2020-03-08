@@ -10,7 +10,7 @@ import HSSLCubeView from "./cube";
 
 const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     root: {
-        width: 300,
+        width: 330,
         height: 170,
         padding: theme.spacing(0.5),
         display: "grid",
@@ -18,7 +18,7 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
         gridTemplateRows: "repeat(3, auto)",
     },
     empty: {
-        width: 300,
+        width: 330,
         height: 160,
         padding: theme.spacing(1),
         display: "flex",
@@ -35,7 +35,8 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     header: {
         gridColumnStart: "span 2",
         display: "flex",
-        alignItems: "center",
+        alignItems: "baseline",
+        marginBottom: theme.spacing(0.25),
     },
     tag: {
         margin: theme.spacing(0, 0.25),
@@ -70,14 +71,11 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
         justifySelf: "center",
     },
     boats: {
-        display: "flex",
-        flexWrap: "nowrap",
         overflowX: "auto",
         overflowY: "hidden",
-        alignItems: "center",
-        justifyItems: "center",
-        justifyContent: "center",
         padding: theme.spacing(0.5),
+        whiteSpace: "nowrap",
+        textAlign: "center",
     },
     boat: {
         height: 76,
@@ -125,6 +123,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
     // tag
     const hostTag = !playing && hostPlayer.host && tag("房主");
     const readyTag = !playing && props.seat !== mySeat && tag(hostPlayer.ready ? "已准备" : "未准备");
+    const currentTag = playing && props.seat === current && tag("进行回合");
 
     //action
     const swap = myRole === "play" && props.seat !== mySeat && !playing && !hostPlayer.ready && !myHostPlayer.ready &&
@@ -175,6 +174,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
                 {swap}
                 {ready}
                 {start}
+                {currentTag}
             </Box>
             <Box className={classes.items}>
                 <Chip icon={<MonetizationOnOutlinedIcon/>}
@@ -184,7 +184,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
                           disabled={!gamePlayer.items[item]} clickable key={index}/>
                 ))}
             </Box>
-            {gamePlayer.handCount !== -1
+            {props.seat !== mySeat && myRole === "play"
                 ? <Box className={classes.handUnknown}>{tag("手牌: " + gamePlayer.handCount)}</Box>
                 : <Box className={classes.hand}>
                     {gamePlayer.hand.map((count, card) => {

@@ -1,7 +1,7 @@
 import React from 'react';
-import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Box, Button} from "@material-ui/core";
-import {HSSLCards, HSSLGame, HSSLItem, HSSLItems} from "../model/game";
+import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
+import {Box, Button, Paper, Tooltip} from "@material-ui/core";
+import {HSSLCards, HSSLGame, HSSLItem, HSSLItems, HSSLStatus} from "../model/game";
 import HSSLCubeView from "./cube";
 import {useStateByProp} from "../../../util/property";
 import HSSLCardView from "./card";
@@ -11,20 +11,22 @@ import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
 import HSSLDeckView from "./deck";
 import {HSSLTheme} from "../theme";
 
-const useStyles = makeStyles(theme => createStyles({
+const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     root: {
         width: "100%",
         height: "100%",
         padding: theme.spacing(0.5),
         display: "grid",
         gridTemplateColumns: "repeat(4, auto)",
-        gridTemplateRows: "1fr",
+        gridTemplateRows: "repeat(3, auto)",
         gridColumnGap: theme.spacing(3),
+        gridRowGap: theme.spacing(1),
         justifyItems: "center",
         alignItems: "center",
     },
     goods: {
-        height: "100%",
+        gridRowStart: "span 3",
+        alignSelf: "stretch",
         display: "grid",
         gridTemplateRows: "32px repeat(6, auto)",
         justifyItems: "center",
@@ -35,7 +37,8 @@ const useStyles = makeStyles(theme => createStyles({
     },
     goodCard: {},
     board: {
-        height: "100%",
+        gridRowStart: "span 3",
+        alignSelf: "stretch",
         display: "grid",
         gridTemplateRows: "32px repeat(2, auto)",
         gridTemplateColumns: "repeat(3, auto)",
@@ -50,7 +53,8 @@ const useStyles = makeStyles(theme => createStyles({
     },
     boardCard: {},
     items: {
-        height: "100%",
+        gridRowStart: "span 3",
+        alignSelf: "stretch",
         display: "grid",
         gridTemplateRows: "32px repeat(4, auto)",
         justifyItems: "center",
@@ -73,14 +77,23 @@ const useStyles = makeStyles(theme => createStyles({
     },
     deck: {
         display: "grid",
+        alignSelf: "flex-start",
+        padding: theme.spacing(1),
         gridTemplateRows: "32px auto",
         gridRowGap: theme.spacing(1),
         justifyItems: "center",
         alignItems: "center",
         border: "black solid 1px",
         borderRadius: 10,
-        padding: theme.spacing(1),
     },
+    status: {
+        padding: theme.spacing(1, 2),
+    },
+
+
+    selected: {
+        ...theme.selectedBox,
+    }
 }));
 
 type HSSLBoardProp = {
@@ -93,14 +106,53 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
     const board = useStateByProp(props.game.board.board);
     const items = useStateByProp(props.game.board.items);
 
+    const playing = useStateByProp(props.game.host.playing);
+    const status = useStateByProp(props.game.board.status);
+    const current = useStateByProp(props.game.board.current);
+    const mySeat = useStateByProp(props.game.host.mySeat);
+    const myRole = useStateByProp(props.game.host.myRole);
+
+    const selectedGood = useStateByProp(props.game.board.selected.good);
+
+    const goodsTooltip = function () {
+        if (current === mySeat && playing && selectedGood === "empty") {
+            if (status === HSSLStatus.Set1 || status === HSSLStatus.Set2) {
+                return "选择货物装船";
+            }
+        }
+        return "";
+    }();
+
+    const selectDone = function () {
+        if (current === mySeat && playing) {
+            switch (status) {
+                case HSSLStatus.Set1:
+                case HSSLStatus.Set2:
+                    return selectedGood !== "empty";
+                case HSSLStatus.BuySwap:
+                    break;
+                case HSSLStatus.BanYun:
+                    break;
+                case HSSLStatus.DrawPlay:
+                    break;
+                case HSSLStatus.Over:
+                    break;
+            }
+        }
+        return false;
+    }();
+
     return (
         <Box className={classes.root}>
             <Box className={classes.goods}>
-                <Typography variant="h5">
-                    码头
-                </Typography>
+                <Tooltip title={goodsTooltip} placement={"left"} arrow open>
+                    <Typography variant="h5">
+                        码头
+                    </Typography>
+                </Tooltip>
                 {HSSLCards.map((c, i) => (
-                    <Button key={i} className={classes.goodCard}>
+                    <Button key={i} className={classes.goodCard + (selectedGood === c ? " " + classes.selected : "")}
+                            onClick={() => props.game.board.selected.good.update(g => g === c ? "empty" : c)}>
                         <HSSLCubeView card={c}/>
                         <span style={{margin: "0 5px"}}>
                             ✖
@@ -147,6 +199,36 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 </Typography>
                 <HSSLDeckView game={props.game}/>
             </Box>
+            <Paper variant={"outlined"} elevation={5} className={classes.status}>
+                {function () {
+                    if (playing) {
+                        switch (status) {
+                            case HSSLStatus.Set1:
+                            case HSSLStatus.Set2:
+                                return "配置货物阶段";
+                            case HSSLStatus.BuySwap:
+                                return "换货/购买阶段";
+                            case HSSLStatus.BanYun:
+                                return "搬运工换货阶段";
+                            case HSSLStatus.DrawPlay:
+                                return "出牌/抽牌阶段";
+                            case HSSLStatus.Over:
+                                return "游戏结束";
+                        }
+                    } else if (status === HSSLStatus.Over) {
+                        return "游戏结束";
+                    } else {
+                        return "等待游戏开始"
+                    }
+                }()}
+            </Paper>
+            {playing &&
+            <Tooltip title={"点击结束回合"} open={selectDone} arrow placement={"bottom"}>
+                <Button variant={"outlined"} onClick={() => props.game.submit()}
+                        disabled={current === mySeat && playing && myRole === "play" && !selectDone}>
+                    {current === mySeat ? "确认操作" : "等待其他玩家操作"}
+                </Button>
+            </Tooltip>}
         </Box>
     )
 };
