@@ -10,12 +10,22 @@ import {HSSLTheme} from "../theme";
 const useStyles = makeStyles(theme => createStyles({
     root: {
         width: 300,
-        height: 150,
+        height: 160,
         padding: theme.spacing(1),
         display: "grid",
         gridTemplateColumns: "auto 1fr",
         gridTemplateRows: "auto 1fr 1fr",
         gridRowGap: theme.spacing(1),
+    },
+    empty: {
+        width: 300,
+        height: 160,
+        padding: theme.spacing(1),
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        justifyItems: "center",
+        alignItems: "center",
     },
     name: {
         whiteSpace: "nowrap",
@@ -28,16 +38,10 @@ const useStyles = makeStyles(theme => createStyles({
         alignItems: "center",
     },
     tag: {
-        marginLeft: theme.spacing(1),
+        margin: theme.spacing(0, 0.25),
     },
-    swap: {
-        marginLeft: theme.spacing(1),
-    },
-    ready: {
-        marginLeft: theme.spacing(1),
-    },
-    start: {
-        marginLeft: theme.spacing(1),
+    action: {
+        margin: theme.spacing(0, 0.25),
     },
     items: {
         display: "grid",
@@ -78,26 +82,26 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
 
     //action
     const swap = myRole === "play" && props.seat !== mySeat && !playing && !hostPlayer.ready && !myHostPlayer.ready &&
-        <Chip label={"交换位置"} variant={"outlined"} size={"small"} className={classes.swap} clickable onClick={() => {
+        <Chip label={"交换位置"} variant={"outlined"} size={"small"} className={classes.action} clickable onClick={() => {
             props.game.host.swapSeat(props.seat)
         }}/>;
     const ready = myRole === "play" && props.seat === mySeat && !playing &&
-        <Chip label={hostPlayer.ready ? "取消准备" : "点击准备"} variant={"outlined"} size={"small"} className={classes.ready}
+        <Chip label={hostPlayer.ready ? "取消准备" : "点击准备"} variant={"outlined"} size={"small"} className={classes.action}
               clickable onClick={() => {
             props.game.host.ready(!hostPlayer.ready)
         }}/>;
     const allReady = props.game.host.isAllReady();
     const start = myRole === "play" && props.seat === mySeat && !playing && myHostPlayer.host && myHostPlayer.ready &&
         <Tooltip title={"等待所有玩家准备"} open={!allReady} arrow placement={"top"}>
-            <Chip label={"开始游戏"} variant={"outlined"} size={"small"} className={classes.start}
+            <Chip label={"开始游戏"} variant={"outlined"} size={"small"} className={classes.action}
                   disabled={!allReady} clickable onClick={() => props.game.host.startGame()}/>
         </Tooltip>;
 
     if (hostPlayer.isEmpty()) {
-        return <Paper elevation={3} className={classes.root}>
-            <Typography component={"span"}>
-                等待玩家加入
-            </Typography>
+        return <Paper elevation={3} className={classes.empty}>
+            <Box>
+                {playing ? "空位" : "等待玩家加入"}
+            </Box>
             {swap}
         </Paper>
     }

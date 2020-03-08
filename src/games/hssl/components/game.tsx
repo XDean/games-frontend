@@ -17,12 +17,13 @@ const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => create
         boxSizing: "border-box",
         position: "relative",
         display: "grid",
-        gridTemplateColumns: "minmax(250px, 2fr) minmax(auto, 5fr) minmax(0, 1fr)",
         gridRowGap: theme.spacing(1),
-        [theme.breakpoints.down('sm')]: {
+        [theme.breakpoints.down('md')]: {
+            gridTemplateColumns: "minmax(250px, 2fr) minmax(auto, 5fr)",
             padding: theme.spacing(1, 1),
         },
         [theme.breakpoints.up('lg')]: {
+            gridTemplateColumns: "minmax(250px, 2fr) minmax(auto, 5fr) minmax(0, 1fr)",
             padding: theme.spacing(1, 5),
         },
     },
@@ -34,7 +35,6 @@ const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => create
         gridRowGap: theme.spacing(1),
     },
     game: {
-        margin: theme.spacing(1),
         padding: theme.spacing(1),
         display: "grid",
         gridTemplateColumns: "1fr 1fr",

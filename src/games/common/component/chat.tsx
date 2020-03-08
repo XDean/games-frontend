@@ -11,12 +11,14 @@ import {useStateByProp} from "../../../util/property";
 
 const useStyles = makeStyles(theme => createStyles({
     container: {
+        minHeight: 100,
         display: "flex",
         flexDirection: "column",
     },
     messageBox: {
         overflow: "auto",
         flexGrow: 1,
+        padding: theme.spacing(1),
     },
     inputBar: {
         display: 'flex',

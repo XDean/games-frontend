@@ -1,15 +1,17 @@
 import React, {ReactNode, useEffect, useRef, useState} from 'react';
-import {makeStyles} from '@material-ui/core/styles';
+import {createStyles, makeStyles} from '@material-ui/core/styles';
 import {Paper} from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import {useStateByProp} from "../../../util/property";
 import {LogPlugin} from "../model/plugins/log";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => createStyles({
     container: {
+        minHeight: 100,
         overflow: "auto",
+        padding: theme.spacing(1),
     },
-});
+}));
 
 type LogProp<T> = {
     model: LogPlugin<T>
