@@ -9,9 +9,9 @@ import HSSLHelpView from "./components/help";
 import HSSLCreateView from "./components/create";
 import HSSLGameView from "./components/game";
 import GameCard from "../../board/gameCard";
-import {LCTheme} from "../lost-cities/theme";
 import ConnectCreateJoinView from "../common/component/connectCreateJoin";
 import {HSSLGame} from "./model/game";
+import {HSSLTheme} from "./theme";
 
 export const HSSLBoardCard = () => {
     const [showHelp, setShowHelp] = useState(false);
@@ -69,7 +69,7 @@ const HSSLActualMainView: React.FunctionComponent<{}> = () => {
     }, [id, ctx.id]);
 
     return (
-        game ? <ThemeProvider theme={outer => ({...outer, ...LCTheme})}>
+        game ? <ThemeProvider theme={outer => ({...outer, ...HSSLTheme})}>
             <ConnectCreateJoinView game={game} host={game.host} url={`socket/game/hssl/${id}?user=${ctx.id}`}>
                 <HSSLGameView game={game}/>
             </ConnectCreateJoinView>

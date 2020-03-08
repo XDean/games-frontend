@@ -5,6 +5,7 @@ import {LogPlugin} from "../../common/model/plugins/log";
 import {SocketPlugin} from "../../common/model/plugins/plugin";
 import {MultiPlayerMessage} from "../../common/model/multi-player/message";
 import {SimpleProperty} from "xdean-util";
+import {Wither} from "../../common/model/util";
 
 export class HSSLGame implements SocketTopicHandler, SocketInit {
 
@@ -62,15 +63,17 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                     return goods.map((v, index) => data.goods[index]);
                 });
                 this.board.board.value = data.board;
-                data.players.forEach((p: any) => {
-                    let player = this.board.players[p.seat];
-                    player.boats.value = p.boats;
-                    player.hand.update(hand => hand.map((v, index) => p.hand[index] || 0));
-                    if (p.hand[-1]) {
-                        player.handCount.value = p.hand[-1];
-                    }
-                    player.items.update(items => items.map((v, index) => p.items[index] || false));
-                    player.points.value = p.points;
+                this.board.players.update(players => {
+                    data.players.forEach((p: any) => {
+                        let player = players[p.seat];
+                        players[p.seat] = player.with({
+                            boats: p.boats,
+                            handCount: p.hand[-1] || -1,
+                            hand: new Array(6).fill(0).map((v, i) => p.hand[i] || 0),
+                            items: new Array(3).fill(0).map((v, i) => p.items[i] || false),
+                            points: p.points,
+                        });
+                    });
                 });
                 break;
         }
@@ -119,13 +122,13 @@ export class HSSLBoard {
     readonly items = new SimpleProperty<number[]>(new Array(3).fill(2));
     readonly goods = new SimpleProperty<number[]>(new Array(6).fill(5));
     readonly board = new SimpleProperty<HSSLCard[]>(new Array(6).fill("empty"));
-    readonly players: HSSLPlayer[] = new Array(4).fill(new HSSLPlayer());
+    readonly players = new SimpleProperty<HSSLPlayer[]>(new Array(4).fill(new HSSLPlayer()));
 }
 
-export class HSSLPlayer {
-    readonly boats = new SimpleProperty<number[]>([-1, -1]);
-    readonly handCount = new SimpleProperty<number>(3);
-    readonly hand = new SimpleProperty<number[]>([]);
-    readonly items = new SimpleProperty<boolean[]>(new Array(3).fill(false));
-    readonly points = new SimpleProperty<number>(0)
+export class HSSLPlayer extends Wither<HSSLPlayer> {
+    readonly boats: number[] = [-1, -1];
+    readonly handCount: number = -1;
+    readonly hand: number[] = new Array(6).fill(0);
+    readonly items: boolean[] = new Array(3).fill(false);
+    readonly points: number = -1
 }

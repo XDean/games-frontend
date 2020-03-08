@@ -1,42 +1,25 @@
 import React from 'react';
 import {HSSLCard} from "../model/game";
 import {createStyles, makeStyles, Paper} from "@material-ui/core";
-import bg from "../resources/background.png";
-import bg2 from "../../lost-cities/resources/card-4.webp"
+import {HSSLTheme} from "../theme";
+import Typography from "@material-ui/core/Typography";
 
-const useStyles = makeStyles(theme => createStyles({
-    card: {
+const useStyles = makeStyles<typeof HSSLTheme, HSSLCardProp>(theme => createStyles({
+    card: props => ({
         height: 115,
         width: 75,
         borderRadius: 5,
         borderWidth: 1,
         borderStyle: "solid",
         backgroundSize: "cover",
+        ...theme.cardStyle(props.card).card,
+    }),
+    title: {
+        backgroundColor: "#fffa",
+        textShadow: "#fff 1px 1px 1px",
+        margin: "2px 4px",
+        borderRadius: 2,
     },
-    card0: {
-        background: "#222",
-    },
-    card1: {
-        background: "#ff0",
-    },
-    card2: {
-        background: "#2d2",
-    },
-    card3: {
-        background: "#dee",
-    },
-    card4: {
-        background: "#f00",
-    },
-    card5: {
-        background: "#f0f",
-    },
-    empty: {
-        backgroundImage: `url(${bg}), url(${bg2})`,
-        backgroundSize: "contain, cover",
-        backgroundPosition: "bottom",
-        backgroundRepeat:"no-repeat",
-    }
 }));
 
 type HSSLCardProp = {
@@ -44,34 +27,13 @@ type HSSLCardProp = {
 }
 
 const HSSLCardView: React.FunctionComponent<HSSLCardProp> = (props) => {
-    const classes = useStyles();
-    let styleClass;
-    switch (props.card) {
-        case 0:
-            styleClass = classes.card0;
-            break;
-        case 1:
-            styleClass = classes.card1;
-            break;
-        case 2:
-            styleClass = classes.card2;
-            break;
-        case 3:
-            styleClass = classes.card3;
-            break;
-        case 4:
-            styleClass = classes.card4;
-            break;
-        case 5:
-            styleClass = classes.card5;
-            break;
-        case "empty":
-            styleClass = classes.empty;
-            break;
-    }
-
+    const classes = useStyles(props);
     return (
-        <Paper className={`${styleClass} ${classes.card}`} elevation={1}/>
+        <Paper className={classes.card} elevation={1}>
+            <Typography variant="subtitle1" className={classes.title}>
+                {HSSLTheme.cardStyle(props.card).name}
+            </Typography>
+        </Paper>
     )
 };
 

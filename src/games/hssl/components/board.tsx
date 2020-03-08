@@ -9,6 +9,7 @@ import Typography from "@material-ui/core/Typography";
 import HSSLItemView from "./item";
 import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
 import HSSLDeckView from "./deck";
+import {HSSLTheme} from "../theme";
 
 const useStyles = makeStyles(theme => createStyles({
     root: {
@@ -59,6 +60,18 @@ const useStyles = makeStyles(theme => createStyles({
         border: "black solid 1px",
         borderRadius: 10,
         padding: theme.spacing(1),
+    },
+    itemDetails: {
+        display: "grid",
+        gridTemplateRows: "1fr 1fr",
+        gridTemplateColumns: "1fr 1fr",
+        justifyItems: "center",
+        alignItems: "center",
+        marginLeft: theme.spacing(1),
+        minWidth: 48,
+    },
+    itemName: {
+        gridColumnStart: "span 2",
     },
     deck: {
         display: "grid",
@@ -115,13 +128,18 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 {HSSLItems.map((item, i) => (
                     <Button key={i} className={classes.goodCard}>
                         <HSSLItemView item={item}/>
-                        <span style={{margin: "0 5px"}}>
-                            ✖
-                            </span>
-                        {item === HSSLItem.Boat ? <AllInclusiveIcon style={{fontSize: "14px"}}/> :
-                            <Typography style={{fontSize: "14px"}}>
-                                {items[item]}
-                            </Typography>}
+                        <Box className={classes.itemDetails}>
+                            <Box className={classes.itemName}>
+                                {HSSLTheme.itemStyle(item).name}
+                            </Box>
+                            <Box>
+                                ✖
+                            </Box>
+                            {item === HSSLItem.Boat ? <AllInclusiveIcon style={{fontSize: "14px"}}/> :
+                                <Box style={{fontSize: "14px"}}>
+                                    {items[item]}
+                                </Box>}
+                        </Box>
                     </Button>
                 ))}
             </Box>

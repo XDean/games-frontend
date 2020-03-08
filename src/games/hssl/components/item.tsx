@@ -1,32 +1,18 @@
 import React from 'react';
 import {HSSLItem} from "../model/game";
 import {createStyles, makeStyles, Paper} from "@material-ui/core";
-import boat from "../resources/items/boat.jpg"
-import guanshui from "../resources/items/guanshui.jpg"
-import banyun from "../resources/items/banyun.jpg"
-import biyue from "../resources/items/biyue.jpg"
+import {HSSLTheme} from "../theme";
 
-const useStyles = makeStyles(theme => createStyles({
-    item: {
+const useStyles = makeStyles<typeof HSSLTheme, HSSLItemProp>(theme => createStyles({
+    item: props => ({
         height: 55,
         width: 36,
         borderRadius: 5,
         borderWidth: 1,
         borderStyle: "solid",
         backgroundSize: "cover",
-    },
-    boat: {
-        backgroundImage: `url(${boat})`,
-    },
-    guanshui: {
-        backgroundImage: `url(${guanshui})`,
-    },
-    banyun: {
-        backgroundImage: `url(${banyun})`,
-    },
-    biyue: {
-        backgroundImage: `url(${biyue})`,
-    },
+        ...theme.itemStyle(props.item).card,
+    }),
 }));
 
 type HSSLItemProp = {
@@ -34,25 +20,10 @@ type HSSLItemProp = {
 }
 
 const HSSLItemView: React.FunctionComponent<HSSLItemProp> = (props) => {
-    const classes = useStyles();
-    let styleClass;
-    switch (props.item) {
-        case HSSLItem.Boat:
-            styleClass = classes.boat;
-            break;
-        case HSSLItem.GuanShui:
-            styleClass = classes.guanshui;
-            break;
-        case HSSLItem.BanYun:
-            styleClass = classes.banyun;
-            break;
-        case HSSLItem.BiYue:
-            styleClass = classes.biyue;
-            break;
-    }
+    const classes = useStyles(props);
 
     return (
-        <Paper className={`${styleClass} ${classes.item}`} elevation={1}/>
+        <Paper className={classes.item} elevation={1}/>
     )
 };
 
