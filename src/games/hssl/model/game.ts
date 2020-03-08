@@ -67,7 +67,7 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                     data.players.forEach((p: any) => {
                         let player = players[p.seat];
                         players[p.seat] = player.with({
-                            boats: p.boats,
+                            boats: p.boats.map((v: any) => v === -1 ? "empty" : v),
                             handCount: p.hand[-1] || -1,
                             hand: new Array(6).fill(0).map((v, i) => p.hand[i] || 0),
                             items: new Array(3).fill(0).map((v, i) => p.items[i] || false),
@@ -126,7 +126,7 @@ export class HSSLBoard {
 }
 
 export class HSSLPlayer extends Wither<HSSLPlayer> {
-    readonly boats: number[] = [-1, -1];
+    readonly boats: HSSLCard[] = ["empty", "empty"];
     readonly handCount: number = -1;
     readonly hand: number[] = new Array(6).fill(0);
     readonly items: boolean[] = new Array(3).fill(false);

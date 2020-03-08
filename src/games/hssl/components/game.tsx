@@ -29,13 +29,11 @@ const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => create
     },
     logchat: {
         minHeight: 0,
-        padding: theme.spacing(1),
         display: "grid",
         gridTemplateRows: "1fr 1fr",
         gridRowGap: theme.spacing(1),
     },
     game: {
-        padding: theme.spacing(1),
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         gridTemplateRows: "auto 1fr auto",

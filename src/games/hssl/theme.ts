@@ -14,9 +14,10 @@ export const HSSLTheme = {
 
 export type HSSLCardStyle = {
     name: string
-    cube: {
-        color: Color
-        borderColor: Color
+    color: {
+        primary: Color
+        secondary: Color
+        font: Color
     }
     card: CSSProperties
 }
@@ -29,31 +30,34 @@ function cardStyle(card: HSSLCard): HSSLCardStyle {
                 card: {
                     background: "#222",
                 },
-                cube: {
-                    color: "#222",
-                    borderColor: "#000",
+                color: {
+                    primary: "#222",
+                    secondary: "#000",
+                    font: "#fff",
                 },
             };
         case 1:
             return {
-                name: "香料",
+                name: "琉璃",
                 card: {
-                    background: "#ff0",
+                    background: "#f00",
                 },
-                cube: {
-                    color: "#ff0",
-                    borderColor: "#aa0",
+                color: {
+                    primary: "#f00",
+                    secondary: "#d00",
+                    font: "#fff",
                 },
             };
         case 2:
             return {
-                name: "茶叶",
+                name: "丝绸",
                 card: {
-                    background: "#2d2",
+                    background: "#f0f",
                 },
-                cube: {
-                    color: "#2d2",
-                    borderColor: "#282",
+                color: {
+                    primary: "#f0f",
+                    secondary: "#d0d",
+                    font: "#fff",
                 },
             };
         case 3:
@@ -62,31 +66,34 @@ function cardStyle(card: HSSLCard): HSSLCardStyle {
                 card: {
                     background: "#dee",
                 },
-                cube: {
-                    color: "#dee",
-                    borderColor: "#bcc",
+                color: {
+                    primary: "#dee",
+                    secondary: "#bcc",
+                    font: "#000",
                 },
             };
         case 4:
             return {
-                name: "琉璃",
+                name: "香料",
                 card: {
-                    background: "#f00",
+                    background: "#ff0",
                 },
-                cube: {
-                    color: "#f00",
-                    borderColor: "#d00",
+                color: {
+                    primary: "#ff0",
+                    secondary: "#aa0",
+                    font: "#000",
                 },
             };
         case 5:
             return {
-                name: "丝绸",
+                name: "茶叶",
                 card: {
-                    background: "#f0f",
+                    background: "#2d2",
                 },
-                cube: {
-                    color: "#f0f",
-                    borderColor: "#d0d",
+                color: {
+                    primary: "#2d2",
+                    secondary: "#282",
+                    font: "#000",
                 },
             };
         case "empty":
@@ -96,9 +103,10 @@ function cardStyle(card: HSSLCard): HSSLCardStyle {
                     backgroundImage: `url(${bg})`,
                     backgroundSize: "cover",
                 },
-                cube: {
-                    color: "#0000",
-                    borderColor: "#0000",
+                color: {
+                    primary: "#0000",
+                    secondary: "#0000",
+                    font: "#0000",
                 },
             };
     }

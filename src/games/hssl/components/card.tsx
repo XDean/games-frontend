@@ -14,12 +14,9 @@ const useStyles = makeStyles<typeof HSSLTheme, HSSLCardProp>(theme => createStyl
         backgroundSize: "cover",
         ...theme.cardStyle(props.card).card,
     }),
-    title: {
-        backgroundColor: "#fffa",
-        textShadow: "#fff 1px 1px 1px",
-        margin: "2px 4px",
-        borderRadius: 2,
-    },
+    title: props => ({
+        color: theme.cardStyle(props.card).color.font,
+    }),
 }));
 
 type HSSLCardProp = {

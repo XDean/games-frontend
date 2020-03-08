@@ -1,21 +1,21 @@
 import React from 'react';
-import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Box, Chip, Paper, Tooltip} from "@material-ui/core";
-import {HSSLGame, HSSLSpecialItems} from "../model/game";
+import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
+import {Box, Button, Chip, Paper, Tooltip} from "@material-ui/core";
+import {HSSLCard, HSSLGame, HSSLItem, HSSLSpecialItems} from "../model/game";
 import {useStateByProp} from "../../../util/property";
 import Typography from "@material-ui/core/Typography";
 import MonetizationOnOutlinedIcon from '@material-ui/icons/MonetizationOnOutlined';
 import {HSSLTheme} from "../theme";
+import HSSLCubeView from "./cube";
 
-const useStyles = makeStyles(theme => createStyles({
+const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     root: {
         width: 300,
-        height: 160,
-        padding: theme.spacing(1),
+        height: 170,
+        padding: theme.spacing(0.5),
         display: "grid",
         gridTemplateColumns: "auto 1fr",
-        gridTemplateRows: "auto 1fr 1fr",
-        gridRowGap: theme.spacing(1),
+        gridTemplateRows: "repeat(3, auto)",
     },
     empty: {
         width: 300,
@@ -44,10 +44,56 @@ const useStyles = makeStyles(theme => createStyles({
         margin: theme.spacing(0, 0.25),
     },
     items: {
+        gridRowStart: "span 2",
         display: "grid",
         gridTemplateRows: "repeat(4, auto)",
         gridRowGap: theme.spacing(1),
     },
+    hand: {
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gridTemplateRows: "repeat(2, auto)",
+        gridRowGap: theme.spacing(0.5),
+        gridColumnGap: theme.spacing(0.5),
+        justifyItems: "center",
+        alignItems: "baseline",
+        alignSelf: "center",
+        justifySelf: "center",
+    },
+    handCard: {
+        padding: theme.spacing(0.5),
+        border: "black solid 1px",
+        fontSize: "0.85rem",
+    },
+    handUnknown: {
+        alignSelf: "center",
+        justifySelf: "center",
+    },
+    boats: {
+        display: "flex",
+        flexWrap: "nowrap",
+        overflowX: "auto",
+        overflowY: "hidden",
+        alignItems: "center",
+        justifyItems: "center",
+        justifyContent: "center",
+        padding: theme.spacing(0.5),
+    },
+    boat: {
+        height: 76,
+        width: 50,
+        ...theme.itemStyle(HSSLItem.Boat).card,
+        backgroundSize: "contain",
+        backgroundRepeat: "no-repeat",
+        display: "flex",
+        alignItems: "center",
+        justifyItems: "center",
+        justifyContent: "center",
+    },
+    boatButton: {
+        minWidth: 0,
+        padding: theme.spacing(0, 0.25),
+    }
 }));
 
 type HSSLPlayerProp = {
@@ -97,15 +143,27 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
                   disabled={!allReady} clickable onClick={() => props.game.host.startGame()}/>
         </Tooltip>;
 
-    if (hostPlayer.isEmpty()) {
-        return <Paper elevation={3} className={classes.empty}>
-            <Box>
-                {playing ? "空位" : "等待玩家加入"}
-            </Box>
-            {swap}
-        </Paper>
+    // boat
+    function boat(index: number) {
+        return (
+            <Button key={index} size={"small"} className={classes.boatButton}>
+                <Box className={classes.boat}>
+                    <HSSLCubeView card={gamePlayer.boats[index]}/>
+                </Box>
+            </Button>
+        );
     }
 
+    if (hostPlayer.isEmpty()) {
+        return (
+            <Paper elevation={3} className={classes.empty}>
+                <Box>
+                    {playing ? "空位" : "等待玩家加入"}
+                </Box>
+                {swap}
+            </Paper>
+        )
+    }
     return (
         <Paper elevation={3} className={classes.root}>
             <Box className={classes.header}>
@@ -125,6 +183,28 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
                     <Chip label={HSSLTheme.itemStyle(item).name} variant={"outlined"} size={"small"}
                           disabled={!gamePlayer.items[item]} clickable key={index}/>
                 ))}
+            </Box>
+            {gamePlayer.handCount !== -1
+                ? <Box className={classes.handUnknown}>{tag("手牌: " + gamePlayer.handCount)}</Box>
+                : <Box className={classes.hand}>
+                    {gamePlayer.hand.map((count, card) => {
+                        let style = HSSLTheme.cardStyle(card as HSSLCard);
+                        return (
+                            <Paper className={classes.handCard}
+                                   style={{
+                                       backgroundColor: style.color.primary,
+                                       borderColor: style.color.secondary,
+                                       color: style.color.font,
+                                   }}
+                                   key={card}>
+                                {style.name} × {count}
+                            </Paper>
+
+                        );
+                    })}
+                </Box>}
+            <Box className={classes.boats}>
+                {gamePlayer.boats.map((card, index) => boat(index))}
             </Box>
         </Paper>
     )
