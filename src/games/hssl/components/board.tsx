@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => createStyles({
         alignItems: "center",
     },
     goods: {
-        height:"100%",
+        height: "100%",
         display: "grid",
         gridTemplateRows: "32px repeat(6, auto)",
         gridRowGap: theme.spacing(1),
@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => createStyles({
     },
     goodCard: {},
     board: {
-        height:"100%",
+        height: "100%",
         display: "grid",
         gridTemplateRows: "32px repeat(2, auto)",
         gridTemplateColumns: "repeat(3, auto)",
@@ -50,7 +50,7 @@ const useStyles = makeStyles(theme => createStyles({
     },
     boardCard: {},
     items: {
-        height:"100%",
+        height: "100%",
         display: "grid",
         gridTemplateRows: "32px repeat(4, auto)",
         gridRowGap: theme.spacing(1),

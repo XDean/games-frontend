@@ -48,6 +48,31 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
             }
         });
         switch (topic) {
+            case "room-info":
+                this.sender.send("hssl-info");
+                break;
+            case "hssl-info":
+                this.board.status.value = data.status;
+                this.board.current.value = data.current;
+                this.board.deck.value = data.deck;
+                this.board.items.update(items => {
+                    return items.map((v, index) => data.items[index]);
+                });
+                this.board.goods.update(goods => {
+                    return goods.map((v, index) => data.goods[index]);
+                });
+                this.board.board.value = data.board;
+                data.players.forEach((p: any) => {
+                    let player = this.board.players[p.seat];
+                    player.boats.value = p.boats;
+                    player.hand.update(hand => hand.map((v, index) => p.hand[index] || 0));
+                    if (p.hand[-1]) {
+                        player.handCount.value = p.hand[-1];
+                    }
+                    player.items.update(items => items.map((v, index) => p.items[index] || false));
+                    player.points.value = p.points;
+                });
+                break;
         }
     };
 }
@@ -56,13 +81,14 @@ export type HSSLCard = "empty" | 0 | 1 | 2 | 3 | 4 | 5;
 export const HSSLCards: HSSLCard[] = [0, 1, 2, 3, 4, 5];
 
 export enum HSSLItem {
-    Boat = -1,
     GuanShui = 0,
     BanYun = 1,
     BiYue = 2,
+    Boat = 3,
 }
 
-export const HSSLItems: HSSLItem[] = [-1, 0, 1, 2];
+export const HSSLItems: HSSLItem[] = [3, 0, 1, 2];
+export const HSSLSpecialItems: HSSLItem[] = [0, 1, 2];
 
 export function ItemCost(item: HSSLItem): number {
     switch (item) {
@@ -93,12 +119,13 @@ export class HSSLBoard {
     readonly items = new SimpleProperty<number[]>(new Array(3).fill(2));
     readonly goods = new SimpleProperty<number[]>(new Array(6).fill(5));
     readonly board = new SimpleProperty<HSSLCard[]>(new Array(6).fill("empty"));
-    readonly players = new Array(4).fill(new HSSLPlayer());
+    readonly players: HSSLPlayer[] = new Array(4).fill(new HSSLPlayer());
 }
 
 export class HSSLPlayer {
     readonly boats = new SimpleProperty<number[]>([-1, -1]);
+    readonly handCount = new SimpleProperty<number>(3);
     readonly hand = new SimpleProperty<number[]>([]);
-    readonly items = new SimpleProperty<number[]>(new Array(3).fill(0));
+    readonly items = new SimpleProperty<boolean[]>(new Array(3).fill(false));
     readonly points = new SimpleProperty<number>(0)
 }

@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
             flexGrow: 1,
         },
         contentRoot: {
-            backgroundColor: "#eee",
+            backgroundColor: "#f9f6f3",
             overflow: "auto",
         }
     }),

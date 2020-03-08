@@ -1,6 +1,8 @@
 import React from 'react';
 import {HSSLCard} from "../model/game";
 import {createStyles, makeStyles, Paper} from "@material-ui/core";
+import bg from "../resources/background.png";
+import bg2 from "../../lost-cities/resources/card-4.webp"
 
 const useStyles = makeStyles(theme => createStyles({
     card: {
@@ -30,7 +32,10 @@ const useStyles = makeStyles(theme => createStyles({
         background: "#f0f",
     },
     empty: {
-        background: "#aaa",
+        backgroundImage: `url(${bg}), url(${bg2})`,
+        backgroundSize: "contain, cover",
+        backgroundPosition: "bottom",
+        backgroundRepeat:"no-repeat",
     }
 }));
 
