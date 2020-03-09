@@ -9,7 +9,7 @@ type HSSLCubeProp = {
 
 const HSSLCubeView: React.FunctionComponent<HSSLCubeProp> = (props) => {
     const style = HSSLTheme.cardStyle(props.card);
-    if (props.card === "empty") {
+    if (props.card === -1) {
         return null;
     } else {
         return (

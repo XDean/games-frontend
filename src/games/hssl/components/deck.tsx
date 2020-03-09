@@ -10,14 +10,11 @@ import {HSSLTheme} from "../theme";
 const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme, HSSLDeckProp>(theme => createStyles({
         root: {
             width: "min-content",
-            padding: theme.spacing(1),
         },
         deck: {
             position: "relative",
-            width: 90,
-            height: 130,
-            marginTop: theme.spacing(1),
-            cursor: "pointer",
+            width: 100,
+            height: 140,
         },
         cardBox: {
             position: "absolute",
@@ -40,9 +37,9 @@ const HSSLDeckView: React.FunctionComponent<HSSLDeckProp> = (props) => {
         <Box className={`${classes.root}`}>
             <Box className={classes.deck}>
                 {new Array(deck).fill(0).map((z, i) => (
-                    <Box className={classes.cardBox} style={{left: (i - deck / 3) * 0.3, top: (i - deck / 3) * 0.2}}
+                    <Box className={classes.cardBox} style={{left: (i) * 0.3 + 12.5 - 0.15 * deck, top: (i) * 0.2}}
                          key={i}>
-                        <HSSLCardView card={"empty"}/>
+                        <HSSLCardView card={-1}/>
                     </Box>
                 ))}
             </Box>

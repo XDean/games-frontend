@@ -101,7 +101,7 @@ function cardStyle(card: HSSLCard): HSSLCardStyle {
                     font: "#000",
                 },
             };
-        case "empty":
+        case -1:
             return {
                 name: "",
                 card: {

@@ -1,4 +1,3 @@
-import {Wither} from "../util";
 import {SimpleProperty} from "xdean-util";
 import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "../socket";
 import {LogPlugin} from "../plugins/log";
@@ -127,7 +126,10 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 break;
             case "ready":
                 this.players.update(ps => {
-                    ps[data.seat] = ps[data.seat].with({ready: data.ready})
+                    ps[data.seat] = {
+                        ...ps[data.seat],
+                        ready: data.ready,
+                    }
                 });
                 this.log.log(new ReadyMessage(data.id, data.ready));
                 break;
@@ -137,7 +139,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 break;
             case "game-over":
                 this.playing.value = false;
-                this.players.update(ps => ps.map(p => p.with({ready: false})));
+                this.players.update(ps => ps.map(p => ({...p, ready: false})));
                 this.log.log(HostMessage.OVER);
                 break;
             case "swap-seat":
@@ -160,20 +162,20 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
         if (player) {
             let index = this.players.value.indexOf(player);
             this.players.update(ps => {
-                ps[index] = ps[index].with({connected: connect})
+                ps[index] = {...ps[index], connected: connect};
             })
         }
         let watcher = this.watchers.value.find(p => p.id === id);
         if (watcher) {
             let index = this.watchers.value.indexOf(watcher);
             this.watchers.update(ps => {
-                ps[index] = ps[index].with({connected: connect})
+                ps[index] = {...ps[index], connected: connect};
             })
         }
     }
 }
 
-export class MultiGamePlayer extends Wither<MultiGamePlayer> {
+export class MultiGamePlayer {
     static EMPTY = new MultiGamePlayer("", -1, false);
 
     readonly connected: boolean;
@@ -186,7 +188,6 @@ export class MultiGamePlayer extends Wither<MultiGamePlayer> {
         connected?: boolean,
         host?: boolean,
     ) {
-        super();
         this.host = host || false;
         this.connected = connected || false;
     }
@@ -196,7 +197,7 @@ export class MultiGamePlayer extends Wither<MultiGamePlayer> {
     };
 }
 
-export class MultiGameWatcher extends Wither<MultiGameWatcher> {
+export class MultiGameWatcher {
 
     readonly connected: boolean;
 
@@ -204,7 +205,6 @@ export class MultiGameWatcher extends Wither<MultiGameWatcher> {
         readonly id: string = "",
         connected?: boolean,
     ) {
-        super();
         this.connected = connected || false;
     }
 }

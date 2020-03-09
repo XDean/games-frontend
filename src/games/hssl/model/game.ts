@@ -5,7 +5,6 @@ import {LogPlugin} from "../../common/model/plugins/log";
 import {SocketPlugin} from "../../common/model/plugins/plugin";
 import {MultiPlayerMessage} from "../../common/model/multi-player/message";
 import {SimpleProperty} from "xdean-util";
-import {Wither} from "../../common/model/util";
 
 const HSSLTopic = {
     info: "hssl-info",
@@ -57,28 +56,32 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 case HSSLStatus.Set1:
                 case HSSLStatus.Set2:
                     this.sender.send(HSSLTopic.set, {card: this.board.selected.good1.value});
-                    this.board.selected.good1.value = "empty";
+                    this.board.selected.good1.value = -1;
                     break;
                 case HSSLStatus.BuySwap:
-                    this.sender.send(HSSLTopic.swap, {
-                        index1: this.board.selected.boat1.value,
-                        card1: this.board.selected.good1.value,
-                        ...this.board.selected.boat2.value === -1 ? {
-                            index2: -1,
-                            card2: -1,
-                        } : {
+                case HSSLStatus.BanYun:
+                    if (this.board.selected.boat1.value === -1) {
+                        this.sender.send(HSSLTopic.skip);
+                    } else {
+                        this.sender.send(HSSLTopic.swap, {
+                            index1: this.board.selected.boat1.value,
+                            card1: this.board.selected.good1.value,
                             index2: this.board.selected.boat2.value,
                             card2: this.board.selected.good2.value,
-                        }
-                    });
-                    this.board.selected.boat1.value = -1;
-                    this.board.selected.good1.value = "empty";
-                    this.board.selected.boat2.value = -1;
-                    this.board.selected.good2.value = "empty";
-                    break;
-                case HSSLStatus.BanYun:
+                        });
+                        this.board.selected.boat1.value = -1;
+                        this.board.selected.good1.value = -1;
+                        this.board.selected.boat2.value = -1;
+                        this.board.selected.good2.value = -1;
+                    }
                     break;
                 case HSSLStatus.DrawPlay:
+                    if (this.board.selected.deck) {
+                        this.sender.send(HSSLTopic.draw, {
+                            biyue: false,// TODO
+                        });
+                        this.board.selected.deck.value = false;
+                    }
                     break;
                 case HSSLStatus.Over:
                     break;
@@ -121,13 +124,14 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 this.board.players.update(players => {
                     data.players.forEach((p: any) => {
                         let player = players[p.seat];
-                        players[p.seat] = player.with({
-                            boats: p.boats.map((v: any) => v === -1 ? "empty" : v),
+                        players[p.seat] = {
+                            ...player,
+                            boats: p.boats.map((v: any) => v === -1 ? -1 : v),
                             handCount: p.hand[-1] || -1,
                             hand: new Array(6).fill(0).map((v, i) => p.hand[i] || 0),
                             items: new Array(3).fill(0).map((v, i) => p.items[i] || false),
                             points: p.points,
-                        });
+                        };
                     });
                 });
                 break;
@@ -159,11 +163,30 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                     }
                 });
                 break;
+            case HSSLTopic.skip:
+                break;
+            case HSSLTopic.draw:
+                this.board.deck.update(d => d - data.cards.length);
+                this.board.players.update(players => {
+                    console.log("before123", players[data.seat].hand, players[data.seat]);
+                    players[data.seat] = {
+                        ...players[data.seat],
+                        handCount: players[data.seat].handCount + data.cards.length,
+                    };
+                    console.log("before", players[data.seat].hand, players[data.seat]);
+                    if (data.cards[0] !== -1) {
+                        data.cards.forEach((c: any) => {
+                            players[data.seat].hand[c]++
+                        });
+                    }
+                    console.log("after", players[data.seat].hand);
+                });
+                break;
         }
     };
 }
 
-export type HSSLCard = "empty" | 0 | 1 | 2 | 3 | 4 | 5;
+export type HSSLCard = -1 | 0 | 1 | 2 | 3 | 4 | 5;
 export const HSSLCards: HSSLCard[] = [0, 1, 2, 3, 4, 5];
 
 export enum HSSLItem {
@@ -195,19 +218,20 @@ export class HSSLBoard {
     readonly deck = new SimpleProperty<number>(66);
     readonly items = new SimpleProperty<number[]>(new Array(3).fill(2));
     readonly goods = new SimpleProperty<number[]>(new Array(6).fill(5));
-    readonly board = new SimpleProperty<HSSLCard[]>(new Array(6).fill("empty"));
+    readonly board = new SimpleProperty<HSSLCard[]>(new Array(6).fill(-1));
     readonly players = new SimpleProperty<HSSLPlayer[]>(new Array(4).fill(new HSSLPlayer()));
 
     readonly selected = {
-        good1: new SimpleProperty<HSSLCard>("empty"),
-        good2: new SimpleProperty<HSSLCard>("empty"),
+        good1: new SimpleProperty<HSSLCard>(-1),
+        good2: new SimpleProperty<HSSLCard>(-1),
         boat1: new SimpleProperty<number>(-1),
         boat2: new SimpleProperty<number>(-1),
+        deck: new SimpleProperty<boolean>(false),
     };
 }
 
-export class HSSLPlayer extends Wither<HSSLPlayer> {
-    readonly boats: HSSLCard[] = ["empty", "empty"];
+export class HSSLPlayer {
+    readonly boats: HSSLCard[] = [-1, -1];
     readonly handCount: number = 0;
     readonly hand: number[] = new Array(6).fill(0);
     readonly items: boolean[] = new Array(3).fill(false);
