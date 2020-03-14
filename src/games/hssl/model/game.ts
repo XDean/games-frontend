@@ -5,6 +5,7 @@ import {LogPlugin} from "../../common/model/plugins/log";
 import {SocketPlugin} from "../../common/model/plugins/plugin";
 import {MultiPlayerMessage} from "../../common/model/multi-player/message";
 import {SimpleProperty} from "xdean-util";
+import {Simulate} from "react-dom/test-utils";
 
 const HSSLTopic = {
     info: "hssl-info",
@@ -183,6 +184,7 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 });
                 break;
             case HSSLTopic.swap:
+            case HSSLTopic.banyun:
                 this.board.players.update(players => {
                     this.board.goods.update(goods => {
                         goods[players[data.seat].boats[data.index1] as number]++;
@@ -195,6 +197,22 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                     players[data.seat].boats[data.index1] = data.card1;
                     if (data.index2 !== -1) {
                         players[data.seat].boats[data.index2] = data.card2;
+                    }
+                });
+                break;
+            case HSSLTopic.buy:
+                this.board.players.update(players => {
+                    players[data.seat] = {
+                        ...players[data.seat],
+                        points: players[data.seat].points - ItemCost(data.item),
+                    };
+                    if (data.item === HSSLItem.Boat) {
+                        players[data.seat].boats.push(data.card);
+                    } else {
+                        players[data.seat].items[data.item] = true;
+                        this.board.items.update(items => {
+                            items[data.item]--;
+                        });
                     }
                 });
                 break;
