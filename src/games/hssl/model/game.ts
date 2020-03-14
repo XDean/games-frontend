@@ -28,6 +28,20 @@ export enum HSSLStatus {
     Over,
 }
 
+export type HSSLCard = -1 | 0 | 1 | 2 | 3 | 4 | 5;
+export const HSSLCards: HSSLCard[] = [0, 1, 2, 3, 4, 5];
+
+export enum HSSLItem {
+    GuanShui = 0,
+    BanYun = 1,
+    BiYue = 2,
+    Boat = 3,
+}
+
+export const HSSLItems: HSSLItem[] = [3, 0, 1, 2];
+export const HSSLSpecialItems: HSSLItem[] = [0, 1, 2];
+
+
 export class HSSLGame implements SocketTopicHandler, SocketInit {
 
     private log = new LogPlugin<any>();
@@ -65,6 +79,8 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                             item: this.board.selected.item.value,
                             card: this.board.selected.good1.value,
                         });
+                        this.board.selected.item.value = -1;
+                        this.board.selected.good1.value = -1;
                         break;
                     }
                 // fallthrough
@@ -85,11 +101,20 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                     }
                     break;
                 case HSSLStatus.DrawPlay:
-                    if (this.board.selected.deck) {
+                    if (this.board.selected.deck.value) {
                         this.sender.send(HSSLTopic.draw, {
                             biyue: false,// TODO
                         });
                         this.board.selected.deck.value = false;
+                    }
+                    if (this.board.selected.hand.value !== -1 &&
+                        this.board.selected.board.value.some(b => b)) {
+                        this.sender.send(HSSLTopic.play, {
+                            card: this.board.selected.hand.value,
+                            dest: this.board.selected.board.value,
+                        });
+                        this.board.selected.hand.value = -1;
+                        this.board.selected.board.update(b => b.fill(false));
                     }
                     break;
                 case HSSLStatus.Over:
@@ -178,36 +203,44 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
             case HSSLTopic.draw:
                 this.board.deck.update(d => d - data.cards.length);
                 this.board.players.update(players => {
-                    console.log("before123", players[data.seat].hand, players[data.seat]);
                     players[data.seat] = {
                         ...players[data.seat],
                         handCount: players[data.seat].handCount + data.cards.length,
                     };
-                    console.log("before", players[data.seat].hand, players[data.seat]);
                     if (data.cards[0] !== -1) {
                         data.cards.forEach((c: any) => {
                             players[data.seat].hand[c]++
                         });
                     }
-                    console.log("after", players[data.seat].hand);
+                });
+                break;
+            case HSSLTopic.play:
+                this.board.board.update(board => {
+                    data.dest.forEach((b: any, i: number) => {
+                        if (b) {
+                            board[i] = data.card;
+                        }
+                    });
+                });
+                this.board.players.update(players => {
+                    players[data.seat].hand[data.card] -= data.dest.filter((b: any) => b).length;
+                    players.forEach(((player, index) => {
+                        let revenue = player.boats.filter(c => c === data.card).length * this.board.board.value.filter(c => c === data.card).length;
+                        if (revenue !== 0 && player.items[HSSLItem.GuanShui]) {
+                            revenue += 2;
+                        }
+                        if (revenue > 0) {
+                            players[index] = {
+                                ...player,
+                                points: player.points + revenue
+                            }
+                        }
+                    }));
                 });
                 break;
         }
     };
 }
-
-export type HSSLCard = -1 | 0 | 1 | 2 | 3 | 4 | 5;
-export const HSSLCards: HSSLCard[] = [0, 1, 2, 3, 4, 5];
-
-export enum HSSLItem {
-    GuanShui = 0,
-    BanYun = 1,
-    BiYue = 2,
-    Boat = 3,
-}
-
-export const HSSLItems: HSSLItem[] = [3, 0, 1, 2];
-export const HSSLSpecialItems: HSSLItem[] = [0, 1, 2];
 
 export function ItemCost(item: HSSLItem): number {
     switch (item) {

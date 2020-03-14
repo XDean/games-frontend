@@ -126,6 +126,8 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
         boat2: useStateByProp(props.game.board.selected.boat2),
         item: useStateByProp(props.game.board.selected.item),
         deck: useStateByProp(props.game.board.selected.deck),
+        board: useStateByProp(props.game.board.selected.board),
+        hand: useStateByProp(props.game.board.selected.hand),
     };
 
     // Goods
@@ -188,7 +190,7 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
     // Items
     const itemsTooltip = function () {
         if (myRole === "play" && current === mySeat && playing &&
-            status === HSSLStatus.BuySwap && selected.good1 === -1 && selected.boat1 === -1 && selected.item == -1) {
+            status === HSSLStatus.BuySwap && selected.good1 === -1 && selected.boat1 === -1 && selected.item === -1) {
             return "选择要购买的功能牌";
         }
         return "";
@@ -204,11 +206,29 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
         }
     };
 
+    // Board
+    const boardTooltip = function () {
+        if (myRole === "play" && current === mySeat && playing &&
+            status === HSSLStatus.DrawPlay && selected.deck === false && selected.board.every(e => e === false)) {
+            return "选择出牌席位";
+        }
+        return "";
+    }();
+
+    const onBoardClick = (pos: number) => {
+        if (myRole === "play" && current === mySeat && playing && status === HSSLStatus.DrawPlay) {
+            props.game.board.selected.deck.value = false;
+            props.game.board.selected.board.update(board => {
+                board[pos] = !board[pos];
+            });
+        }
+    };
+
     // Deck
     const deckTooltip = function () {
         if (myRole === "play" && current === mySeat && playing &&
             status === HSSLStatus.DrawPlay && !selected.deck) {
-            return "从牌库抽牌";
+            return "选择抽牌";
         }
         return "";
     }();
@@ -216,6 +236,8 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
     const onDeckClick = () => {
         if (myRole === "play" && current === mySeat && playing && status === HSSLStatus.DrawPlay) {
             props.game.board.selected.deck.update(b => !b);
+            props.game.board.selected.hand.value = -1;
+            props.game.board.selected.board.update(b => b.fill(false))
         }
     };
 
@@ -238,6 +260,9 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                     return true;
                 case HSSLStatus.DrawPlay:
                     if (selected.deck) {
+                        return true;
+                    }
+                    if (selected.hand !== -1 && selected.board.some(b => b)) {
                         return true;
                     }
                     break;
@@ -273,6 +298,9 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                             case HSSLStatus.DrawPlay:
                                 if (selected.deck) {
                                     return "确认抽牌";
+                                }
+                                if (selected.board.some(b => b) || selected.hand !== -1) {
+                                    return "确认出牌";
                                 }
                                 break;
                             case HSSLStatus.Over:
@@ -312,11 +340,14 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 ))}
             </Box>
             <Box className={classes.board}>
-                <Typography variant="h5" className={classes.boardTitle}>
-                    市场
-                </Typography>
+                <Tooltip title={boardTooltip} placement={"left"} arrow open>
+                    <Typography variant="h5" className={classes.boardTitle}>
+                        市场
+                    </Typography>
+                </Tooltip>
                 {board.map((c, i) => (
-                    <Button key={i} className={classes.boardCard}>
+                    <Button key={i} className={classes.boardCard + ifClass(selected.board[i], classes.selected)}
+                            onClick={() => onBoardClick(i)}>
                         <HSSLCardView card={c}/>
                     </Button>
                 ))}
@@ -347,15 +378,15 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 ))}
             </Box>
             <Box className={classes.deck}>
-                <Typography variant="h5">
-                    牌堆
-                </Typography>
                 <Tooltip title={deckTooltip} placement={"left"} arrow open>
-                    <Button className={classes.deckButton + ifClass(selected.deck, classes.selected)}
-                            onClick={onDeckClick}>
-                        <HSSLDeckView game={props.game}/>
-                    </Button>
+                    <Typography variant="h5">
+                        牌堆
+                    </Typography>
                 </Tooltip>
+                <Button className={classes.deckButton + ifClass(selected.deck, classes.selected)}
+                        onClick={onDeckClick}>
+                    <HSSLDeckView game={props.game}/>
+                </Button>
             </Box>
             <Paper variant={"outlined"} elevation={5} className={classes.status}>
                 {function () {

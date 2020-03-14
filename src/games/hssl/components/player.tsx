@@ -8,6 +8,7 @@ import MonetizationOnOutlinedIcon from '@material-ui/icons/MonetizationOnOutline
 import {HSSLTheme} from "../theme";
 import HSSLCubeView from "./cube";
 import {windowMove} from "../../../util/selection";
+import {ifClass} from "../../../util/css";
 
 const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     //empty
@@ -66,14 +67,16 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
         display: "grid",
         gridTemplateColumns: "repeat(3, 1fr)",
         gridTemplateRows: "repeat(2, auto)",
-        gridRowGap: theme.spacing(0.5),
-        gridColumnGap: theme.spacing(0.5),
+        gridRowGap: theme.spacing(0.75),
+        gridColumnGap: theme.spacing(1),
         justifyItems: "center",
         alignItems: "baseline",
         alignSelf: "center",
         justifySelf: "center",
+        margin: theme.spacing(0.5, 0, 1, 0),
     },
     handCard: {
+        height: 30,
         padding: theme.spacing(0.5),
         border: "black solid 1px",
         fontSize: "0.85rem",
@@ -144,6 +147,8 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
         boat1: useStateByProp(props.game.board.selected.boat1),
         boat2: useStateByProp(props.game.board.selected.boat2),
         item: useStateByProp(props.game.board.selected.item),
+        deck: useStateByProp(props.game.board.selected.deck),
+        hand: useStateByProp(props.game.board.selected.hand),
     };
 
     function tag(text: string) {
@@ -171,9 +176,26 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
                   disabled={!allReady} clickable onClick={() => props.game.host.startGame()}/>
         </Tooltip>;
 
+    // hand
+    const handTooltip = function () {
+        if (myRole === "play" && props.seat === mySeat && current === mySeat && playing &&
+            status === HSSLStatus.DrawPlay && selected.deck === false && selected.hand === -1) {
+            return "选择手牌打出";
+        }
+        return "";
+    }();
+
+    const onHandClick = (hand: HSSLCard) => {
+        if (myRole === "play" && props.seat === mySeat && current === mySeat && playing &&
+            status === HSSLStatus.DrawPlay) {
+            props.game.board.selected.hand.update(h => h === hand ? -1 : hand);
+            props.game.board.selected.deck.value = false;
+        }
+    };
+
     // boat
     const boatTooltip = function () {
-        if (myRole === "play" && props.seat === mySeat && current === mySeat && playing && selected.item == -1) {
+        if (myRole === "play" && props.seat === mySeat && current === mySeat && playing && selected.item === -1) {
             switch (status) {
                 case HSSLStatus.BanYun:
                     if (selected.boat1 === -1) {
@@ -268,23 +290,26 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
             </Box>
             {props.seat !== mySeat && myRole === "play"
                 ? <Box className={classes.handUnknown}>{tag("手牌: " + gamePlayer.handCount)}</Box>
-                : <Box className={classes.hand}>
-                    {gamePlayer.hand.map((count, card) => {
-                        let style = HSSLTheme.cardStyle(card as HSSLCard);
-                        return (
-                            <Paper className={classes.handCard}
-                                   style={{
-                                       backgroundColor: style.color.primary,
-                                       borderColor: style.color.secondary,
-                                       color: style.color.font,
-                                   }}
-                                   key={card}>
-                                {style.name} × {count}
-                            </Paper>
+                : <Tooltip title={handTooltip} open arrow placement={"top"}>
+                    <Box className={classes.hand}>
+                        {gamePlayer.hand.map((count, card) => {
+                            let style = HSSLTheme.cardStyle(card as HSSLCard);
+                            return (
+                                <Button className={classes.handCard + ifClass(selected.hand === card, classes.selected)}
+                                        onClick={() => onHandClick(card as HSSLCard)}
+                                        style={{
+                                            backgroundColor: style.color.primary,
+                                            borderColor: style.color.secondary,
+                                            color: style.color.font,
+                                        }}
+                                        key={card}>
+                                    {style.name} × {count}
+                                </Button>
 
-                        );
-                    })}
-                </Box>}
+                            );
+                        })}
+                    </Box>
+                </Tooltip>}
             <Tooltip title={boatTooltip} open arrow placement={"left"}>
                 <Box className={classes.boats}>
                     {gamePlayer.boats.map((card, index) => boat(index))}
