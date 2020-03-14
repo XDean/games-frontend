@@ -10,7 +10,7 @@ import HSSLItemView from "./item";
 import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
 import HSSLDeckView from "./deck";
 import {HSSLTheme} from "../theme";
-import {windowMove} from "../../../util/util";
+import {windowMove} from "../../../util/selection";
 import {ifClass} from "../../../util/css";
 
 const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
@@ -89,7 +89,7 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
         borderRadius: 10,
     },
     deckButton: {
-        margin: theme.spacing(0, 0.5),
+        margin: theme.spacing(0, 0.25),
     },
     status: {
         padding: theme.spacing(0.5, 1),
@@ -124,6 +124,7 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
         boat1: useStateByProp(props.game.board.selected.boat1),
         good2: useStateByProp(props.game.board.selected.good2),
         boat2: useStateByProp(props.game.board.selected.boat2),
+        item: useStateByProp(props.game.board.selected.item),
         deck: useStateByProp(props.game.board.selected.deck),
     };
 
@@ -139,10 +140,16 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                     }
                     break;
                 case HSSLStatus.BuySwap:
-                    if (selected.good1 === -1) {
-                        return "选择货物装船";
-                    } else if (myPlayer.items[HSSLItem.BanYun] && selected.good2 === -1) {
-                        return "你可以选择两个货物";
+                    if (selected.item === -1) {
+                        if (selected.good1 === -1) {
+                            return "选择货物装船";
+                        } else if (myPlayer.items[HSSLItem.BanYun] && selected.good2 === -1) {
+                            return "你可以选择两个货物";
+                        }
+                    } else if (selected.item === HSSLItem.Boat) {
+                        if (selected.good1 === -1) {
+                            return "选择货物装船";
+                        }
                     }
             }
         }
@@ -158,18 +165,42 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                     props.game.board.selected.good1.update(g => g === c ? -1 : c);
                     break;
                 case HSSLStatus.BuySwap:
-                    if (myPlayer.items[HSSLItem.BanYun]) {
-                        let res = windowMove(c, [
-                            props.game.board.selected.good1.value,
-                            props.game.board.selected.good2.value
-                        ], -1);
-                        props.game.board.selected.good1.value = res[0];
-                        props.game.board.selected.good2.value = res[1];
-                    } else {
+                    if (selected.item === HSSLItem.Boat) {
                         props.game.board.selected.good1.update(g => g === c ? -1 : c);
+                    } else {
+                        props.game.board.selected.item.value = -1;
+                        if (myPlayer.items[HSSLItem.BanYun]) {
+                            let res = windowMove(c, [
+                                props.game.board.selected.good1.value,
+                                props.game.board.selected.good2.value
+                            ], -1);
+                            props.game.board.selected.good1.value = res[0];
+                            props.game.board.selected.good2.value = res[1];
+                        } else {
+                            props.game.board.selected.good1.update(g => g === c ? -1 : c);
+                        }
                     }
                     break;
             }
+        }
+    };
+
+    // Items
+    const itemsTooltip = function () {
+        if (myRole === "play" && current === mySeat && playing &&
+            status === HSSLStatus.BuySwap && selected.good1 === -1 && selected.boat1 === -1 && selected.item == -1) {
+            return "选择要购买的功能牌";
+        }
+        return "";
+    }();
+
+    const onItemClick = (item: HSSLItem) => {
+        if (myRole === "play" && current === mySeat && playing && status === HSSLStatus.BuySwap) {
+            props.game.board.selected.good1.value = -1;
+            props.game.board.selected.boat1.value = -1;
+            props.game.board.selected.good2.value = -1;
+            props.game.board.selected.boat2.value = -1;
+            props.game.board.selected.item.update(i => i === item ? -1 : item);
         }
     };
 
@@ -197,6 +228,9 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                     return selected.good1 !== -1;
                 case HSSLStatus.BuySwap:
                 case HSSLStatus.BanYun:
+                    if (selected.item !== -1) {
+                        return selected.item !== HSSLItem.Boat || selected.good1 !== -1;
+                    }
                     if (selected.good1 !== -1 || selected.boat1 !== -1) {
                         return selected.good1 !== -1 && selected.boat1 !== -1 &&
                             ((selected.good2 === -1) === (selected.boat2 === -1))
@@ -215,29 +249,45 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
     }();
 
     const submitText = function () {
-        if (current === mySeat) {
-            switch (status) {
-                case HSSLStatus.Set1:
-                case HSSLStatus.Set2:
-                    return "确认装货";
-                case HSSLStatus.BuySwap:
-                case HSSLStatus.BanYun:
-                    if (selected.good1 !== -1 || selected.boat1 !== -1) {
-                        return "确认换货";
-                    }
-                    return "跳过该阶段";
-                case HSSLStatus.DrawPlay:
-                    if (selected.deck) {
-                        return "确认抽牌";
-                    }
-                    break;
-                case HSSLStatus.Over:
-                    break;
+        if (playing) {
+            switch (myRole) {
+                case "none":
+                    return "准备数据";
+                case "not-determined":
+                    return "等待加入";
+                case "play":
+                    if (current === mySeat) {
+                        switch (status) {
+                            case HSSLStatus.Set1:
+                            case HSSLStatus.Set2:
+                                return "确认装货";
+                            case HSSLStatus.BuySwap:
+                            case HSSLStatus.BanYun:
+                                if (selected.good1 !== -1 || selected.boat1 !== -1) {
+                                    return "确认换货";
+                                }
+                                if (selected.item !== -1) {
+                                    return "确认购买";
+                                }
+                                return "跳过该阶段";
+                            case HSSLStatus.DrawPlay:
+                                if (selected.deck) {
+                                    return "确认抽牌";
+                                }
+                                break;
+                            case HSSLStatus.Over:
+                                break;
 
+                        }
+                        return "确认操作";
+                    } else {
+                        return "其他玩家回合";
+                    }
+                case "watch":
+                    return "正在旁观";
             }
-            return "确认操作";
         } else {
-            return "其他玩家回合";
+            return "等待游戏开始";
         }
     }();
 
@@ -272,11 +322,14 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 ))}
             </Box>
             <Box className={classes.items}>
-                <Typography variant="h5">
-                    商店
-                </Typography>
+                <Tooltip title={itemsTooltip} placement={"left"} arrow open>
+                    <Typography variant="h5">
+                        商店
+                    </Typography>
+                </Tooltip>
                 {HSSLItems.map((item, i) => (
-                    <Button key={i} className={classes.goodCard}>
+                    <Button key={i} className={classes.goodCard + ifClass(selected.item === item, classes.selected)}
+                            onClick={() => onItemClick(item)}>
                         <HSSLItemView item={item}/>
                         <Box className={classes.itemDetails}>
                             <Box className={classes.itemName}>
@@ -308,6 +361,8 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 {function () {
                     if (playing) {
                         switch (status) {
+                            case HSSLStatus.Doing:
+                                return "正在执行操作";
                             case HSSLStatus.Set1:
                             case HSSLStatus.Set2:
                                 return "配置货物阶段";
@@ -327,13 +382,13 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                     }
                 }()}
             </Paper>
-            {playing &&
-            <Tooltip title={"点击确认操作"} open={selectDone} arrow placement={"bottom"}>
-                <Button variant={"outlined"} onClick={() => props.game.submit()}
+            <Tooltip title={"点击确认操作"} open={selectDone} arrow placement={"right"}>
+                <Button variant={"outlined"}
+                        onClick={() => current === mySeat && playing && myRole === "play" && selectDone && props.game.submit()}
                         disabled={current === mySeat && playing && myRole === "play" && !selectDone}>
                     {submitText}
                 </Button>
-            </Tooltip>}
+            </Tooltip>
         </Box>
     )
 };

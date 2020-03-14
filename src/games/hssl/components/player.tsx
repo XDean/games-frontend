@@ -7,7 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import MonetizationOnOutlinedIcon from '@material-ui/icons/MonetizationOnOutlined';
 import {HSSLTheme} from "../theme";
 import HSSLCubeView from "./cube";
-import {windowMove} from "../../../util/util";
+import {windowMove} from "../../../util/selection";
 
 const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     //empty
@@ -143,6 +143,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
     const selected = {
         boat1: useStateByProp(props.game.board.selected.boat1),
         boat2: useStateByProp(props.game.board.selected.boat2),
+        item: useStateByProp(props.game.board.selected.item),
     };
 
     function tag(text: string) {
@@ -172,7 +173,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
 
     // boat
     const boatTooltip = function () {
-        if (myRole === "play" && props.seat === mySeat && current === mySeat && playing) {
+        if (myRole === "play" && props.seat === mySeat && current === mySeat && playing && selected.item == -1) {
             switch (status) {
                 case HSSLStatus.BanYun:
                     if (selected.boat1 === -1) {
@@ -192,6 +193,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
 
     const onBoatClick = (boat: number) => {
         if (myRole === "play" && props.seat === mySeat && current === mySeat && playing) {
+            props.game.board.selected.item.value = -1;
             switch (status) {
                 case HSSLStatus.BanYun:
                     props.game.board.selected.boat1.update(b => b === boat ? -1 : boat);

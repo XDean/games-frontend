@@ -19,6 +19,7 @@ const HSSLTopic = {
 };
 
 export enum HSSLStatus {
+    Doing = -1,
     Set1 = 0,
     Set2,
     BuySwap,
@@ -59,6 +60,14 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                     this.board.selected.good1.value = -1;
                     break;
                 case HSSLStatus.BuySwap:
+                    if (this.board.selected.item.value !== -1) {
+                        this.sender.send(HSSLTopic.buy, {
+                            item: this.board.selected.item.value,
+                            card: this.board.selected.good1.value,
+                        });
+                        break;
+                    }
+                // fallthrough
                 case HSSLStatus.BanYun:
                     if (this.board.selected.boat1.value === -1) {
                         this.sender.send(HSSLTopic.skip);
@@ -86,6 +95,7 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 case HSSLStatus.Over:
                     break;
             }
+            this.board.status.value = HSSLStatus.Doing;
         }
     };
 
@@ -226,7 +236,10 @@ export class HSSLBoard {
         good2: new SimpleProperty<HSSLCard>(-1),
         boat1: new SimpleProperty<number>(-1),
         boat2: new SimpleProperty<number>(-1),
+        item: new SimpleProperty<HSSLItem | -1>(-1),
         deck: new SimpleProperty<boolean>(false),
+        hand: new SimpleProperty<HSSLCard>(-1),
+        board: new SimpleProperty<boolean[]>(new Array(6).fill(false)),
     };
 }
 
