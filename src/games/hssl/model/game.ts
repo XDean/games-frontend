@@ -5,6 +5,17 @@ import {LogPlugin} from "../../common/model/plugins/log";
 import {SocketPlugin} from "../../common/model/plugins/plugin";
 import {MultiPlayerMessage} from "../../common/model/multi-player/message";
 import {SimpleProperty} from "xdean-util";
+import {
+    HSSLBanyunMessage,
+    HSSLBiyueMessage,
+    HSSLBuyMessage,
+    HSSLDrawMessage,
+    HSSLPlayMessage,
+    HSSLSetMessage,
+    HSSLSkipMessage,
+    HSSLStatusMessage,
+    HSSLSwapMessage
+} from "./message";
 
 const HSSLTopic = {
     info: "hssl-info",
@@ -176,10 +187,12 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 });
                 break;
             case HSSLTopic.status:
+                this.log.log(new HSSLStatusMessage(data.current, data.status, this.board.current.value));
                 this.board.status.value = data.status;
                 this.board.current.value = data.current;
                 break;
             case HSSLTopic.set:
+                this.log.log(new HSSLSetMessage(data.seat, data.card, data.round));
                 this.board.goods.update(goods => {
                     goods[data.card]--;
                 });
@@ -188,7 +201,14 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 });
                 break;
             case HSSLTopic.swap:
-            case HSSLTopic.banyun:
+                let p = this.board.players.value[data.seat];
+                if (data.index2 === -1) {
+                    this.log.log(new HSSLSwapMessage(data.seat, [p.boats[data.index1]], [data.card1]));
+                } else {
+                    this.log.log(new HSSLSwapMessage(data.seat,
+                        [p.boats[data.index1], p.boats[data.index2]],
+                        [data.card1, data.card2]));
+                }
                 this.board.players.update(players => {
                     this.board.goods.update(goods => {
                         goods[players[data.seat].boats[data.index1] as number]++;
@@ -204,7 +224,18 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                     }
                 });
                 break;
+            case HSSLTopic.banyun:
+                this.log.log(new HSSLBanyunMessage(data.seat, this.board.players.value[data.seat].boats[data.index1], data.card1));
+                this.board.players.update(players => {
+                    this.board.goods.update(goods => {
+                        goods[players[data.seat].boats[data.index1] as number]++;
+                        goods[data.card1]--;
+                    });
+                    players[data.seat].boats[data.index1] = data.card1;
+                });
+                break;
             case HSSLTopic.buy:
+                this.log.log(new HSSLBuyMessage(data.seat, data.item, data.card));
                 this.board.players.update(players => {
                     players[data.seat] = {
                         ...players[data.seat],
@@ -224,8 +255,15 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 });
                 break;
             case HSSLTopic.skip:
+                this.log.log(new HSSLSkipMessage(data.seat));
                 break;
             case HSSLTopic.draw:
+                if (data.biyue && data.cards.length === 3) {
+                    this.log.log(new HSSLDrawMessage(data.seat, data.cards[0] !== -1, data.cards.slice(0, 2)));
+                    this.log.log(new HSSLBiyueMessage(data.seat, data.cards[0] !== -1, data.cards[2]))
+                } else {
+                    this.log.log(new HSSLDrawMessage(data.seat, data.cards[0] !== -1, data.cards));
+                }
                 this.board.deck.update(d => d - data.cards.length);
                 this.board.players.update(players => {
                     players[data.seat] = {
@@ -240,16 +278,20 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 });
                 break;
             case HSSLTopic.play:
+                let count = data.dest.filter((b: any) => b).length;
+                let revenues = new Array(4).fill(0);
+                let was: HSSLCard[] = [];
                 this.board.board.update(board => {
                     data.dest.forEach((b: any, i: number) => {
                         if (b) {
+                            was.push(board[i]);
                             board[i] = data.card;
                         }
                     });
                 });
                 this.board.players.update(players => {
-                    let used = data.dest.filter((b: any) => b).length;
-                    players[data.seat].hand[data.card] -= used;
+                    players[data.seat].hand[data.card] -= count;
+                    let used = count;
                     if (data.biyue) {
                         if (data["biyue-card"] !== -1) {
                             players[data.seat].hand[data["biyue-card"]]++;
@@ -267,6 +309,7 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                             revenue += 2;
                         }
                         if (revenue > 0) {
+                            revenues[index] = revenue;
                             players[index] = {
                                 ...player,
                                 points: player.points + revenue
@@ -274,6 +317,11 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                         }
                     }));
                 });
+                this.log.log(new HSSLPlayMessage(data.seat, data.card, count, was,
+                    this.board.players.value.map(player => player.items[HSSLItem.GuanShui]), revenues));
+                if(data.biyue){
+                    this.log.log(new HSSLBiyueMessage(data.seat, data["biyue-card"] !== -1, data["biyue-card"]));
+                }
                 break;
         }
     };
