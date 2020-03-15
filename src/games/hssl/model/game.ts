@@ -107,7 +107,7 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 case HSSLStatus.DrawPlay:
                     if (this.board.selected.deck.value) {
                         this.sender.send(HSSLTopic.draw, {
-                            biyue: false,// TODO
+                            biyue: this.board.selected.biyue.value,
                         });
                         this.board.selected.deck.value = false;
                     }
@@ -116,6 +116,7 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                         this.sender.send(HSSLTopic.play, {
                             card: this.board.selected.hand.value,
                             dest: this.board.selected.board.value,
+                            biyue: this.board.selected.biyue.value,
                         });
                         this.board.selected.hand.value = -1;
                         this.board.selected.board.update(b => b.fill(false));
@@ -249,6 +250,13 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 this.board.players.update(players => {
                     let used = data.dest.filter((b: any) => b).length;
                     players[data.seat].hand[data.card] -= used;
+                    if (data.biyue) {
+                        if (data["biyue-card"] !== -1) {
+                            players[data.seat].hand[data["biyue-card"]]++;
+                        }
+                        used--;
+                        this.board.deck.update(d => d - 1);
+                    }
                     players[data.seat] = {
                         ...players[data.seat],
                         handCount: players[data.seat].handCount - used,
@@ -302,6 +310,7 @@ export class HSSLBoard {
         deck: new SimpleProperty<boolean>(false),
         hand: new SimpleProperty<HSSLCard>(-1),
         board: new SimpleProperty<boolean[]>(new Array(6).fill(false)),
+        biyue: new SimpleProperty<boolean>(false),
     };
 }
 

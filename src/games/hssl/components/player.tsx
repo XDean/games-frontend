@@ -149,6 +149,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
         item: useStateByProp(props.game.board.selected.item),
         deck: useStateByProp(props.game.board.selected.deck),
         hand: useStateByProp(props.game.board.selected.hand),
+        biyue: useStateByProp(props.game.board.selected.biyue),
     };
 
     function tag(text: string) {
@@ -274,6 +275,8 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
         )
     }
 
+    const canBiYue = gamePlayer.items[HSSLItem.BiYue] && mySeat === props.seat && playing && myRole === "play";
+
     return (
         <Paper elevation={3}
                className={classes.root + (playing && props.seat === current ? " " + classes.selected : "")}>
@@ -282,10 +285,18 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
             </Box>
             <Box className={classes.items}>
                 <Chip icon={<MonetizationOnOutlinedIcon/>}
-                      label={props.seat !== mySeat && myRole === "play" ? "未知" : gamePlayer.points} variant={"outlined"} size={"small"}/>
+                      label={props.seat !== mySeat && myRole === "play" ? "未知" : gamePlayer.points} variant={"outlined"}
+                      size={"small"}/>
                 {HSSLSpecialItems.map((item, index) => (
-                    <Chip label={HSSLTheme.itemStyle(item).name} variant={"outlined"} size={"small"}
-                          disabled={!gamePlayer.items[item]} clickable key={index}/>
+                    <Tooltip title={"点击开启交易所"} key={index} arrow placement={"left"}
+                             open={item === HSSLItem.BiYue &&canBiYue && !selected.biyue && status === HSSLStatus.DrawPlay}>
+                        <Chip label={HSSLTheme.itemStyle(item).name} variant={"outlined"} size={"small"}
+                              className={ifClass(item === HSSLItem.BiYue &&canBiYue && selected.biyue, classes.selected)}
+                              disabled={!gamePlayer.items[item]} clickable={item === HSSLItem.BiYue}
+                              onClick={item === HSSLItem.BiYue ? (() => {
+                                  props.game.board.selected.biyue.update(b => !b)
+                              }) : undefined}/>
+                    </Tooltip>
                 ))}
             </Box>
             {props.seat !== mySeat && myRole === "play"
@@ -310,7 +321,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
                         })}
                     </Box>
                 </Tooltip>}
-            <Tooltip title={boatTooltip} open arrow placement={"left"}>
+            <Tooltip title={boatTooltip} open arrow placement={"right"}>
                 <Box className={classes.boats}>
                     {gamePlayer.boats.map((card, index) => boat(index))}
                 </Box>
