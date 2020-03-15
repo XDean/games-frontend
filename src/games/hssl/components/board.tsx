@@ -1,7 +1,7 @@
 import React from 'react';
 import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import {Box, Button, Paper, Tooltip} from "@material-ui/core";
-import {HSSLCard, HSSLCards, HSSLGame, HSSLItem, HSSLItems, HSSLStatus} from "../model/game";
+import {HSSLCard, HSSLCards, HSSLGame, HSSLItem, HSSLItems, HSSLStatus, ItemCost} from "../model/game";
 import HSSLCubeView from "./cube";
 import {useStateByProp} from "../../../util/property";
 import HSSLCardView from "./card";
@@ -231,7 +231,7 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
     // Deck
     const deckTooltip = function () {
         if (myRole === "play" && current === mySeat && playing &&
-            status === HSSLStatus.DrawPlay && !selected.deck) {
+            status === HSSLStatus.DrawPlay && !selected.deck && selected.hand === -1 && selected.board.every(b => !b)) {
             return "选择抽牌";
         }
         return "";
@@ -246,35 +246,62 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
     };
 
     // submit
-    const selectDone = function () {
+    const [selectDone, submitTooltip] = function (): [boolean, string] {
         if (current === mySeat && playing) {
             switch (status) {
                 case HSSLStatus.Set1:
                 case HSSLStatus.Set2:
-                    return selected.good1 !== -1;
+                    if (selected.good1 === -1) {
+                        return [false, ""];
+                    } else {
+                        return [goods[selected.good1] > 0, "货物已用完"];
+                    }
                 case HSSLStatus.BuySwap:
-                case HSSLStatus.BanYun:
                     if (selected.item !== -1) {
-                        return selected.item !== HSSLItem.Boat || selected.good1 !== -1;
+                        if (ItemCost(selected.item) > myPlayer.points) {
+                            return [false, "金币不足"];
+                        } else if (selected.item === HSSLItem.Boat) {
+                            if (selected.good1 === -1) {
+                                return [false, ""];
+                            } else {
+                                return [goods[selected.good1] > 0, "货物已用完"];
+                            }
+                        } else if (items[selected.item] === 0) {
+                            return [false, "道具已卖完"]
+                        } else {
+                            return [!myPlayer.items[selected.item], "道具不能重复购买"]
+                        }
                     }
+                // fallthrough
+                case HSSLStatus.BanYun:
                     if (selected.good1 !== -1 || selected.boat1 !== -1) {
-                        return selected.good1 !== -1 && selected.boat1 !== -1 &&
-                            ((selected.good2 !== -1 || goods[selected.good1] > 1) === (selected.boat2 !== -1))
+                        if (selected.good1 !== -1 && selected.boat1 !== -1) {
+                            // ((selected.good2 !== -1 || goods[selected.good1] > 1) === (selected.boat2 !== -1))
+                            if (selected.good2 !== -1 || selected.boat2 !== -1) {
+                                if (selected.good2 === -1) {
+                                    return [goods[selected.good1] > 1, "货物已用完"];
+                                } else {
+                                    return [goods[selected.good1] > 0 && goods[selected.good2] > 0, "货物已用完"];
+                                }
+                            } else {
+                                return [goods[selected.good1] > 0, "货物已用完"];
+                            }
+                        } else {
+                            return [false, ""];
+                        }
                     }
-                    return true;
+                    return [true, ""];
                 case HSSLStatus.DrawPlay:
                     if (selected.deck) {
-                        return true;
+                        return [true, ""];
                     }
                     if (selected.hand !== -1 && selected.board.some(b => b)) {
-                        return true;
+                        return [myPlayer.hand[selected.hand] >= selected.board.filter(b => b).length, "该种手牌数量不足"];
                     }
-                    break;
-                case HSSLStatus.Over:
                     break;
             }
         }
-        return false;
+        return [false, ""];
     }();
 
     const submitText = function () {
@@ -417,7 +444,7 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                     }
                 }()}
             </Paper>
-            <Tooltip title={"点击确认操作"} open={selectDone} arrow placement={"right"}>
+            <Tooltip title={selectDone ? "点击确认操作" : submitTooltip} open arrow placement={"right"}>
                 <Button variant={"outlined"}
                         onClick={() => current === mySeat && playing && myRole === "play" && selectDone && props.game.submit()}
                         disabled={current === mySeat && playing && myRole === "play" && !selectDone}>
