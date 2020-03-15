@@ -5,7 +5,6 @@ import {LogPlugin} from "../../common/model/plugins/log";
 import {SocketPlugin} from "../../common/model/plugins/plugin";
 import {MultiPlayerMessage} from "../../common/model/multi-player/message";
 import {SimpleProperty} from "xdean-util";
-import {Simulate} from "react-dom/test-utils";
 
 const HSSLTopic = {
     info: "hssl-info",
@@ -89,11 +88,15 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                     if (this.board.selected.boat1.value === -1) {
                         this.sender.send(HSSLTopic.skip);
                     } else {
+                        let good2 = this.board.selected.good2.value;
+                        if (good2 === -1 && this.board.selected.boat2.value !== -1) {
+                            good2 = this.board.selected.good1.value;
+                        }
                         this.sender.send(HSSLTopic.swap, {
                             index1: this.board.selected.boat1.value,
                             card1: this.board.selected.good1.value,
                             index2: this.board.selected.boat2.value,
-                            card2: this.board.selected.good2.value,
+                            card2: good2,
                         });
                         this.board.selected.boat1.value = -1;
                         this.board.selected.good1.value = -1;
@@ -208,6 +211,9 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                     };
                     if (data.item === HSSLItem.Boat) {
                         players[data.seat].boats.push(data.card);
+                        this.board.goods.update(goods => {
+                            goods[data.card]--;
+                        })
                     } else {
                         players[data.seat].items[data.item] = true;
                         this.board.items.update(items => {
@@ -241,7 +247,12 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                     });
                 });
                 this.board.players.update(players => {
-                    players[data.seat].hand[data.card] -= data.dest.filter((b: any) => b).length;
+                    let used = data.dest.filter((b: any) => b).length;
+                    players[data.seat].hand[data.card] -= used;
+                    players[data.seat] = {
+                        ...players[data.seat],
+                        handCount: players[data.seat].handCount - used,
+                    };
                     players.forEach(((player, index) => {
                         let revenue = player.boats.filter(c => c === data.card).length * this.board.board.value.filter(c => c === data.card).length;
                         if (revenue !== 0 && player.items[HSSLItem.GuanShui]) {
@@ -299,5 +310,5 @@ export class HSSLPlayer {
     readonly handCount: number = 0;
     readonly hand: number[] = new Array(6).fill(0);
     readonly items: boolean[] = new Array(3).fill(false);
-    readonly points: number = -1
+    readonly points: number = 0
 }

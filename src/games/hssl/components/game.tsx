@@ -18,6 +18,7 @@ const useStyles = makeStyles<typeof AppTheme & typeof HSSLTheme>(theme => create
         position: "relative",
         display: "grid",
         gridRowGap: theme.spacing(1),
+        gridColumnGap: theme.spacing(1),
         [theme.breakpoints.down('md')]: {
             gridTemplateColumns: "minmax(250px, 2fr) minmax(auto, 5fr)",
             padding: theme.spacing(1, 1),

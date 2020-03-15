@@ -7,6 +7,13 @@ import boat from "./resources/items/boat.jpg";
 import banyun from "./resources/items/banyun.jpg";
 import biyue from "./resources/items/biyue.jpg";
 import {createMuiTheme} from "@material-ui/core";
+import card0 from "./resources/cards/card0.jpg"
+import card1 from "./resources/cards/card1.jpg"
+import card2 from "./resources/cards/card2.jpg"
+import card3 from "./resources/cards/card3.jpg"
+import card4 from "./resources/cards/card4.jpg"
+import card5 from "./resources/cards/card5.jpg"
+
 
 export const HSSLTheme = {
     cardStyle: cardStyle,
@@ -24,7 +31,7 @@ export type HSSLCardStyle = {
         secondary: Color
         font: Color
     }
-    card: CSSProperties
+    image: string,
 }
 
 function cardStyle(card: HSSLCard): HSSLCardStyle {
@@ -32,82 +39,67 @@ function cardStyle(card: HSSLCard): HSSLCardStyle {
         case 0:
             return {
                 name: "矿石",
-                card: {
-                    background: "#222",
-                },
+                image: card0,
                 color: {
-                    primary: "#222",
-                    secondary: "#777",
+                    primary: "#24272e",
+                    secondary: "#84878e",
                     font: "#fff",
                 },
             };
         case 1:
             return {
                 name: "琉璃",
-                card: {
-                    background: "#f00",
-                },
+                image: card1,
                 color: {
-                    primary: "#f00",
-                    secondary: "#d00",
+                    primary: "#dd3f40",
+                    secondary: "#fd5f60",
                     font: "#fff",
                 },
             };
         case 2:
             return {
                 name: "丝绸",
-                card: {
-                    background: "#f0f",
-                },
+                image: card2,
                 color: {
-                    primary: "#f0f",
-                    secondary: "#d0d",
+                    primary: "#c669c2",
+                    secondary: "#e689e2",
                     font: "#fff",
                 },
             };
         case 3:
             return {
                 name: "瓷器",
-                card: {
-                    background: "#dee",
-                },
+                image: card3,
                 color: {
-                    primary: "#dee",
-                    secondary: "#bcc",
+                    primary: "#e5eef3",
+                    secondary: "#c7d2d4",
                     font: "#000",
                 },
             };
         case 4:
             return {
                 name: "香料",
-                card: {
-                    background: "#ff0",
-                },
+                image: card4,
                 color: {
-                    primary: "#ff0",
-                    secondary: "#aa0",
+                    primary: "#ebd356",
+                    secondary: "#dba306",
                     font: "#000",
                 },
             };
         case 5:
             return {
                 name: "茶叶",
-                card: {
-                    background: "#2d2",
-                },
+                image: card5,
                 color: {
-                    primary: "#2d2",
-                    secondary: "#282",
+                    primary: "#68d576",
+                    secondary: "#508c68",
                     font: "#000",
                 },
             };
         case -1:
             return {
                 name: "",
-                card: {
-                    backgroundImage: `url(${bg})`,
-                    backgroundSize: "cover",
-                },
+                image: bg,
                 color: {
                     primary: "#0000",
                     secondary: "#0000",

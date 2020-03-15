@@ -21,7 +21,7 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
         display: "grid",
         gridTemplateColumns: "repeat(4, auto)",
         gridTemplateRows: "repeat(3, auto)",
-        gridColumnGap: theme.spacing(3),
+        gridColumnGap: theme.spacing(1.5),
         gridRowGap: theme.spacing(0.5),
         justifyItems: "center",
         alignItems: "center",
@@ -44,6 +44,8 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
         display: "grid",
         gridTemplateRows: "32px repeat(2, auto)",
         gridTemplateColumns: "repeat(3, auto)",
+        gridColumnGap: theme.spacing(1),
+        gridRowGap: theme.spacing(0.5),
         justifyItems: "center",
         alignItems: "center",
         border: "black solid 1px",
@@ -53,7 +55,9 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     boardTitle: {
         gridColumnStart: "span 3",
     },
-    boardCard: {},
+    boardCard: {
+        padding: theme.spacing(0.25),
+    },
     items: {
         gridRowStart: "span 3",
         alignSelf: "stretch",
@@ -255,7 +259,7 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                     }
                     if (selected.good1 !== -1 || selected.boat1 !== -1) {
                         return selected.good1 !== -1 && selected.boat1 !== -1 &&
-                            ((selected.good2 === -1) === (selected.boat2 === -1))
+                            ((selected.good2 !== -1 || goods[selected.good1] > 1) === (selected.boat2 !== -1))
                     }
                     return true;
                 case HSSLStatus.DrawPlay:

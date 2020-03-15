@@ -39,7 +39,7 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     },
     // play
     root: {
-        width: 340,
+        minWidth: 340,
         height: 180,
         padding: theme.spacing(0.5),
         display: "grid",
@@ -105,8 +105,8 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
         justifyContent: "center",
     },
     boatButton: {
-        height: 92,
-        width: 60,
+        height: 77,
+        width: 50,
         ...theme.itemStyle(HSSLItem.Boat).card,
         backgroundSize: "contain",
         backgroundRepeat: "no-repeat",
@@ -282,7 +282,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
             </Box>
             <Box className={classes.items}>
                 <Chip icon={<MonetizationOnOutlinedIcon/>}
-                      label={gamePlayer.points === -1 ? "未知" : gamePlayer.points} variant={"outlined"} size={"small"}/>
+                      label={props.seat !== mySeat && myRole === "play" ? "未知" : gamePlayer.points} variant={"outlined"} size={"small"}/>
                 {HSSLSpecialItems.map((item, index) => (
                     <Chip label={HSSLTheme.itemStyle(item).name} variant={"outlined"} size={"small"}
                           disabled={!gamePlayer.items[item]} clickable key={index}/>

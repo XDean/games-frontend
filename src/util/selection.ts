@@ -14,7 +14,7 @@ export function windowMove<T>(newValue: T, oldValues: T[], zeroValue: T): T[] {
             res[zeroIndex] = newValue;
         }
     } else {
-        res = res.splice(newIndex, 1);
+        res.splice(newIndex, 1);
         res.push(zeroValue);
     }
     return res
