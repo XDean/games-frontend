@@ -146,7 +146,7 @@ const App: React.FunctionComponent = () => {
                                 {ctx.id && <Chip
                                     label={ctx.id}
                                     clickable
-                                    style={{marginLeft: 15, color: grey[300], borderColor: grey[300]}}
+                                    style={{marginLeft: 15}}
                                     variant="outlined"
                                     onClick={e => setIdAnchor(e.currentTarget)}
                                 />}

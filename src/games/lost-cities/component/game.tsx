@@ -191,7 +191,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
             </Snackbar>}
             {showHelp &&
             <Dialog open onClose={() => setShowHelp(false)} style={{zIndex: 9999}}>
-                <LCHelpView/>
+                <LCHelpView onClose={() => setShowHelp(false)}/>
             </Dialog>}
             {showScore &&
             <Dialog open onClose={() => setShowScore(false)} style={{zIndex: 9999}}>
@@ -263,7 +263,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                                         }
                                     } else if (over && !myPlayer.ready) {
                                         return "游戏结束";
-                                    } else if(!myPlayer.ready){
+                                    } else if (!myPlayer.ready) {
                                         return "等待所有玩家准备"
                                     } else if (myPlayer.host) {
                                         return myPlayer.ready && otherPlayer.ready ? "所有玩家已就绪" : "等待其他玩家准备";
@@ -274,7 +274,7 @@ const LCGameView: React.FunctionComponent<LCGameProp> = (props) => {
                             </Paper>
                             {!playing && !myPlayer.ready &&
                             <Button onClick={() => props.game.host.ready()} variant={"outlined"}>
-                                {over?"再来一局":"点击准备"}
+                                {over ? "再来一局" : "点击准备"}
                             </Button>}
                             {!playing && myPlayer.host && myPlayer.ready && otherPlayer.ready &&
                             <Button onClick={() => props.game.host.startGame()} variant={"outlined"}>

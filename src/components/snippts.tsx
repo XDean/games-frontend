@@ -13,7 +13,6 @@ export function ShareRoom(props: { id: string }) {
         <Chip
             label={`房间号: ${props.id}`}
             clickable
-            style={{color: grey[300], borderColor: grey[300]}}
             variant="outlined"
         />
     )

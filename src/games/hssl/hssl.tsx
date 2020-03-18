@@ -12,6 +12,7 @@ import GameCard from "../../board/gameCard";
 import ConnectCreateJoinView from "../common/component/connectCreateJoin";
 import {HSSLGame} from "./model/game";
 import {HSSLTheme} from "./theme";
+import Chip from "@material-ui/core/Chip";
 
 export const HSSLBoardCard = () => {
     const [showHelp, setShowHelp] = useState(false);
@@ -34,12 +35,23 @@ export const HSSLBoardCard = () => {
 
 export const HSSLHeadView = () => {
     const {path} = useRouteMatch();
+
+    const [showHelp, setShowHelp] = useState(false);
+
     return (
-        <Switch>
-            <Route path={`${path}/:id`}>
-                <ShareRoomIcon/>
-            </Route>
-        </Switch>
+        <React.Fragment>
+            {showHelp && <Dialog open onClose={() => setShowHelp(false)}>
+                <HSSLHelpView onClose={() => setShowHelp(false)}/>
+            </Dialog>}
+            <Chip label={"帮助"} clickable variant="outlined" style={{marginRight:15}}
+                  onClick={() => setShowHelp(true)}
+            />
+            <Switch>
+                <Route path={`${path}/:id`}>
+                    <ShareRoomIcon/>
+                </Route>
+            </Switch>
+        </React.Fragment>
     )
 };
 

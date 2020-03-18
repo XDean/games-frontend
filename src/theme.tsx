@@ -3,13 +3,21 @@ import {MsOverflowStyleProperty} from "csstype";
 
 export const AppTheme = {
     ...createMuiTheme({
-        zIndex:{
-
-        },
+        zIndex: {},
         props: {
             MuiToolbar: {
                 variant: 'dense',
             },
+        },
+        overrides: {
+            MuiChip: {
+                root: {
+                    color: "inherit",
+                },
+                outlined:{
+                    borderColor: "inherit",
+                }
+            }
         }
     }),
     ...{
