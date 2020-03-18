@@ -1,12 +1,13 @@
 import React from 'react';
 import {createStyles, makeStyles} from '@material-ui/core/styles';
-import {Divider, Paper, Typography} from "@material-ui/core";
+import {Divider, Link, Paper, Typography} from "@material-ui/core";
 import {faHandshake} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {LCTheme} from "../theme";
 import {LCCardColor, LCCardColors} from "../model/card";
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
+import Rating from "@material-ui/lab/Rating";
 
 const useStyles = makeStyles(theme => createStyles({
     title: {
@@ -59,13 +60,16 @@ const LCHelpView: React.FunctionComponent<LCHelpProp> = (props) => {
                     人数： 2人
                 </Typography>
                 <Typography>
-                    时间： 10~20分钟
+                    时间： 10 ~ 20分钟
                 </Typography>
                 <Typography>
-                    量级： 轻中
+                    难度：<Rating name={"score"} value={1.5} precision={0.01} style={{verticalAlign: "middle"}}/>
                 </Typography>
-                <Typography paragraph>
-                    机制： 组合收集/手牌管理
+                <Typography>
+                    作者：
+                    <Link href="https://boardgamegeek.com/boardgamedesigner/2/reiner-knizia" target={"_blank"}>
+                        Reiner Knizia
+                    </Link>
                 </Typography>
                 <Typography paragraph>
                     游戏中玩家扮演一支探险队，对五个曾经繁荣却突然没落的古文明城市进行探索。
