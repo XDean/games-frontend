@@ -5,13 +5,13 @@ import {HSSLTheme} from "../theme";
 
 const useStyles = makeStyles<typeof HSSLTheme, HSSLItemProp>(theme => createStyles({
     item: props => ({
-        height: 55,
-        width: 36,
+        minHeight: 55,
+        minWidth: 36,
         borderRadius: 5,
         borderWidth: 1,
         borderStyle: "solid",
         backgroundSize: "cover",
-        ...theme.itemStyle(props.item).card,
+        backgroundImage: `url(${theme.itemStyle(props.item).image})`,
     }),
 }));
 

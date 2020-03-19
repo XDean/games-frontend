@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
-import {Box, Button, Paper, Tooltip} from "@material-ui/core";
+import {Box, Button, IconButton, Paper, Tooltip} from "@material-ui/core";
 import {HSSLCard, HSSLCards, HSSLGame, HSSLItem, HSSLItems, HSSLStatus, ItemCost} from "../model/game";
 import HSSLCubeView from "./cube";
 import {useStateByProp} from "../../../util/property";
@@ -12,6 +12,7 @@ import HSSLDeckView from "./deck";
 import {HSSLTheme} from "../theme";
 import {windowMove} from "../../../util/selection";
 import {ifClass} from "../../../util/css";
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
 const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     root: {
@@ -133,6 +134,8 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
         board: useStateByProp(props.game.board.selected.board),
         hand: useStateByProp(props.game.board.selected.hand),
     };
+
+    const [showStoreHelp, setShowStoreHelp] = useState(false);
 
     // Goods
     const goodsTooltip = function () {
@@ -387,25 +390,64 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 <Tooltip title={itemsTooltip} placement={"left"} arrow open>
                     <Typography variant="h5">
                         商店
+                        <IconButton size={"small"} onClick={() => setShowStoreHelp(b => !b)}>
+                            <HelpOutlineIcon fontSize={"small"} style={{verticalAlign: "middle"}}/>
+                        </IconButton>
                     </Typography>
                 </Tooltip>
                 {HSSLItems.map((item, i) => (
-                    <Button key={i} className={classes.goodCard + ifClass(selected.item === item, classes.selected)}
-                            onClick={() => onItemClick(item)}>
-                        <HSSLItemView item={item}/>
-                        <Box className={classes.itemDetails}>
-                            <Box className={classes.itemName}>
-                                {HSSLTheme.itemStyle(item).name}
-                            </Box>
+                    <Tooltip key={i} title={function () {
+                        let style = HSSLTheme.itemStyle(item);
+                        return <Box style={{width: "min-content"}}>
                             <Box>
-                                ✖
+                                <img src={style.image} alt={"item"} width={120}/>
                             </Box>
-                            {item === HSSLItem.Boat ? <AllInclusiveIcon style={{fontSize: "14px"}}/> :
-                                <Box style={{fontSize: "14px"}}>
-                                    {items[item]}
-                                </Box>}
+                            <Typography>
+                                {style.name} ({ItemCost(item)}金币)<br/>
+                                {function () {
+                                    switch (item) {
+                                        case HSSLItem.Boat:
+                                            return "购买的同时你需要选择货物装船";
+                                        case HSSLItem.GuanShui:
+                                            return "每次获得金币时额外获得2枚";
+                                        case HSSLItem.BanYun:
+                                            return "换货阶段可以换两船货，购买后可立即换一船货";
+                                        default:
+                                            return "回合结束时可额外抽一张牌";
+                                    }
+                                }()}
+                            </Typography>
                         </Box>
-                    </Button>
+                    }()} placement={function () {
+                        switch (i) {
+                            case 0:
+                                return "left-end";
+                            case 1:
+                                return "right-end";
+                            case 2:
+                                return "left-start";
+                            default:
+                                return "right-start";
+                        }
+                    }()} arrow open={showStoreHelp}
+                             onClose={() => setShowStoreHelp(false)} interactive>
+                        <Button className={classes.goodCard + ifClass(selected.item === item, classes.selected)}
+                                onClick={() => onItemClick(item)}>
+                            <HSSLItemView item={item}/>
+                            <Box className={classes.itemDetails}>
+                                <Box className={classes.itemName}>
+                                    {HSSLTheme.itemStyle(item).name}
+                                </Box>
+                                <Box>
+                                    ✖
+                                </Box>
+                                {item === HSSLItem.Boat ? <AllInclusiveIcon style={{fontSize: "14px"}}/> :
+                                    <Box style={{fontSize: "14px"}}>
+                                        {items[item]}
+                                    </Box>}
+                            </Box>
+                        </Button>
+                    </Tooltip>
                 ))}
             </Box>
             <Box className={classes.deck}>

@@ -1,5 +1,4 @@
 import {HSSLCard, HSSLItem} from "./model/game";
-import {CSSProperties} from "react";
 import {Color} from "csstype";
 import bg from "./resources/cards/bg.jpg"
 import guanshui from "./resources/items/guanshui.jpg";
@@ -111,7 +110,7 @@ function cardStyle(card: HSSLCard): HSSLCardStyle {
 
 export type HSSLItemStyle = {
     name: string
-    card: CSSProperties
+    image: string
 }
 
 function itemStyle(item: HSSLItem): HSSLItemStyle {
@@ -119,30 +118,22 @@ function itemStyle(item: HSSLItem): HSSLItemStyle {
         case HSSLItem.GuanShui:
             return {
                 name: "通行证",
-                card: {
-                    backgroundImage: `url(${guanshui})`,
-                },
+                image: guanshui,
             };
         case HSSLItem.BanYun:
             return {
                 name: "搬运工",
-                card: {
-                    backgroundImage: `url(${banyun})`,
-                },
+                image: banyun,
             };
         case HSSLItem.BiYue:
             return {
                 name: "交易所",
-                card: {
-                    backgroundImage: `url(${biyue})`,
-                },
+                image: biyue,
             };
         case HSSLItem.Boat:
             return {
                 name: "货船",
-                card: {
-                    backgroundImage: `url(${boat})`,
-                },
+                image: boat,
             };
     }
 }

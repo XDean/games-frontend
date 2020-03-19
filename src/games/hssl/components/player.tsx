@@ -107,7 +107,7 @@ const useStyles = makeStyles<typeof HSSLTheme & Theme>(theme => createStyles({
     boatButton: {
         height: 77,
         width: 50,
-        ...theme.itemStyle(HSSLItem.Boat).card,
+        backgroundImage: `url(${theme.itemStyle(HSSLItem.Boat).image})`,
         backgroundSize: "contain",
         backgroundRepeat: "no-repeat",
         minWidth: 0,
