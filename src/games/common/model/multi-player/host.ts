@@ -1,7 +1,16 @@
 import {SimpleProperty} from "xdean-util";
 import {EmptyTopicSender, SocketInit, SocketTopicHandler, SocketTopicSender} from "../socket";
 import {LogPlugin} from "../plugins/log";
-import {HostMessage, JoinMessage, MultiPlayerMessage, ReadyMessage, SwapSeatMessage, WatchMessage} from "./message";
+import {
+    ConnectMessage,
+    HostMessage,
+    JoinMessage,
+    MultiPlayerMessage,
+    ReadyMessage,
+    SwapSeatMessage,
+    WatchMessage
+} from "./message";
+import MultiPlayerTopics from "./topic";
 
 export type MultiPlayerRole = "none" | "not-determined" | "play" | "watch";
 
@@ -40,28 +49,28 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
     };
 
     joinGame = () => {
-        this.sender.send("join");
+        this.sender.send(MultiPlayerTopics.Join);
     };
 
     watchGame = () => {
-        this.sender.send("watch")
+        this.sender.send(MultiPlayerTopics.Watch)
     };
 
     swapSeat = (targetSeat: number) => {
-        this.sender.send("swap-seat", {target: targetSeat});
+        this.sender.send(MultiPlayerTopics.Swap, {target: targetSeat});
     };
 
     ready = (ready: boolean = true) => {
-        this.sender.send("ready", ready);
+        this.sender.send(MultiPlayerTopics.Ready, ready);
     };
 
     startGame = () => {
-        this.sender.send("game-start", true);
+        this.sender.send(MultiPlayerTopics.Start, true);
     };
 
     init = (sender: SocketTopicSender) => {
         sender.send("connect-info");
-        sender.send("room-info");
+        sender.send(MultiPlayerTopics.Info);
         this.sender = sender;
     };
 
@@ -72,11 +81,13 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 break;
             case "connect":
                 this.updateConnected(data, true);
+                this.log.log(new ConnectMessage(data, true))
                 break;
             case "disconnect":
                 this.updateConnected(data, false);
+                this.log.log(new ConnectMessage(data, false))
                 break;
-            case "room-info":
+            case MultiPlayerTopics.Info:
                 this.playing.value = data.playing;
                 if (data.playing) {
                     this.log.log(HostMessage.CONTINUE)
@@ -104,7 +115,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                     this.myRole.value = "not-determined"
                 }
                 break;
-            case "join":
+            case MultiPlayerTopics.Join:
                 if (data.id === this.myId) {
                     this.myRole.value = "play";
                     this.mySeat.value = data.seat;
@@ -114,7 +125,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 });
                 this.log.log(new JoinMessage(data.id));
                 break;
-            case "watch":
+            case MultiPlayerTopics.Watch:
                 if (data.id === this.myId) {
                     this.myRole.value = "watch";
                     this.mySeat.value = 0;
@@ -124,7 +135,7 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 });
                 this.log.log(new WatchMessage(data.id));
                 break;
-            case "ready":
+            case MultiPlayerTopics.Ready:
                 this.players.update(ps => {
                     ps[data.seat] = {
                         ...ps[data.seat],
@@ -133,16 +144,16 @@ export class MultiPlayerBoard implements SocketTopicHandler, SocketInit {
                 });
                 this.log.log(new ReadyMessage(data.id, data.ready));
                 break;
-            case "game-start":
+            case MultiPlayerTopics.Start:
                 this.playing.value = true;
                 this.log.log(HostMessage.START);
                 break;
-            case "game-over":
+            case MultiPlayerTopics.Over:
                 this.playing.value = false;
                 this.players.update(ps => ps.map(p => ({...p, ready: false})));
                 this.log.log(HostMessage.OVER);
                 break;
-            case "swap-seat":
+            case MultiPlayerTopics.Swap:
                 this.players.update(ps => {
                     this.log.log(new SwapSeatMessage(ps[data.from], ps[data.target]));
                     let p = ps[data.from];

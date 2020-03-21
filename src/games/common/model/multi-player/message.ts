@@ -1,6 +1,17 @@
 import {MultiGamePlayer} from "./host";
 
-export type MultiPlayerMessage = JoinMessage | WatchMessage | ReadyMessage | HostMessage | SwapSeatMessage
+export type MultiPlayerMessage =
+    ConnectMessage
+    | JoinMessage
+    | WatchMessage
+    | ReadyMessage
+    | HostMessage
+    | SwapSeatMessage
+
+export class ConnectMessage {
+    constructor(readonly  who: string, readonly connect: boolean) {
+    }
+}
 
 export class JoinMessage {
     constructor(readonly who: string) {

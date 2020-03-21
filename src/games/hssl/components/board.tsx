@@ -339,7 +339,6 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                                 break;
                             case HSSLStatus.Over:
                                 break;
-
                         }
                         return "确认操作";
                     } else {

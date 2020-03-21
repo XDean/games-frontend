@@ -1,6 +1,7 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import {
+    ConnectMessage,
     HostMessage,
     JoinMessage,
     MultiPlayerMessage,
@@ -22,6 +23,10 @@ const MultiPlayerMessageView: React.FunctionComponent<MultiPlayerMessageProp> = 
         return <Typography>
             [{msg.who}] 加入了游戏
         </Typography>
+    } else if (msg instanceof ConnectMessage) {
+        return <Typography>
+            [{msg.who}] {msg.connect ? "已连接" : "断开连接"}
+        </Typography>
     } else if (msg instanceof WatchMessage) {
         return <Typography>
             [{msg.who}] 开始旁观
@@ -32,7 +37,7 @@ const MultiPlayerMessageView: React.FunctionComponent<MultiPlayerMessageProp> = 
         </Typography>
     } else if (msg instanceof SwapSeatMessage) {
         return <Typography>
-            [{msg.from.id}] 与 {msg.to.isEmpty()?"空座位":`[${msg.to.id}]`} 交换了座位
+            [{msg.from.id}] 与 {msg.to.isEmpty() ? "空座位" : `[${msg.to.id}]`} 交换了座位
         </Typography>
     } else if (msg === HostMessage.START) {
         return <Typography>
