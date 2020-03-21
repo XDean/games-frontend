@@ -9,6 +9,13 @@ import {LogPlugin} from "../../common/model/plugins/log";
 import {SocketPlugin} from "../../common/model/plugins/plugin";
 import {MultiPlayerMessage} from "../../common/model/multi-player/message";
 import {LCDrawMessage, LCGameMessage, LCPlayMessage, LCScoreMessage} from "./message";
+import MultiPlayerTopics from "../../common/model/multi-player/topic";
+
+const LCTopic = {
+    Info: "lostcities-info",
+    Play: "lostcities-play",
+    Turn: "lostcities-turn",
+};
 
 export type LCPlayType = "none" | "play" | "drop"
 export type LCDrawType = "none" | "deck" | LCCardColor
@@ -50,7 +57,7 @@ export class LCGame implements SocketTopicHandler, SocketInit {
             return "";
         },
         submit: () => {
-            this.sender.send("play", {
+            this.sender.send(LCTopic.Play, {
                 card: (this.playInfo.card.value as LCCard).int,
                 drop: this.playInfo.playType.value === "drop",
                 deck: this.playInfo.drawType.value === "deck",
@@ -90,11 +97,10 @@ export class LCGame implements SocketTopicHandler, SocketInit {
             }
         });
         switch (topic) {
-            case "room-info":
-                this.sender.send("game-info");
+            case MultiPlayerTopics.Info:
+                this.sender.send(LCTopic.Info);
                 break;
-            case "game-info":
-            case "game-start":
+            case LCTopic.Info:
                 this.board.over.value = data.over;
                 this.board.current.value = data.current;
                 this.board.deck.value = data.deck;
@@ -102,7 +108,7 @@ export class LCGame implements SocketTopicHandler, SocketInit {
                 this.board.drop.value = data.drop.map((a: any) => a.map((b: any) => new LCCard(b)));
                 this.board.hand.value = data.hand.map((a: any) => a.map((b: any) => new LCCard(b)));
                 break;
-            case "play":
+            case LCTopic.Play:
                 let card = new LCCard(data.card);
                 let removePlayedCard = (hs: LCCards[]) => {
                     let hand = hs[data.seat];
@@ -146,10 +152,10 @@ export class LCGame implements SocketTopicHandler, SocketInit {
                     this.log.log(new LCDrawMessage(data.seat, dropColor, dropCard))
                 }
                 break;
-            case "turn":
+            case LCTopic.Turn:
                 this.board.current.value = data;
                 break;
-            case "game-over":
+            case MultiPlayerTopics.Over:
                 this.board.over.value = true;
                 this.log.log(new LCScoreMessage(this.host.players.value, this.board.calcScore()));
                 break;

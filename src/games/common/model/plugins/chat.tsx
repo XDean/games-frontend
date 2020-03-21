@@ -1,8 +1,11 @@
 import {SimpleProperty} from "xdean-util";
 import {EmptyTopicSender, SocketTopicSender} from "../socket";
-import React from "react";
 import {SocketPlugin} from "./plugin";
 
+export const ChatTopics = {
+    Message: "chat-message",
+    History: "chat-history",
+};
 
 export type ChatMessage = {
     who: string
@@ -15,23 +18,23 @@ export class ChatPlugin extends SocketPlugin {
 
     init = (sender: SocketTopicSender) => {
         this.sender = sender;
-        sender.send("chat-history");
+        sender.send(ChatTopics.History);
     };
 
     handle = (topic: string, data: any): void => {
-        if (topic === "chat") {
+        if (topic === ChatTopics.Message) {
             this.messages.update(msgs => {
                 msgs.push({
                     who: data.id,
                     content: data.text,
                 })
             })
-        } else if (topic === "chat-history") {
+        } else if (topic === ChatTopics.History) {
             this.messages.value = data.map((d: any) => ({who: d.id, content: d.text}))
         }
     };
 
     sendMessage = (msg: string) => {
-        this.sender.send("chat", msg);
+        this.sender.send(ChatTopics.Message, msg);
     }
 }
