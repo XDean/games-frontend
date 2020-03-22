@@ -347,10 +347,23 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
                 case "watch":
                     return "正在旁观";
             }
+        } else if (status === HSSLStatus.Over) {
+            return "再来一局";
         } else {
             return "等待游戏开始";
         }
     }();
+
+    const onSubmitClick = () => {
+        if (myRole === "play") {
+            if (playing && current === mySeat && myRole === "play" && selectDone) {
+                props.game.submit();
+            }
+            if (!playing && status === HSSLStatus.Over) {
+                props.game.again();
+            }
+        }
+    };
 
     return (
         <Box className={classes.root}>
@@ -487,7 +500,7 @@ const HSSLBoardView: React.FunctionComponent<HSSLBoardProp> = (props) => {
             </Paper>
             <Tooltip title={selectDone ? "点击确认操作" : submitTooltip} open arrow placement={"right"}>
                 <Button variant={"outlined"}
-                        onClick={() => current === mySeat && playing && myRole === "play" && selectDone && props.game.submit()}
+                        onClick={onSubmitClick}
                         disabled={current === mySeat && playing && myRole === "play" && !selectDone}>
                     {submitText}
                 </Button>

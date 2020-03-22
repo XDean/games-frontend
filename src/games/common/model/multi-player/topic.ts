@@ -4,7 +4,7 @@ const MultiPlayerTopics = {
     Watch: "room-watch",
     Ready: "room-ready",
     Swap: "room-swap-seat",
-    Start: "room-game-over",
+    Start: "room-game-start",
     Over: "room-game-over",
 };
 

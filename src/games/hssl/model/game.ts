@@ -140,6 +140,10 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
         }
     };
 
+    again = () => {
+        this.board.reset();
+    };
+
     init = (sender: SocketTopicSender) => {
         this.sender = sender;
         this.host.init(sender);
@@ -319,7 +323,7 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                 });
                 this.log.log(new HSSLPlayMessage(data.seat, data.card, count, was,
                     this.board.players.value.map(player => player.items[HSSLItem.GuanShui]), revenues));
-                if(data.biyue){
+                if (data.biyue) {
                     this.log.log(new HSSLBiyueMessage(data.seat, data["biyue-card"] !== -1, data["biyue-card"]));
                 }
                 break;
@@ -359,6 +363,16 @@ export class HSSLBoard {
         hand: new SimpleProperty<HSSLCard>(-1),
         board: new SimpleProperty<boolean[]>(new Array(6).fill(false)),
         biyue: new SimpleProperty<boolean>(false),
+    };
+
+    reset = () => {
+        this.status.value = HSSLStatus.Set1;
+        this.current.value = -1;
+        this.deck.value = 66;
+        this.items.value = new Array(3).fill(2);
+        this.goods.value = new Array(6).fill(5);
+        this.board.value = new Array(6).fill(-1);
+        this.players.value = new Array(4).fill(new HSSLPlayer());
     };
 }
 
