@@ -8,6 +8,7 @@ import {
     HSSLBuyMessage,
     HSSLDrawMessage,
     HSSLMessage,
+    HSSLOverMessage,
     HSSLPlayMessage,
     HSSLSetMessage,
     HSSLSkipMessage,
@@ -17,7 +18,7 @@ import {
 import MultiPlayerMessageView from "../../common/component/multiPlayerMessage";
 import Typography from "@material-ui/core/Typography";
 import {HSSLTheme} from "../theme";
-import {Divider} from "@material-ui/core";
+import {Box, Divider} from "@material-ui/core";
 
 const useStyles = makeStyles({});
 
@@ -88,6 +89,21 @@ const HSSLMessageView: React.FunctionComponent<HSSLMessageProp> = (props) => {
         if (msg.wasSeat !== msg.seat) {
             return <Divider variant={"fullWidth"}/>
         }
+    } else if (msg instanceof HSSLOverMessage) {
+
+        return (
+            <React.Fragment>
+                <Divider variant={"fullWidth"}/>
+                最终得分为：
+                    {msg.players.filter(p => !p.isEmpty()).map((player, index) => (
+                        <Box style={{marginLeft: 15}} key={index}>
+                        [{player.id}]: {msg.points[index]} 金币
+                        </Box>
+                    ))}
+                胜利者为：{msg.getWinners().map(winner => `[${winner}]`)}
+                <Divider variant={"fullWidth"}/>
+            </React.Fragment>
+        )
     }
     return <MultiPlayerMessageView message={msg as MultiPlayerMessage}/>
 };

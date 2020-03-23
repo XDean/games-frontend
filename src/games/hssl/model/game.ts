@@ -10,6 +10,7 @@ import {
     HSSLBiyueMessage,
     HSSLBuyMessage,
     HSSLDrawMessage,
+    HSSLOverMessage,
     HSSLPlayMessage,
     HSSLSetMessage,
     HSSLSkipMessage,
@@ -189,6 +190,10 @@ export class HSSLGame implements SocketTopicHandler, SocketInit {
                         };
                     });
                 });
+                if (this.board.status.value === HSSLStatus.Over) {
+                    this.log.log(new HSSLOverMessage(this.host.players.value.slice(),
+                        this.board.players.value.map(player => player.points)))
+                }
                 break;
             case HSSLTopic.status:
                 this.log.log(new HSSLStatusMessage(data.current, data.status, this.board.current.value));

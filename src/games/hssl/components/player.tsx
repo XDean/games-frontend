@@ -285,13 +285,13 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
             </Box>
             <Box className={classes.items}>
                 <Chip icon={<MonetizationOnOutlinedIcon/>}
-                      label={props.seat !== mySeat && myRole === "play" ? "未知" : gamePlayer.points} variant={"outlined"}
-                      size={"small"}/>
+                      label={props.seat !== mySeat && myRole === "play" && status !== HSSLStatus.Over ? "未知" : gamePlayer.points}
+                      variant={"outlined"} size={"small"}/>
                 {HSSLSpecialItems.map((item, index) => (
                     <Tooltip title={"点击开启交易所"} key={index} arrow placement={"left"}
-                             open={item === HSSLItem.BiYue &&canBiYue && !selected.biyue && status === HSSLStatus.DrawPlay}>
+                             open={item === HSSLItem.BiYue && canBiYue && !selected.biyue && status === HSSLStatus.DrawPlay}>
                         <Chip label={HSSLTheme.itemStyle(item).name} variant={"outlined"} size={"small"}
-                              className={ifClass(item === HSSLItem.BiYue &&canBiYue && selected.biyue, classes.selected)}
+                              className={ifClass(item === HSSLItem.BiYue && canBiYue && selected.biyue, classes.selected)}
                               disabled={!gamePlayer.items[item]} clickable={item === HSSLItem.BiYue}
                               onClick={item === HSSLItem.BiYue ? (() => {
                                   props.game.board.selected.biyue.update(b => !b)
@@ -299,7 +299,7 @@ const HSSLPlayerView: React.FunctionComponent<HSSLPlayerProp> = (props) => {
                     </Tooltip>
                 ))}
             </Box>
-            {props.seat !== mySeat && myRole === "play"
+            {props.seat !== mySeat && myRole === "play" && status !== HSSLStatus.Over
                 ? <Box className={classes.handUnknown}>{tag("手牌: " + gamePlayer.handCount)}</Box>
                 : <Tooltip title={handTooltip} open arrow placement={"top"}>
                     <Box className={classes.hand}>

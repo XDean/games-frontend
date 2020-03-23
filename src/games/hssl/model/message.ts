@@ -1,5 +1,6 @@
 import {MultiPlayerMessage} from "../../common/model/multi-player/message";
 import {HSSLCard, HSSLItem, HSSLStatus} from "./game";
+import {MultiGamePlayer} from "../../common/model/multi-player/host";
 
 export type HSSLMessage =
     string
@@ -13,6 +14,7 @@ export type HSSLMessage =
     | HSSLDrawMessage
     | HSSLBiyueMessage
     | HSSLStatusMessage
+    | HSSLOverMessage
 
 export class HSSLSetMessage {
     constructor(readonly seat: number,
@@ -77,5 +79,24 @@ export class HSSLStatusMessage {
     constructor(readonly seat: number,
                 readonly status: HSSLStatus,
                 readonly wasSeat: number) {
+    }
+}
+
+export class HSSLOverMessage {
+    constructor(
+        readonly players: MultiGamePlayer[],
+        readonly points: number[],
+    ) {
+    }
+
+    getWinners = () => {
+        let winners: string[] = [];
+        let max = this.points.reduce((a, b) => a > b ? a : b, 0);
+        this.points.forEach((point, index) => {
+            if (point === max) {
+                winners.push(this.players[index].id)
+            }
+        });
+        return winners
     }
 }
